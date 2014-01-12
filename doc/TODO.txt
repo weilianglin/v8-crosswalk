@@ -1,0 +1,9 @@
+1. To support the Moved constructors into SIMD module
+2. Bit operations on float32x4
+3. Handle NaN and Infinity for the float32x4
+4. Register allocator optimization: hinting the result and first operand use the
+same register when their representations are different
+5. Chromium or Crosswalk or Node-webkit integration for visual benchmark
+6. DataView for Float32x4 and Int32x4
+7. Alignment, use movaps for heap (allocation), stack (spilling) and external array
+8. Add Float32x4 and Int32x4 object into JsonStrignifier (construct a float32x4 object from JSON string)

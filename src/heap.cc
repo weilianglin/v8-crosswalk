@@ -2779,6 +2779,16 @@ bool Heap::CreateInitialMaps() {
   }
   set_heap_number_map(Map::cast(obj));
 
+  { MaybeObject* maybe_obj = AllocateMap(FLOAT32x4_TYPE, Float32x4::kSize);
+    if (!maybe_obj->ToObject(&obj)) return false;
+  }
+  set_float32x4_map(Map::cast(obj));
+
+  { MaybeObject* maybe_obj = AllocateMap(INT32x4_TYPE, Int32x4::kSize);
+    if (!maybe_obj->ToObject(&obj)) return false;
+  }
+  set_int32x4_map(Map::cast(obj));
+
   { MaybeObject* maybe_obj = AllocateMap(SYMBOL_TYPE, Symbol::kSize);
     if (!maybe_obj->ToObject(&obj)) return false;
   }
@@ -2881,6 +2891,18 @@ bool Heap::CreateInitialMaps() {
   }
   set_external_float_array_map(Map::cast(obj));
 
+  { MaybeObject* maybe_obj = AllocateMap(EXTERNAL_FLOAT32x4_ARRAY_TYPE,
+                                         ExternalArray::kAlignedSize);
+    if (!maybe_obj->ToObject(&obj)) return false;
+  }
+  set_external_float32x4_array_map(Map::cast(obj));
+
+  { MaybeObject* maybe_obj = AllocateMap(EXTERNAL_INT32x4_ARRAY_TYPE,
+                                         ExternalArray::kAlignedSize);
+    if (!maybe_obj->ToObject(&obj)) return false;
+  }
+  set_external_int32x4_array_map(Map::cast(obj));
+
   { MaybeObject* maybe_obj =
         AllocateMap(FIXED_ARRAY_TYPE, kVariableSizeSentinel);
     if (!maybe_obj->ToObject(&obj)) return false;
@@ -2930,6 +2952,18 @@ bool Heap::CreateInitialMaps() {
     if (!maybe_obj->ToObject(&obj)) return false;
   }
   set_empty_external_float_array(ExternalArray::cast(obj));
+
+  { MaybeObject* maybe_obj =
+        AllocateEmptyExternalArray(kExternalFloat32x4Array);
+    if (!maybe_obj->ToObject(&obj)) return false;
+  }
+  set_empty_external_float32x4_array(ExternalArray::cast(obj));
+
+  { MaybeObject* maybe_obj =
+        AllocateEmptyExternalArray(kExternalInt32x4Array);
+    if (!maybe_obj->ToObject(&obj)) return false;
+  }
+  set_empty_external_int32x4_array(ExternalArray::cast(obj));
 
   { MaybeObject* maybe_obj = AllocateEmptyExternalArray(kExternalDoubleArray);
     if (!maybe_obj->ToObject(&obj)) return false;
@@ -3065,6 +3099,44 @@ MaybeObject* Heap::AllocateHeapNumber(double value, PretenureFlag pretenure) {
 
   HeapObject::cast(result)->set_map_no_write_barrier(heap_number_map());
   HeapNumber::cast(result)->set_value(value);
+  return result;
+}
+
+
+MaybeObject* Heap::AllocateFloat32x4(float32x4_value_t value,
+                                     PretenureFlag pretenure) {
+  // Statically ensure that it is safe to allocate float32x4 objects in paged
+  // spaces.
+  int size = Float32x4::kSize;
+  STATIC_ASSERT(Float32x4::kSize <= Page::kNonCodeObjectAreaSize);
+  AllocationSpace space = (pretenure == TENURED) ? OLD_DATA_SPACE : NEW_SPACE;
+
+  Object* result;
+  { MaybeObject* maybe_result = AllocateRaw(size, space, OLD_DATA_SPACE);
+    if (!maybe_result->ToObject(&result)) return maybe_result;
+  }
+
+  HeapObject::cast(result)->set_map_no_write_barrier(float32x4_map());
+  Float32x4::cast(result)->set_value(value);
+  return result;
+}
+
+
+MaybeObject* Heap::AllocateInt32x4(int32x4_value_t value,
+                                    PretenureFlag pretenure) {
+  // Statically ensure that it is safe to allocate int32x4 objects in paged
+  // spaces.
+  int size = Int32x4::kSize;
+  STATIC_ASSERT(Int32x4::kSize <= Page::kNonCodeObjectAreaSize);
+  AllocationSpace space = (pretenure == TENURED) ? OLD_DATA_SPACE : NEW_SPACE;
+
+  Object* result;
+  { MaybeObject* maybe_result = AllocateRaw(size, space, OLD_DATA_SPACE);
+    if (!maybe_result->ToObject(&result)) return maybe_result;
+  }
+
+  HeapObject::cast(result)->set_map_no_write_barrier(int32x4_map());
+  Int32x4::cast(result)->set_value(value);
   return result;
 }
 
@@ -3738,6 +3810,10 @@ Heap::RootListIndex Heap::RootIndexForExternalArrayType(
       return kExternalUnsignedIntArrayMapRootIndex;
     case kExternalFloatArray:
       return kExternalFloatArrayMapRootIndex;
+    case kExternalFloat32x4Array:
+      return kExternalFloat32x4ArrayMapRootIndex;
+    case kExternalInt32x4Array:
+      return kExternalInt32x4ArrayMapRootIndex;
     case kExternalDoubleArray:
       return kExternalDoubleArrayMapRootIndex;
     case kExternalPixelArray:
@@ -3766,6 +3842,10 @@ Heap::RootListIndex Heap::RootIndexForEmptyExternalArray(
       return kEmptyExternalUnsignedIntArrayRootIndex;
     case EXTERNAL_FLOAT_ELEMENTS:
       return kEmptyExternalFloatArrayRootIndex;
+    case EXTERNAL_FLOAT32x4_ELEMENTS:
+      return kEmptyExternalFloat32x4ArrayRootIndex;
+    case EXTERNAL_INT32x4_ELEMENTS:
+      return kEmptyExternalInt32x4ArrayRootIndex;
     case EXTERNAL_DOUBLE_ELEMENTS:
       return kEmptyExternalDoubleArrayRootIndex;
     case EXTERNAL_PIXEL_ELEMENTS:
