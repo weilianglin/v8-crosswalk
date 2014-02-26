@@ -1566,14 +1566,16 @@ class LLoadExternalArrayPointer V8_FINAL
 };
 
 
-class LLoadKeyed V8_FINAL : public LTemplateInstruction<1, 2, 0> {
+class LLoadKeyed V8_FINAL : public LTemplateInstruction<1, 2, 1> {
  public:
-  LLoadKeyed(LOperand* elements, LOperand* key) {
+  LLoadKeyed(LOperand* elements, LOperand* key, LOperand* temp) {
     inputs_[0] = elements;
     inputs_[1] = key;
+    temps_[0] = temp;
   }
   LOperand* elements() { return inputs_[0]; }
   LOperand* key() { return inputs_[1]; }
+  LOperand* temp() { return temps_[0]; }
   ElementsKind elements_kind() const {
     return hydrogen()->elements_kind();
   }
@@ -1598,19 +1600,32 @@ class LLoadKeyed V8_FINAL : public LTemplateInstruction<1, 2, 0> {
 };
 
 
+inline static bool ExternalArrayOpRequiresSpecialHandling(
+    ElementsKind elements_kind) {
+  return (elements_kind == EXTERNAL_FLOAT32x4_ELEMENTS ||
+      elements_kind == EXTERNAL_INT32x4_ELEMENTS ||
+      elements_kind == FLOAT32x4_ELEMENTS ||
+      elements_kind == INT32x4_ELEMENTS);
+}
+
+
 inline static bool ExternalArrayOpRequiresTemp(
     Representation key_representation,
     ElementsKind elements_kind) {
-  // Operations that require the key to be divided by two to be converted into
-  // an index cannot fold the scale operation into a load and need an extra
-  // temp register to do the work.
-  return key_representation.IsSmi() &&
-      (elements_kind == EXTERNAL_INT8_ELEMENTS ||
-       elements_kind == EXTERNAL_UINT8_ELEMENTS ||
-       elements_kind == EXTERNAL_UINT8_CLAMPED_ELEMENTS ||
-       elements_kind == UINT8_ELEMENTS ||
-       elements_kind == INT8_ELEMENTS ||
-       elements_kind == UINT8_CLAMPED_ELEMENTS);
+  // Operations that require the key to be scaled or divided by two to
+  // be converted into an index cannot fold the scale operation into a load
+  // and need an extra temp register to do the work.
+  return elements_kind == EXTERNAL_FLOAT32x4_ELEMENTS ||
+      elements_kind == EXTERNAL_INT32x4_ELEMENTS ||
+      elements_kind == FLOAT32x4_ELEMENTS ||
+      elements_kind == INT32x4_ELEMENTS ||
+      (key_representation.IsSmi() &&
+        (elements_kind == EXTERNAL_INT8_ELEMENTS ||
+         elements_kind == EXTERNAL_UINT8_ELEMENTS ||
+         elements_kind == EXTERNAL_UINT8_CLAMPED_ELEMENTS ||
+         elements_kind == UINT8_ELEMENTS ||
+         elements_kind == INT8_ELEMENTS ||
+         elements_kind == UINT8_CLAMPED_ELEMENTS));
 }
 
 
@@ -2207,12 +2222,13 @@ class LStoreNamedGeneric V8_FINAL : public LTemplateInstruction<0, 3, 0> {
 };
 
 
-class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 0> {
+class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 1> {
  public:
-  LStoreKeyed(LOperand* obj, LOperand* key, LOperand* val) {
+  LStoreKeyed(LOperand* obj, LOperand* key, LOperand* val, LOperand* temp) {
     inputs_[0] = obj;
     inputs_[1] = key;
     inputs_[2] = val;
+    temps_[0] = temp;
   }
 
   bool is_external() const { return hydrogen()->is_external(); }
@@ -2225,6 +2241,7 @@ class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 0> {
   LOperand* elements() { return inputs_[0]; }
   LOperand* key() { return inputs_[1]; }
   LOperand* value() { return inputs_[2]; }
+  LOperand* temp() { return temps_[0]; }
   ElementsKind elements_kind() const {
     return hydrogen()->elements_kind();
   }

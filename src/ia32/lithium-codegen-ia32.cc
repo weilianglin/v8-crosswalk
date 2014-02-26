@@ -3394,13 +3394,82 @@ void LCodeGen::DoAccessArgumentsAt(LAccessArgumentsAt* instr) {
 }
 
 
+void LCodeGen::DoDeferredFloat32x4ToTagged(LInstruction* instr) {
+  // TODO(3095996): Get rid of this. For now, we need to make the
+  // result register contain a valid pointer because it is already
+  // contained in the register pointer map.
+  Register reg = ToRegister(instr->result());
+  __ Set(reg, Immediate(0));
+
+  PushSafepointRegistersScope scope(this);
+  __ mov(esi, Operand(ebp, StandardFrameConstants::kContextOffset));
+  __ CallRuntimeSaveDoubles(Runtime::kAllocateFloat32x4);
+  RecordSafepointWithRegisters(
+      instr->pointer_map(), 0, Safepoint::kNoLazyDeopt);
+  __ StoreToSafepointRegisterSlot(reg, eax);
+}
+
+
+void LCodeGen::DoDeferredInt32x4ToTagged(LInstruction* instr) {
+  // TODO(3095996): Get rid of this. For now, we need to make the
+  // result register contain a valid pointer because it is already
+  // contained in the register pointer map.
+  Register reg = ToRegister(instr->result());
+  __ Set(reg, Immediate(0));
+
+  PushSafepointRegistersScope scope(this);
+  __ mov(esi, Operand(ebp, StandardFrameConstants::kContextOffset));
+  __ CallRuntimeSaveDoubles(Runtime::kAllocateInt32x4);
+  // Ensure that value in rax survives popping registers.
+  RecordSafepointWithRegisters(
+      instr->pointer_map(), 0, Safepoint::kNoLazyDeopt);
+  __ StoreToSafepointRegisterSlot(reg, eax);
+}
+
+
 void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
+  class DeferredFloat32x4ToTagged V8_FINAL : public LDeferredCode {
+    public:
+      DeferredFloat32x4ToTagged(LCodeGen* codegen,
+          LInstruction* instr,
+          const X87Stack& x87_stack)
+        : LDeferredCode(codegen, x87_stack), instr_(instr) { }
+      virtual void Generate() V8_OVERRIDE {
+        codegen()->DoDeferredFloat32x4ToTagged(instr_);
+      }
+      virtual LInstruction* instr() V8_OVERRIDE { return instr_; }
+    private:
+      LInstruction* instr_;
+  };
+
+  class DeferredInt32x4ToTagged V8_FINAL : public LDeferredCode {
+   public:
+    DeferredInt32x4ToTagged(LCodeGen* codegen,
+                             LInstruction* instr,
+                             const X87Stack& x87_stack)
+        : LDeferredCode(codegen, x87_stack), instr_(instr) { }
+    virtual void Generate() V8_OVERRIDE {
+      codegen()->DoDeferredInt32x4ToTagged(instr_);
+    }
+    virtual LInstruction* instr() V8_OVERRIDE { return instr_; }
+   private:
+    LInstruction* instr_;
+  };
+
   ElementsKind elements_kind = instr->elements_kind();
   LOperand* key = instr->key();
   if (!key->IsConstantOperand() &&
       ExternalArrayOpRequiresTemp(instr->hydrogen()->key()->representation(),
                                   elements_kind)) {
-    __ SmiUntag(ToRegister(key));
+    if (elements_kind == EXTERNAL_FLOAT32x4_ELEMENTS ||
+        elements_kind == EXTERNAL_INT32x4_ELEMENTS ||
+        elements_kind == FLOAT32x4_ELEMENTS ||
+        elements_kind == INT32x4_ELEMENTS) {
+      // Double the index as Float32x4 and Int32x4 need scale 16.
+      __ shl(ToRegister(key), 1);
+    } else {
+      __ SmiUntag(ToRegister(key));
+    }
   }
   Operand operand(BuildFastArrayOperand(
       instr->elements(),
@@ -3426,6 +3495,39 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
       __ movsd(ToDoubleRegister(instr->result()), operand);
     } else {
       X87Mov(ToX87Register(instr->result()), operand);
+    }
+  } else if (elements_kind == EXTERNAL_FLOAT32x4_ELEMENTS ||
+             elements_kind == FLOAT32x4_ELEMENTS) {
+    Register reg = ToRegister(instr->result());
+    Register tmp = ToRegister(instr->temp());
+    DeferredFloat32x4ToTagged* deferred =
+      new(zone()) DeferredFloat32x4ToTagged(this, instr, x87_stack_);
+    if (FLAG_inline_new) {
+      __ AllocateFloat32x4(reg, tmp, deferred->entry());
+    } else {
+      __ jmp(deferred->entry());
+    }
+    __ bind(deferred->exit());
+    for (int offset = 0; offset < kFloat32x4Size; offset += kFloatSize) {
+      __ mov(tmp, Operand(operand, offset));
+      __ mov(Operand(FieldOperand(reg, Float32x4::kValueOffset), offset),
+          tmp);
+    }
+  } else if (elements_kind == EXTERNAL_INT32x4_ELEMENTS ||
+             elements_kind == INT32x4_ELEMENTS) {
+    Register reg = ToRegister(instr->result());
+    Register tmp = ToRegister(instr->temp());
+    DeferredInt32x4ToTagged* deferred =
+      new(zone()) DeferredInt32x4ToTagged(this, instr, x87_stack_);
+    if (FLAG_inline_new) {
+      __ AllocateInt32x4(reg, tmp, deferred->entry());
+    } else {
+      __ jmp(deferred->entry());
+    }
+    __ bind(deferred->exit());
+    for (int offset = 0; offset < kInt32x4Size; offset += kInt32Size) {
+      __ mov(tmp, Operand(operand, offset));
+      __ mov(Operand(FieldOperand(reg, Int32x4::kValueOffset), offset), tmp);
     }
   } else {
     Register result(ToRegister(instr->result()));
@@ -3563,10 +3665,24 @@ Operand LCodeGen::BuildFastArrayOperand(
     offset += FixedTypedArrayBase::kDataOffset - kHeapObjectTag;
   }
   int shift_size = element_shift_size;
+  if (elements_kind == EXTERNAL_FLOAT32x4_ELEMENTS ||
+      elements_kind == EXTERNAL_INT32x4_ELEMENTS ||
+      elements_kind == FLOAT32x4_ELEMENTS ||
+      elements_kind == INT32x4_ELEMENTS) {
+    // Double the index and use scale 8. Float32x4 and Int32x4 need scale 16.
+    additional_index *= 2;
+  }
   if (key->IsConstantOperand()) {
     int constant_value = ToInteger32(LConstantOperand::cast(key));
     if (constant_value & 0xF0000000) {
       Abort(kArrayIndexConstantValueTooBig);
+    }
+    if (elements_kind == EXTERNAL_FLOAT32x4_ELEMENTS ||
+        elements_kind == EXTERNAL_INT32x4_ELEMENTS ||
+        elements_kind == FLOAT32x4_ELEMENTS ||
+        elements_kind == INT32x4_ELEMENTS) {
+      // Double the index and use scale 8. Float32x4 and Int32x4 needs scale 16.
+      constant_value *= 2;
     }
     return Operand(elements_pointer_reg,
                    ((constant_value + additional_index) << shift_size)
@@ -3577,6 +3693,8 @@ Operand LCodeGen::BuildFastArrayOperand(
       shift_size -= kSmiTagSize;
     }
     ScaleFactor scale_factor = static_cast<ScaleFactor>(shift_size);
+    // For Float32x4 and Int32x4, make sure the index register is doubled before
+    // calling this function.
     return Operand(elements_pointer_reg,
                    ToRegister(key),
                    scale_factor,
@@ -4534,7 +4652,15 @@ void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
   if (!key->IsConstantOperand() &&
       ExternalArrayOpRequiresTemp(instr->hydrogen()->key()->representation(),
                                   elements_kind)) {
-    __ SmiUntag(ToRegister(key));
+    if (elements_kind == EXTERNAL_FLOAT32x4_ELEMENTS ||
+        elements_kind == EXTERNAL_INT32x4_ELEMENTS ||
+        elements_kind == FLOAT32x4_ELEMENTS ||
+        elements_kind == INT32x4_ELEMENTS) {
+      // Double the index as Float32x4 and Int32x4 need scale 16.
+      __ shl(ToRegister(key), 1);
+    } else {
+      __ SmiUntag(ToRegister(key));
+    }
   }
   Operand operand(BuildFastArrayOperand(
       instr->elements(),
@@ -4562,6 +4688,34 @@ void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
     } else {
       X87Mov(operand, ToX87Register(instr->value()));
     }
+  } else if (elements_kind == EXTERNAL_FLOAT32x4_ELEMENTS ||
+      elements_kind == FLOAT32x4_ELEMENTS) {
+      ASSERT(instr->value()->IsRegister());
+      Register temp = ToRegister(instr->temp());
+      Register input_reg = ToRegister(instr->value());
+      __ test(input_reg, Immediate(kSmiTagMask));
+      DeoptimizeIf(zero, instr->environment());
+      __ CmpObjectType(input_reg, FLOAT32x4_TYPE, temp);
+      DeoptimizeIf(not_equal, instr->environment());
+      for (int offset = 0; offset < kFloat32x4Size; offset += kFloatSize) {
+        __ mov(temp,
+            Operand(FieldOperand(input_reg, Float32x4::kValueOffset), offset));
+        __ mov(Operand(operand, offset), temp);
+      }
+  } else if (elements_kind == EXTERNAL_INT32x4_ELEMENTS ||
+      elements_kind == INT32x4_ELEMENTS) {
+      ASSERT(instr->value()->IsRegister());
+      Register temp = ToRegister(instr->temp());
+      Register input_reg = ToRegister(instr->value());
+      __ test(input_reg, Immediate(kSmiTagMask));
+      DeoptimizeIf(zero, instr->environment());
+      __ CmpObjectType(input_reg, INT32x4_TYPE, temp);
+      DeoptimizeIf(not_equal, instr->environment());
+      for (int offset = 0; offset < kInt32x4Size; offset += kInt32Size) {
+        __ mov(temp,
+            Operand(FieldOperand(input_reg, Int32x4::kValueOffset), offset));
+        __ mov(Operand(operand, offset), temp);
+      }
   } else {
     Register value = ToRegister(instr->value());
     switch (elements_kind) {

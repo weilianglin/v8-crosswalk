@@ -2124,17 +2124,28 @@ LInstruction* LChunkBuilder::DoLoadKeyed(HLoadKeyed* instr) {
       : UseRegisterOrConstantAtStart(instr->key());
   LLoadKeyed* result = NULL;
 
+  bool load_128bits_without_sse2 =
+      ExternalArrayOpRequiresSpecialHandling(elements_kind);
   if (!instr->is_typed_elements()) {
     LOperand* obj = UseRegisterAtStart(instr->elements());
-    result = new(zone()) LLoadKeyed(obj, key);
+    result = new(zone()) LLoadKeyed(obj, key, NULL);
   } else {
     ASSERT(
         (instr->representation().IsInteger32() &&
          !(IsDoubleOrFloatElementsKind(instr->elements_kind()))) ||
         (instr->representation().IsDouble() &&
-         (IsDoubleOrFloatElementsKind(instr->elements_kind()))));
+         (IsDoubleOrFloatElementsKind(instr->elements_kind()))) ||
+        (instr->representation().IsTagged() &&
+         (IsFloat32x4ElementsKind(instr->elements_kind()))) ||
+        (instr->representation().IsTagged() &&
+         (IsInt32x4ElementsKind(instr->elements_kind()))));
     LOperand* backing_store = UseRegister(instr->elements());
-    result = new(zone()) LLoadKeyed(backing_store, key);
+    result = new(zone()) LLoadKeyed(backing_store, key,
+        load_128bits_without_sse2 ? TempRegister() : NULL);
+    if (load_128bits_without_sse2) {
+      info()->MarkAsDeferredCalling();
+      AssignPointerMap(result);
+    }
   }
 
   DefineAsRegister(result);
@@ -2192,7 +2203,7 @@ LInstruction* LChunkBuilder::DoStoreKeyed(HStoreKeyed* instr) {
       LOperand* val = NULL;
       val = UseRegisterAtStart(instr->value());
       LOperand* key = UseRegisterOrConstantAtStart(instr->key());
-      return new(zone()) LStoreKeyed(object, key, val);
+      return new(zone()) LStoreKeyed(object, key, val, NULL);
     } else {
       ASSERT(instr->value()->representation().IsSmiOrTagged());
       bool needs_write_barrier = instr->NeedsWriteBarrier();
@@ -2207,7 +2218,7 @@ LInstruction* LChunkBuilder::DoStoreKeyed(HStoreKeyed* instr) {
         val = UseRegisterOrConstantAtStart(instr->value());
         key = UseRegisterOrConstantAtStart(instr->key());
       }
-      return new(zone()) LStoreKeyed(obj, key, val);
+      return new(zone()) LStoreKeyed(obj, key, val, NULL);
     }
   }
 
@@ -2216,7 +2227,11 @@ LInstruction* LChunkBuilder::DoStoreKeyed(HStoreKeyed* instr) {
       (instr->value()->representation().IsInteger32() &&
        !IsDoubleOrFloatElementsKind(elements_kind)) ||
       (instr->value()->representation().IsDouble() &&
-       IsDoubleOrFloatElementsKind(elements_kind)));
+       IsDoubleOrFloatElementsKind(elements_kind)) ||
+      (instr->value()->representation().IsTagged() &&
+       IsFloat32x4ElementsKind(elements_kind)) ||
+      (instr->value()->representation().IsTagged() &&
+       IsInt32x4ElementsKind(elements_kind)));
   ASSERT((instr->is_fixed_typed_array() &&
           instr->elements()->representation().IsTagged()) ||
          (instr->is_external() &&
@@ -2229,7 +2244,12 @@ LInstruction* LChunkBuilder::DoStoreKeyed(HStoreKeyed* instr) {
   LOperand* key = clobbers_key
       ? UseTempRegister(instr->key())
       : UseRegisterOrConstantAtStart(instr->key());
-  return new(zone()) LStoreKeyed(backing_store, key, val);
+  bool store_128bits_without_sse2 =
+      ExternalArrayOpRequiresSpecialHandling(elements_kind);
+  LStoreKeyed* result =
+      new(zone()) LStoreKeyed(backing_store, key, val,
+          store_128bits_without_sse2 ? TempRegister() : NULL);
+  return store_128bits_without_sse2 ? AssignEnvironment(result) : result;
 }
 
 

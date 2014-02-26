@@ -1832,6 +1832,30 @@ void MacroAssembler::AllocateHeapNumber(Register result,
 }
 
 
+void MacroAssembler::AllocateFloat32x4(Register result,
+                                       Register scratch,
+                                       Label* gc_required) {
+  // Allocate heap number in new space.
+  Allocate(Float32x4::kSize, result, scratch, no_reg, gc_required, TAG_OBJECT);
+
+  // Set the map.
+  mov(FieldOperand(result, HeapObject::kMapOffset),
+      Immediate(isolate()->factory()->float32x4_map()));
+}
+
+
+void MacroAssembler::AllocateInt32x4(Register result,
+                                      Register scratch,
+                                      Label* gc_required) {
+  // Allocate heap number in new space.
+  Allocate(Int32x4::kSize, result, scratch, no_reg, gc_required, TAG_OBJECT);
+
+  // Set the map.
+  mov(FieldOperand(result, HeapObject::kMapOffset),
+      Immediate(isolate()->factory()->int32x4_map()));
+}
+
+
 void MacroAssembler::AllocateTwoByteString(Register result,
                                            Register length,
                                            Register scratch1,

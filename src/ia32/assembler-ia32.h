@@ -410,6 +410,11 @@ class Operand BASE_EMBEDDED {
                    int32_t disp,
                    RelocInfo::Mode rmode = RelocInfo::NONE32);
 
+  // Offset from existing memory operand.
+  // Offset is added to existing displacement as 32-bit signed values and
+  // this must not overflow.
+  explicit Operand(const Operand& base, int32_t offset);
+
   static Operand StaticVariable(const ExternalReference& ext) {
     return Operand(reinterpret_cast<int32_t>(ext.address()),
                    RelocInfo::EXTERNAL_REFERENCE);
