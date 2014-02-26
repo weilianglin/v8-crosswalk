@@ -173,17 +173,20 @@ namespace internal {
   V(MinusZero,           1 << 8  | REPRESENTATION(kTagged | kUntaggedNumber)) \
   V(NaN,                 1 << 9  | REPRESENTATION(kTagged | kUntaggedNumber)) \
   V(OtherNumber,         1 << 10 | REPRESENTATION(kTagged | kUntaggedNumber)) \
-  V(Symbol,              1 << 11 | REPRESENTATION(kTaggedPtr)) \
-  V(InternalizedString,  1 << 12 | REPRESENTATION(kTaggedPtr)) \
-  V(OtherString,         1 << 13 | REPRESENTATION(kTaggedPtr)) \
-  V(Undetectable,        1 << 14 | REPRESENTATION(kTaggedPtr)) \
-  V(Array,               1 << 15 | REPRESENTATION(kTaggedPtr)) \
-  V(Buffer,              1 << 16 | REPRESENTATION(kTaggedPtr)) \
-  V(Function,            1 << 17 | REPRESENTATION(kTaggedPtr)) \
-  V(RegExp,              1 << 18 | REPRESENTATION(kTaggedPtr)) \
-  V(OtherObject,         1 << 19 | REPRESENTATION(kTaggedPtr)) \
-  V(Proxy,               1 << 20 | REPRESENTATION(kTaggedPtr)) \
-  V(Internal,            1 << 21 | REPRESENTATION(kTagged | kUntagged)) \
+  V(Float32x4,           1 << 11 | REPRESENTATION(kTaggedPtr)) \
+  V(Float64x2,           1 << 12 | REPRESENTATION(kTaggedPtr)) \
+  V(Int32x4,             1 << 13 | REPRESENTATION(kTaggedPtr)) \
+  V(Symbol,              1 << 14 | REPRESENTATION(kTaggedPtr)) \
+  V(InternalizedString,  1 << 15 | REPRESENTATION(kTaggedPtr)) \
+  V(OtherString,         1 << 16 | REPRESENTATION(kTaggedPtr)) \
+  V(Undetectable,        1 << 17 | REPRESENTATION(kTaggedPtr)) \
+  V(Array,               1 << 18 | REPRESENTATION(kTaggedPtr)) \
+  V(Buffer,              1 << 19 | REPRESENTATION(kTaggedPtr)) \
+  V(Function,            1 << 20 | REPRESENTATION(kTaggedPtr)) \
+  V(RegExp,              1 << 21 | REPRESENTATION(kTaggedPtr)) \
+  V(OtherObject,         1 << 22 | REPRESENTATION(kTaggedPtr)) \
+  V(Proxy,               1 << 23 | REPRESENTATION(kTaggedPtr)) \
+  V(Internal,            1 << 24 | REPRESENTATION(kTagged | kUntagged)) \
   \
   V(SignedSmall,         kUnsignedSmall | kOtherSignedSmall) \
   V(Signed32,            kSignedSmall | kOtherUnsigned31 | kOtherSigned32) \
@@ -201,6 +204,7 @@ namespace internal {
   V(Object,              kDetectableObject | kUndetectable) \
   V(Receiver,            kObject | kProxy) \
   V(NonNumber,           kBoolean | kName | kNull | kReceiver | \
+                         kFloat32x4 | kFloat64x2 | kInt32x4 |           \
                          kUndefined | kInternal) \
   V(Any,                 -1)
 
