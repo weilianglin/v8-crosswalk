@@ -3005,8 +3005,12 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
         break;
       case EXTERNAL_FLOAT32_ELEMENTS:
       case EXTERNAL_FLOAT64_ELEMENTS:
+      case EXTERNAL_FLOAT32x4_ELEMENTS:
+      case EXTERNAL_INT32x4_ELEMENTS:
       case FLOAT32_ELEMENTS:
       case FLOAT64_ELEMENTS:
+      case FLOAT32x4_ELEMENTS:
+      case INT32x4_ELEMENTS:
       case FAST_ELEMENTS:
       case FAST_SMI_ELEMENTS:
       case FAST_DOUBLE_ELEMENTS:
@@ -4187,8 +4191,12 @@ void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
         break;
       case EXTERNAL_FLOAT32_ELEMENTS:
       case EXTERNAL_FLOAT64_ELEMENTS:
+      case EXTERNAL_FLOAT32x4_ELEMENTS:
+      case EXTERNAL_INT32x4_ELEMENTS:
       case FLOAT32_ELEMENTS:
       case FLOAT64_ELEMENTS:
+      case FLOAT32x4_ELEMENTS:
+      case INT32x4_ELEMENTS:
       case FAST_ELEMENTS:
       case FAST_SMI_ELEMENTS:
       case FAST_DOUBLE_ELEMENTS:
@@ -5327,6 +5335,16 @@ Condition LCodeGen::EmitTypeofIs(LTypeofIsAndBranch* instr, Register input) {
     __ CompareRoot(FieldOperand(input, HeapObject::kMapOffset),
                    Heap::kHeapNumberMapRootIndex);
 
+    final_branch_condition = equal;
+
+  } else if (type_name->Equals(heap()->float32x4_string())) {
+    __ JumpIfSmi(input, false_label, false_distance);
+    __ CmpObjectType(input, FLOAT32x4_TYPE, input);
+    final_branch_condition = equal;
+
+  } else if (type_name->Equals(heap()->int32x4_string())) {
+    __ JumpIfSmi(input, false_label, false_distance);
+    __ CmpObjectType(input, INT32x4_TYPE, input);
     final_branch_condition = equal;
 
   } else if (type_name->Equals(heap()->string_string())) {
