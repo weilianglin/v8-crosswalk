@@ -377,6 +377,7 @@ enum ScaleFactor {
   times_2 = 1,
   times_4 = 2,
   times_8 = 3,
+  maximal_scale_factor = times_8,
   times_int_size = times_4,
   times_half_pointer_size = times_2,
   times_pointer_size = times_4,
@@ -561,6 +562,10 @@ class CpuFeatures : public AllStatic {
   }
 
   static bool SupportsCrankshaft() { return IsSupported(SSE2); }
+
+  static bool SupportsSIMD128InCrankshaft() {
+    return false;
+  }
 
  private:
   static bool Check(CpuFeature f, uint64_t set) {
