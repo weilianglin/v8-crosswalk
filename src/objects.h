@@ -1968,6 +1968,8 @@ class HeapNumber: public HeapObject {
 
 class Float32x4: public HeapObject {
  public:
+  typedef float32x4_value_t value_t;
+
   // [value]: number value.
   inline float32x4_value_t value();
   inline void set_value(float32x4_value_t value);
@@ -1982,15 +1984,12 @@ class Float32x4: public HeapObject {
   void Float32x4Print(StringStream* accumulator);
   DECLARE_VERIFIER(Float32x4)
 
-  inline float x();
-  inline float y();
-  inline float z();
-  inline float w();
-
-  inline void set_x(float x);
-  inline void set_y(float x);
-  inline void set_z(float x);
-  inline void set_w(float x);
+  static const int kLanes = 4;
+  inline float getAt(int index);
+  inline float x() { return getAt(0); }
+  inline float y() { return getAt(1); }
+  inline float z() { return getAt(2); }
+  inline float w() { return getAt(3); }
 
   // Layout description.
   static const int kValueOffset = HeapObject::kHeaderSize;
@@ -2003,6 +2002,8 @@ class Float32x4: public HeapObject {
 
 class Int32x4: public HeapObject {
  public:
+  typedef int32x4_value_t value_t;
+
   // [value]: number value.
   inline int32x4_value_t value();
   inline void set_value(int32x4_value_t value);
@@ -2017,15 +2018,12 @@ class Int32x4: public HeapObject {
   void Int32x4Print(StringStream* accumulator);
   DECLARE_VERIFIER(Int32x4)
 
-  inline int32_t x();
-  inline int32_t y();
-  inline int32_t z();
-  inline int32_t w();
-
-  inline void set_x(int32_t x);
-  inline void set_y(int32_t x);
-  inline void set_z(int32_t x);
-  inline void set_w(int32_t x);
+  static const int kLanes = 4;
+  inline int32_t getAt(int32_t index);
+  inline int32_t x() { return getAt(0); }
+  inline int32_t y() { return getAt(1); }
+  inline int32_t z() { return getAt(2); }
+  inline int32_t w() { return getAt(3); }
 
   // Layout description.
   static const int kValueOffset = HeapObject::kHeaderSize;

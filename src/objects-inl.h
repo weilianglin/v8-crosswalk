@@ -1437,43 +1437,9 @@ void Float32x4::set_value(float32x4_value_t value) {
 }
 
 
-float Float32x4::x() {
-  return READ_FLOAT_FIELD(this, kValueOffset + 0 * kFloatSize);
-}
-
-
-float Float32x4::y() {
-  return READ_FLOAT_FIELD(this, kValueOffset + 1 * kFloatSize);
-}
-
-
-float Float32x4::z() {
-  return READ_FLOAT_FIELD(this, kValueOffset + 2 * kFloatSize);
-}
-
-
-float Float32x4::w() {
-  return READ_FLOAT_FIELD(this, kValueOffset + 3 * kFloatSize);
-}
-
-
-void Float32x4::set_x(float x) {
-  WRITE_FLOAT_FIELD(this, kValueOffset + 0 * kFloatSize, x);
-}
-
-
-void Float32x4::set_y(float y) {
-  WRITE_FLOAT_FIELD(this, kValueOffset + 1 * kFloatSize, y);
-}
-
-
-void Float32x4::set_z(float z) {
-  WRITE_FLOAT_FIELD(this, kValueOffset + 2 * kFloatSize, z);
-}
-
-
-void Float32x4::set_w(float w) {
-  WRITE_FLOAT_FIELD(this, kValueOffset + 3 * kFloatSize, w);
+float Float32x4::getAt(int index) {
+  ASSERT(index >= 0 && index < kLanes);
+  return READ_FLOAT_FIELD(this, kValueOffset + index * kFloatSize);
 }
 
 
@@ -1487,43 +1453,9 @@ void Int32x4::set_value(int32x4_value_t value) {
 }
 
 
-int32_t Int32x4::x() {
-  return READ_INT32_FIELD(this, kValueOffset + 0 * kInt32Size);
-}
-
-
-int32_t Int32x4::y() {
-  return READ_INT32_FIELD(this, kValueOffset + 1 * kInt32Size);
-}
-
-
-int32_t Int32x4::z() {
-  return READ_INT32_FIELD(this, kValueOffset + 2 * kInt32Size);
-}
-
-
-int32_t Int32x4::w() {
-  return READ_INT32_FIELD(this, kValueOffset + 3 * kInt32Size);
-}
-
-
-void Int32x4::set_x(int32_t x) {
-  WRITE_INT32_FIELD(this, kValueOffset + 0 * kInt32Size, x);
-}
-
-
-void Int32x4::set_y(int32_t y) {
-  WRITE_INT32_FIELD(this, kValueOffset + 1 * kInt32Size, y);
-}
-
-
-void Int32x4::set_z(int32_t z) {
-  WRITE_INT32_FIELD(this, kValueOffset + 2 * kInt32Size, z);
-}
-
-
-void Int32x4::set_w(int32_t w) {
-  WRITE_INT32_FIELD(this, kValueOffset + 3 * kInt32Size, w);
+int32_t Int32x4::getAt(int index) {
+  ASSERT(index >= 0 && index < kLanes);
+  return READ_INT32_FIELD(this, kValueOffset + index * kInt32Size);
 }
 
 

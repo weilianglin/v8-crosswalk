@@ -127,13 +127,13 @@ testSIMDNeg();
 
 function testSIMDAdd() {
   var a4 = SIMD.float32x4(1.0, 1.0, 1.0, 1.0);
-  var b4 = SIMD.float32x4(2.0, 2.0, 2.0, 2.0);
+  var b4 = SIMD.float32x4(2.0, 3.0, 4.0, 5.0);
   var c4 = SIMD.float32x4.add(a4, b4);
 
   assertEquals(3.0, c4.x);
-  assertEquals(3.0, c4.y);
-  assertEquals(3.0, c4.z);
-  assertEquals(3.0, c4.w);
+  assertEquals(4.0, c4.y);
+  assertEquals(5.0, c4.z);
+  assertEquals(6.0, c4.w);
 }
 
 testSIMDAdd();
