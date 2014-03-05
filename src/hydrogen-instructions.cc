@@ -1356,7 +1356,23 @@ bool HTypeofIsAndBranch::KnownSuccessorBlock(HBasicBlock** block) {
         type_literal_.IsKnownGlobal(isolate()->heap()->number_string());
     *block = number_type ? FirstSuccessor() : SecondSuccessor();
     return true;
+  } else if (value()->representation().IsFloat32x4()) {
+    bool float32x4_type =
+        type_literal_.IsKnownGlobal(isolate()->heap()->float32x4_string());
+    *block = float32x4_type ? FirstSuccessor() : SecondSuccessor();
+    return true;
+  } else if (value()->representation().IsFloat64x2()) {
+    bool float64x2_type =
+        type_literal_.IsKnownGlobal(isolate()->heap()->float64x2_string());
+    *block = float64x2_type ? FirstSuccessor() : SecondSuccessor();
+    return true;
+  } else if (value()->representation().IsInt32x4()) {
+    bool int32x4_type =
+        type_literal_.IsKnownGlobal(isolate()->heap()->int32x4_string());
+    *block = int32x4_type ? FirstSuccessor() : SecondSuccessor();
+    return true;
   }
+
   *block = NULL;
   return false;
 }

@@ -124,6 +124,8 @@ class LCodeGen;
   V(NumberTagI)                                 \
   V(NumberTagU)                                 \
   V(NumberUntagD)                               \
+  V(SIMD128ToTagged)                            \
+  V(TaggedToSIMD128)                            \
   V(OsrEntry)                                   \
   V(Parameter)                                  \
   V(Power)                                      \
@@ -1619,16 +1621,14 @@ class LLoadRoot V8_FINAL : public LTemplateInstruction<1, 0, 0> {
 };
 
 
-class LLoadKeyed V8_FINAL : public LTemplateInstruction<1, 2, 1> {
+class LLoadKeyed V8_FINAL : public LTemplateInstruction<1, 2, 0> {
  public:
-  LLoadKeyed(LOperand* elements, LOperand* key, LOperand* temp) {
+  LLoadKeyed(LOperand* elements, LOperand* key) {
     inputs_[0] = elements;
     inputs_[1] = key;
-    temps_[0] = temp;
   }
   LOperand* elements() { return inputs_[0]; }
   LOperand* key() { return inputs_[1]; }
-  LOperand* temp() { return temps_[0]; }
   ElementsKind elements_kind() const {
     return hydrogen()->elements_kind();
   }
@@ -2067,6 +2067,21 @@ class LNumberTagD V8_FINAL : public LTemplateInstruction<1, 1, 1> {
 };
 
 
+class LSIMD128ToTagged V8_FINAL : public LTemplateInstruction<1, 1, 1> {
+ public:
+  explicit LSIMD128ToTagged(LOperand* value, LOperand* temp) {
+    inputs_[0] = value;
+    temps_[0] = temp;
+  }
+
+  LOperand* value() { return inputs_[0]; }
+  LOperand* temp() { return temps_[0]; }
+
+  DECLARE_CONCRETE_INSTRUCTION(SIMD128ToTagged, "simd128-tag")
+  DECLARE_HYDROGEN_ACCESSOR(Change)
+};
+
+
 // Sometimes truncating conversion from a tagged value to an int32.
 class LDoubleToI V8_FINAL : public LTemplateInstruction<1, 1, 1> {
  public:
@@ -2144,6 +2159,25 @@ class LNumberUntagD V8_FINAL : public LTemplateInstruction<1, 1, 1> {
 };
 
 
+class LTaggedToSIMD128 V8_FINAL : public LTemplateInstruction<1, 1, 1> {
+ public:
+  explicit LTaggedToSIMD128(LOperand* value, LOperand* temp,
+      Representation representation) : representation_(representation) {
+    inputs_[0] = value;
+    temps_[0] = temp;
+  }
+
+  LOperand* value() { return inputs_[0]; }
+  LOperand* temp() { return temps_[0]; }
+  Representation representation() const { return representation_; }
+
+  DECLARE_CONCRETE_INSTRUCTION(TaggedToSIMD128, "simd128-untag")
+  DECLARE_HYDROGEN_ACCESSOR(Change);
+ private:
+  Representation representation_;
+};
+
+
 class LSmiUntag V8_FINAL : public LTemplateInstruction<1, 1, 0> {
  public:
   LSmiUntag(LOperand* value, bool needs_check)
@@ -2207,13 +2241,12 @@ class LStoreNamedGeneric V8_FINAL : public LTemplateInstruction<0, 3, 0> {
 };
 
 
-class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 1> {
+class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 0> {
  public:
-  LStoreKeyed(LOperand* obj, LOperand* key, LOperand* val, LOperand* temp) {
+  LStoreKeyed(LOperand* obj, LOperand* key, LOperand* val) {
     inputs_[0] = obj;
     inputs_[1] = key;
     inputs_[2] = val;
-    temps_[0] = temp;
   }
 
   bool is_external() const { return hydrogen()->is_external(); }
@@ -2226,7 +2259,6 @@ class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 1> {
   LOperand* elements() { return inputs_[0]; }
   LOperand* key() { return inputs_[1]; }
   LOperand* value() { return inputs_[2]; }
-  LOperand* temp() { return temps_[0]; }
   ElementsKind elements_kind() const {
     return hydrogen()->elements_kind();
   }

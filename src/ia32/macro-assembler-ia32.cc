@@ -979,13 +979,13 @@ void MacroAssembler::EnterExitFramePrologue() {
 void MacroAssembler::EnterExitFrameEpilogue(int argc, bool save_doubles) {
   // Optionally save all XMM registers.
   if (save_doubles) {
-    int space = XMMRegister::kMaxNumRegisters * kDoubleSize +
+    int space = XMMRegister::kMaxNumRegisters * kSIMD128Size +
                 argc * kPointerSize;
     sub(esp, Immediate(space));
     const int offset = -2 * kPointerSize;
     for (int i = 0; i < XMMRegister::kMaxNumRegisters; i++) {
       XMMRegister reg = XMMRegister::from_code(i);
-      movsd(Operand(ebp, offset - ((i + 1) * kDoubleSize)), reg);
+      movups(Operand(ebp, offset - ((i + 1) * kSIMD128Size)), reg);
     }
   } else {
     sub(esp, Immediate(argc * kPointerSize));
@@ -1028,7 +1028,7 @@ void MacroAssembler::LeaveExitFrame(bool save_doubles) {
     const int offset = -2 * kPointerSize;
     for (int i = 0; i < XMMRegister::kMaxNumRegisters; i++) {
       XMMRegister reg = XMMRegister::from_code(i);
-      movsd(reg, Operand(ebp, offset - ((i + 1) * kDoubleSize)));
+      movups(reg, Operand(ebp, offset - ((i + 1) * kSIMD128Size)));
     }
   }
 

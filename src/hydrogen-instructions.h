@@ -599,6 +599,9 @@ class HValue : public ZoneObject {
       HType t = type();
       if (t.IsSmi()) return Representation::Smi();
       if (t.IsHeapNumber()) return Representation::Double();
+      if (t.IsFloat32x4()) return Representation::Float32x4();
+      if (t.IsFloat64x2()) return Representation::Float64x2();
+      if (t.IsInt32x4()) return Representation::Int32x4();
       if (t.IsHeapObject()) return r;
       return Representation::None();
     }
@@ -1645,7 +1648,15 @@ class HChange V8_FINAL : public HUnaryOperation {
     if (value->representation().IsSmi() || value->type().IsSmi()) {
       set_type(HType::Smi());
     } else {
-      set_type(HType::TaggedNumber());
+      if (to.IsFloat32x4()) {
+        set_type(HType::Float32x4());
+      } else if (to.IsFloat64x2()) {
+        set_type(HType::Float64x2());
+      } else if (to.IsInt32x4()) {
+        set_type(HType::Int32x4());
+      } else {
+        set_type(HType::TaggedNumber());
+      }
       if (to.IsTagged()) SetChangesFlag(kNewSpacePromotion);
     }
   }
@@ -6915,6 +6926,7 @@ class HStoreKeyed V8_FINAL
     }
 
     ASSERT_EQ(index, 2);
+
     if (IsDoubleOrFloatElementsKind(elements_kind())) {
       return Representation::Double();
     }
