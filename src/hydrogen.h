@@ -2496,7 +2496,7 @@ class HOptimizedGraphBuilder : public HGraphBuilder, public AstVisitor {
    public:
     PropertyAccessInfo(HOptimizedGraphBuilder* builder,
                        PropertyAccessType access_type, Handle<Map> map,
-                       Handle<String> name)
+                       Handle<String> name, InstanceType instance_type)
         : builder_(builder),
           access_type_(access_type),
           map_(map),
@@ -2504,7 +2504,8 @@ class HOptimizedGraphBuilder : public HGraphBuilder, public AstVisitor {
           field_type_(HType::Tagged()),
           access_(HObjectAccess::ForMap()),
           lookup_type_(NOT_FOUND),
-          details_(NONE, DATA, Representation::None()) {}
+          details_(NONE, DATA, Representation::None()),
+          instance_type_(instance_type) {}
 
     // Checkes whether this PropertyAccessInfo can be handled as a monomorphic
     // load named. It additionally fills in the fields necessary to generate the
@@ -2573,6 +2574,24 @@ class HOptimizedGraphBuilder : public HGraphBuilder, public AstVisitor {
     }
     bool IsConfigurable() const { return details_.IsConfigurable(); }
     bool IsReadOnly() const { return details_.IsReadOnly(); }
+    bool IsSIMD128PropertyCallback() {
+      return (((instance_type_ == Float32x4::kInstanceType ||
+                instance_type_ == Int32x4::kInstanceType) &&
+               (name_->Equals(isolate()->heap()->signMask()) ||
+                name_->Equals(isolate()->heap()->x()) ||
+                name_->Equals(isolate()->heap()->y()) ||
+                name_->Equals(isolate()->heap()->z()) ||
+                name_->Equals(isolate()->heap()->w()))) ||
+              (instance_type_ == Int32x4::kInstanceType &&
+               (name_->Equals(isolate()->heap()->flagX()) ||
+                name_->Equals(isolate()->heap()->flagY()) ||
+                name_->Equals(isolate()->heap()->flagZ()) ||
+                name_->Equals(isolate()->heap()->flagW()))) ||
+              (instance_type_ == Float64x2::kInstanceType &&
+               (name_->Equals(isolate()->heap()->signMask()) ||
+                name_->Equals(isolate()->heap()->x()) ||
+                name_->Equals(isolate()->heap()->y()))));
+    }
 
     bool IsStringType() { return map_->instance_type() < FIRST_NONSTRING_TYPE; }
     bool IsNumberType() { return map_->instance_type() == HEAP_NUMBER_TYPE; }
@@ -2668,6 +2687,8 @@ class HOptimizedGraphBuilder : public HGraphBuilder, public AstVisitor {
     Handle<Map> transition_;
     int number_;
     PropertyDetails details_;
+
+    InstanceType instance_type_;
   };
 
   HInstruction* BuildMonomorphicAccess(PropertyAccessInfo* info,
