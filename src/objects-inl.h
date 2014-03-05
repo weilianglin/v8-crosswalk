@@ -1483,6 +1483,11 @@ int HeapNumber::get_sign() {
 }
 
 
+const char* Float32x4::Name() {
+  return "float32x4";
+}
+
+
 int Float32x4::kRuntimeAllocatorId() {
   return Runtime::kAllocateFloat32x4;
 }
