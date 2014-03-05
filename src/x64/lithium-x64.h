@@ -121,9 +121,11 @@ class LCodeGen;
   V(ModI)                                       \
   V(MulI)                                       \
   V(NumberTagD)                                 \
+  V(SIMD128ToTagged)                            \
   V(NumberTagI)                                 \
   V(NumberTagU)                                 \
   V(NumberUntagD)                               \
+  V(TaggedToSIMD128)                            \
   V(OsrEntry)                                   \
   V(Parameter)                                  \
   V(Power)                                      \
@@ -1624,12 +1626,11 @@ inline static bool ExternalArrayOpRequiresTemp(
 }
 
 
-class LLoadKeyed V8_FINAL : public LTemplateInstruction<1, 2, 1> {
+class LLoadKeyed V8_FINAL : public LTemplateInstruction<1, 2, 0> {
  public:
-  LLoadKeyed(LOperand* elements, LOperand* key, LOperand* temp) {
+  LLoadKeyed(LOperand* elements, LOperand* key) {
     inputs_[0] = elements;
     inputs_[1] = key;
-    temps_[0] = temp;
   }
 
   DECLARE_CONCRETE_INSTRUCTION(LoadKeyed, "load-keyed")
@@ -1646,7 +1647,6 @@ class LLoadKeyed V8_FINAL : public LTemplateInstruction<1, 2, 1> {
   }
   LOperand* elements() { return inputs_[0]; }
   LOperand* key() { return inputs_[1]; }
-  LOperand* temp() { return temps_[0]; }
   virtual void PrintDataTo(StringStream* stream) V8_OVERRIDE;
   uint32_t base_offset() const { return hydrogen()->base_offset(); }
   ElementsKind elements_kind() const {
@@ -2051,6 +2051,21 @@ class LNumberTagD V8_FINAL : public LTemplateInstruction<1, 1, 1> {
 };
 
 
+class LSIMD128ToTagged V8_FINAL : public LTemplateInstruction<1, 1, 1> {
+ public:
+  explicit LSIMD128ToTagged(LOperand* value, LOperand* temp) {
+    inputs_[0] = value;
+    temps_[0] = temp;
+  }
+
+  LOperand* value() { return inputs_[0]; }
+  LOperand* temp() { return temps_[0]; }
+
+  DECLARE_CONCRETE_INSTRUCTION(SIMD128ToTagged, "simd128-tag")
+  DECLARE_HYDROGEN_ACCESSOR(Change)
+};
+
+
 // Sometimes truncating conversion from a tagged value to an int32.
 class LDoubleToI V8_FINAL : public LTemplateInstruction<1, 1, 0> {
  public:
@@ -2121,6 +2136,23 @@ class LNumberUntagD V8_FINAL : public LTemplateInstruction<1, 1, 0> {
 
   DECLARE_CONCRETE_INSTRUCTION(NumberUntagD, "double-untag")
   DECLARE_HYDROGEN_ACCESSOR(Change);
+};
+
+
+class LTaggedToSIMD128 V8_FINAL : public LTemplateInstruction<1, 1, 0> {
+ public:
+  explicit LTaggedToSIMD128(LOperand* value, Representation representation)
+      : representation_(representation) {
+    inputs_[0] = value;
+  }
+
+  LOperand* value() { return inputs_[0]; }
+  Representation representation() const { return representation_; }
+
+  DECLARE_CONCRETE_INSTRUCTION(TaggedToSIMD128, "simd128-untag")
+  DECLARE_HYDROGEN_ACCESSOR(Change);
+ private:
+  Representation representation_;
 };
 
 
