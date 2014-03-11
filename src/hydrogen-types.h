@@ -15,6 +15,7 @@ namespace internal {
 // Forward declarations.
 template <typename T> class Handle;
 class Object;
+class Representation;
 
 #define HTYPE_LIST(V)                                 \
   V(Any, 0x0)              /* 0000 0000 0000 0000 */  \
@@ -65,7 +66,8 @@ class HType V8_FINAL {
 
   template <class T>
   static HType FromType(typename T::TypeHandle type) V8_WARN_UNUSED_RESULT;
-  static HType FromValue(Handle<Object> value) V8_WARN_UNUSED_RESULT;
+  static HType FromValue(Handle<Object> value) ;
+  static HType FromRepresentation(Representation representation) V8_WARN_UNUSED_RESULT;
 
   const char* ToString() const V8_WARN_UNUSED_RESULT;
 

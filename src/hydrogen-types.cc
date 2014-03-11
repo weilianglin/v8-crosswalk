@@ -4,6 +4,7 @@
 
 #include "src/hydrogen-types.h"
 
+#include "src/property-details.h"
 #include "src/types-inl.h"
 
 
@@ -52,6 +53,23 @@ HType HType::FromValue(Handle<Object> value) {
   if (value->IsJSObject()) return HType::JSObject();
   ASSERT(value->IsHeapObject());
   return HType::HeapObject();
+}
+
+//static
+HType HType::FromRepresentation(Representation representation) {
+  HType result = HType::Tagged();
+  if (representation.IsSmi()) {
+    result = HType::Smi();
+  } else if (representation.IsDouble()) {
+    result = HType::HeapNumber();
+  } else if (representation.IsFloat32x4()) {
+    result = HType::Float32x4();
+  } else if (representation.IsFloat64x2()) {
+    result = HType::Float64x2();
+  } else if (representation.IsInt32x4()) {
+    result = HType::Int32x4();
+  }
+  return result;
 }
 
 
