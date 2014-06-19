@@ -196,6 +196,7 @@ void VTUNEJITInterface::event_handler(const v8::JitCodeEvent* event) {
 
         if (*script != NULL) {
           // Get the source file name and set it to jmethod.source_file_name
+			/*
          if ((*script->GetUnboundScript()->GetScriptName())->IsString()) {
             Handle<String> script_name =
                 script->GetUnboundScript()->GetScriptName()->ToString();
@@ -203,6 +204,7 @@ void VTUNEJITInterface::event_handler(const v8::JitCodeEvent* event) {
             script_name->WriteUtf8(temp_file_name);
             jmethod.source_file_name = temp_file_name;
           }
+		  */
 
           JitInfoMap::iterator entry =
               GetEntries()->find(event->code_start);
@@ -224,8 +226,8 @@ void VTUNEJITInterface::event_handler(const v8::JitCodeEvent* event) {
                  Iter++) {
               jmethod.line_number_table[index].Offset =
                   static_cast<unsigned int>(Iter->pc_);
-              jmethod.line_number_table[index++].LineNumber =
-                  script->GetUnboundScript()->GetLineNumber(Iter->pos_)+1;
+              //jmethod.line_number_table[index++].LineNumber =
+              //    script->GetUnboundScript()->GetLineNumber(Iter->pos_)+1;
             }
             GetEntries()->erase(event->code_start);
           }
