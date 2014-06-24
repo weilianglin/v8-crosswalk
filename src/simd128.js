@@ -766,87 +766,102 @@ function SetUpSIMD() {
 
   // Set up non-enumerable properties of the SIMD float32x4 object.
   InstallFunctions($SIMD.float32x4, DONT_ENUM, $Array(
-    // Float32x4 operations
-    "splat", Float32x4Splat,
+    // Keep the sequence same as ecmascript_simd.js
     "zero", Float32x4Zero,
-    // Unary
+    "splat", Float32x4Splat,
     "abs", Float32x4Abs,
-    "bitsToInt32x4", Float32x4BitsToInt32x4,
+    "fromFloat64x2", Float32x4FromFloat64x2,
+    "fromInt32x4", Float32x4FromInt32x4,
+    "fromFloat64x2Bits", Float32x4FromFloat64x2Bits,
+    "fromInt32x4Bits", Float32x4fromInt32x4Bits,
+    "abs", Float32x4Abs,
     "neg", Float32x4Neg,
+    "add", Float32x4Add,
+    "sub", Float32x4Sub,
+    "mul", Float32x4Mul,
+    "div", Float32x4Div,
+    "clamp", Float32x4Clamp,
+    "min", Float32x4Min,
+    "max", Float32x4Max,
     "reciprocal", Float32x4Reciprocal,
     "reciprocalSqrt", Float32x4ReciprocalSqrt,
+    "scale", Float32x4Scale,
     "sqrt", Float32x4Sqrt,
-    "toInt32x4", Float32x4ToInt32x4,
-    // Binary
-    "add", Float32x4Add,
-    "div", Float32x4Div,
-    "max", Float32x4Max,
-    "min", Float32x4Min,
-    "mul", Float32x4Mul,
-    "sub", Float32x4Sub,
+    "shuffle", Float32x4Shuffle,
+    "shuffleMix", Float32x4ShuffleMix,
+    "withX", Float32x4WithX,
+    "withY", Float32x4WithY,
+    "withZ", Float32x4WithZ,
+    "withW", Float32x4WithW,
     "lessThan", Float32x4LessThan,
     "lessThanOrEqual", Float32x4LessThanOrEqual,
     "equal", Float32x4Equal,
     "notEqual", Float32x4NotEqual,
     "greaterThanOrEqual", Float32x4GreaterThanOrEqual,
     "greaterThan", Float32x4GreaterThan,
+    "select", Float32x4Select,
     "and", Float32x4And,
     "or", Float32x4Or,
     "xor", Float32x4XOr,
-    "not", Float32x4Not,
-    "scale", Float32x4Scale,
-    "withX", Float32x4WithX,
-    "withY", Float32x4WithY,
-    "withZ", Float32x4WithZ,
-    "withW", Float32x4WithW,
-    "shuffle", Float32x4Shuffle,
-    // Ternary
-    "clamp", Float32x4Clamp,
-    "shuffleMix", Float32x4ShuffleMix
+    "not", Float32x4Not
   ));
 
   // Set up non-enumerable properties of the SIMD float64x2 object.
   InstallFunctions($SIMD.float64x2, DONT_ENUM, $Array(
-    // Float64x2 operations
-    "splat", Float64x2Splat,
+    // Keep the sequence same as ecmascript_simd.js
     "zero", Float64x2Zero,
-    // Unary
+    "splat", Float64x2Splat,
+    "fromFloat32x4", Float64x2FromFloat32x4,
+    "fromInt32x4", Float64x2FromInt32x4,
+    "fromFloat32x4Bits", Float64x2FromFloat32x4Bits,
+    "fromInt32x4Bits", Float64x2FromInt32x4Bits,
     "abs", Float64x2Abs,
     "neg", Float64x2Neg,
-    "sqrt", Float64x2Sqrt,
-    // Binary
     "add", Float64x2Add,
-    "div", Float64x2Div,
-    "max", Float64x2Max,
-    "min", Float64x2Min,
-    "mul", Float64x2Mul,
     "sub", Float64x2Sub,
+    "mul", Float64x2Mul,
+    "div", Float64x2Div,
+    "clamp", Float64x2Clamp,
+    "min", Float64x2Min,
+    "max", Float64x2Max,
+    "reciprocal", Float64x2Reciprocal,
+    "reciprocalSqrt", Float64x2ReciprocalSqrt,
     "scale", Float64x2Scale,
+    "sqrt", Float64x2Sqrt,
+    "shuffle", Float64x2Shuffle,
+    "shuffleMix", Float64x2ShuffleMix,
     "withX", Float64x2WithX,
     "withY", Float64x2WithY,
-    // Ternary
-    "clamp", Float64x2Clamp
+    "lessThan", Float64x2lessThan,
+    "lessThanOrEqual", Float64x2lessThanOrEqual,
+    "equal", Float64x2Equal,
+    "notEqual", Float64x2NotEqual,
+    "greaterThanOrEqual", Float64x2GreaterThanOrEqual,
+    "greaterThan", Float64x2GreaterThan,
+    "select", Float64x2Select
   ));
 
   // Set up non-enumerable properties of the SIMD int32x4 object.
   InstallFunctions($SIMD.int32x4, DONT_ENUM, $Array(
-    // Int32x4 operations
+    // Keep the sequence same as ecmascript_simd.js
     "zero", Int32x4Zero,
-    "splat", Int32x4Splat,
     "bool", Int32x4Bool,
-    // Unary
-    "bitsToFloat32x4", Int32x4BitsToFloat32x4,
-    "neg", Int32x4Neg,
-    "not", Int32x4Not,
-    "toFloat32x4", Int32x4ToFloat32x4,
-    // Binary
-    "add", Int32x4Add,
+    "splat", Int32x4Splat,
+    "fromFloat32x4", Int32x4FromFloat32x4,
+    "fromFloat64x2", Int32x4FromFloat64x2,
+    "fromFloat32x4Bits", Int32x4FromFloat32x4Bits,
+    "fromFloat64x2Bits", Int32x4FromFloat64x2Bits,
     "and", Int32x4And,
-    "mul", Int32x4Mul,
     "or", Int32x4Or,
-    "sub", Int32x4Sub,
     "xor", Int32x4Xor,
+    "not", Int32x4Not,
+    "neg", Int32x4Neg,
+    "add", Int32x4Add,
+    "sub", Int32x4Sub,
+    "mul", Int32x4Mul,
     "shuffle", Int32x4Shuffle,
+    "shuffleMix", Int32x4ShuffleMix,
+    "select", Int32x4Select,
     "withX", Int32x4WithX,
     "withY", Int32x4WithY,
     "withZ", Int32x4WithZ,
@@ -855,14 +870,12 @@ function SetUpSIMD() {
     "withFlagY", Int32x4WithFlagY,
     "withFlagZ", Int32x4WithFlagZ,
     "withFlagW", Int32x4WithFlagW,
-    "greaterThan", Int32x4GreaterThan,
     "equal", Int32x4Equal,
+    "greaterThan", Int32x4GreaterThan,
     "lessThan", Int32x4LessThan,
     "shiftLeft", Int32x4ShiftLeft,
-    "shiftRight", Int32x4ShiftRight,
+    "shiftRightLogical", Int32x4ShiftRightLogical,
     "shiftRightArithmetic", Int32x4ShiftRightArithmetic,
-    // Ternary
-    "select", Int32x4Select
   ));
 
   %SetInlineBuiltinFlag(Float32x4And);
