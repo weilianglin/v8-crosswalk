@@ -150,14 +150,12 @@ namespace internal {
   F(AllocateInt32x4, 0, 1) \
   \
   /* SIMD */ \
-  F(Float32x4Abs, 1, 1) \
   F(Float32x4BitsToInt32x4, 1, 1) \
   F(Float32x4Neg, 1, 1) \
   F(Float32x4Reciprocal, 1, 1) \
   F(Float32x4ReciprocalSqrt, 1, 1) \
   F(Float32x4Sqrt, 1, 1) \
   F(Float32x4ToInt32x4, 1, 1) \
-  F(Float32x4Add, 2, 1) \
   F(Float32x4Div, 2, 1) \
   F(Float32x4Max, 2, 1) \
   F(Float32x4Min, 2, 1) \

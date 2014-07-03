@@ -215,7 +215,6 @@ SetUpInt32x4();
 //------------------------------------------------------------------------------
 
 macro SIMD128_UNARY_FUNCTIONS(FUNCTION)
-FUNCTION(Float32x4, Abs)
 FUNCTION(Float32x4, BitsToInt32x4)
 FUNCTION(Float32x4, Neg)
 FUNCTION(Float32x4, Reciprocal)
@@ -232,7 +231,6 @@ FUNCTION(Int32x4, ToFloat32x4)
 endmacro
 
 macro SIMD128_BINARY_FUNCTIONS(FUNCTION)
-FUNCTION(Float32x4, Add)
 FUNCTION(Float32x4, Div)
 FUNCTION(Float32x4, Max)
 FUNCTION(Float32x4, Min)
@@ -375,6 +373,21 @@ function Float32x4Splat(f) {
 
 function Float32x4Zero() {
   return %CreateFloat32x4(0.0, 0.0, 0.0, 0.0);
+}
+
+function Float32x4Abs(t) {
+  t = ToFloat32x4(t);
+  CheckFloat32x4(t);
+  return %CreateFloat32x4(MathAbs(t.x), MathAbs(t.y), MathAbs(t.z),
+                          MathAbs(t.w));
+}
+
+function Float32x4Add(a, b) {
+  a = ToFloat32x4(a);
+  CheckFloat32x4(a);
+  b = ToFloat32x4(b);
+  CheckFloat32x4(b);
+  return %CreateFloat32x4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 }
 
 function Float32x4And(a4, b4) {

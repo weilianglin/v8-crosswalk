@@ -15524,7 +15524,6 @@ inline double Sqrt<double>(double a) {
 
 
 #define SIMD128_UNARY_FUNCTIONS(V)                            \
-  V(Float32x4, Abs)                                           \
   V(Float32x4, Neg)                                           \
   V(Float32x4, Reciprocal)                                    \
   V(Float32x4, ReciprocalSqrt)                                \
@@ -15685,7 +15684,6 @@ static inline T Xor(T a, T b) {
 
 
 #define SIMD128_BINARY_FUNCTIONS(V)                           \
-  V(Float32x4, Add, Float32x4)                                \
   V(Float32x4, Div, Float32x4)                                \
   V(Float32x4, Max, Float32x4)                                \
   V(Float32x4, Min, Float32x4)                                \
