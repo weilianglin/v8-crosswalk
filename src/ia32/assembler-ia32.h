@@ -195,37 +195,6 @@ struct XMMRegister {
 typedef XMMRegister SIMD128Register;
 
 
-#define xmm0 (static_cast<const XMMRegister&>(double_register_0))
-#define xmm1 (static_cast<const XMMRegister&>(double_register_1))
-#define xmm2 (static_cast<const XMMRegister&>(double_register_2))
-#define xmm3 (static_cast<const XMMRegister&>(double_register_3))
-#define xmm4 (static_cast<const XMMRegister&>(double_register_4))
-#define xmm5 (static_cast<const XMMRegister&>(double_register_5))
-#define xmm6 (static_cast<const XMMRegister&>(double_register_6))
-#define xmm7 (static_cast<const XMMRegister&>(double_register_7))
-#define no_xmm_reg (static_cast<const XMMRegister&>(no_double_reg))
-
-
-struct X87Register : IntelDoubleRegister {
-  static const int kNumAllocatableRegisters = 5;
-  static const int kNumRegisters = 5;
-
-  bool is(X87Register reg) const {
-    return code_ == reg.code_;
-  }
-
-  static const char* AllocationIndexToString(int index) {
-    ASSERT(index >= 0 && index < kNumAllocatableRegisters);
-    const char* const names[] = {
-      "stX_0", "stX_1", "stX_2", "stX_3", "stX_4"
-    };
-    return names[index];
-  }
-
-  int code_;
-};
-
-
 typedef XMMRegister DoubleRegister;
 
 

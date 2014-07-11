@@ -207,7 +207,7 @@ void Deoptimizer::SetPlatformCompiledStubRegisters(
 }
 
 
-void Deoptimizer::CopyDoubleRegisters(FrameDescription* output_frame) {
+void Deoptimizer::CopySIMD128Registers(FrameDescription* output_frame) {
   for (int i = 0; i < XMMRegister::kMaxNumAllocatableRegisters; ++i) {
     simd128_value_t xmm_value = input_->GetSIMD128Register(i);
     output_frame->SetSIMD128Register(i, xmm_value);
@@ -238,7 +238,7 @@ void Deoptimizer::EntryGenerator::Generate() {
   const int kNumberOfRegisters = Register::kNumRegisters;
 
   const int kXMMRegsSize = kSIMD128Size *
-      XMMRegister::kNumAllocatableRegisters;
+      XMMRegister::kMaxNumAllocatableRegisters;
   __ sub(esp, Immediate(kXMMRegsSize));
   for (int i = 0; i < XMMRegister::kMaxNumAllocatableRegisters; ++i) {
     XMMRegister xmm_reg = XMMRegister::FromAllocationIndex(i);

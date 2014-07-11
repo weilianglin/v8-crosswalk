@@ -192,12 +192,6 @@ int TypeImpl<Config>::BitsetType::Lub(i::Map* map) {
     }
     case HEAP_NUMBER_TYPE:
       return kNumber & kTaggedPtr;
-    case FLOAT32x4_TYPE:
-      return kFloat32x4 & kTaggedPtr;
-    case FLOAT64x2_TYPE:
-      return kFloat64x2 & kTaggedPtr;
-    case INT32x4_TYPE:
-      return kInt32x4 & kTaggedPtr;
     case JS_VALUE_TYPE:
     case JS_DATE_TYPE:
     case JS_OBJECT_TYPE:

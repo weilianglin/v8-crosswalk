@@ -5988,10 +5988,6 @@ bool HOptimizedGraphBuilder::PropertyAccessInfo::LookupInPrototypes() {
 
 
 bool HOptimizedGraphBuilder::PropertyAccessInfo::CanAccessMonomorphic() {
-  if (IsSIMD128PropertyCallback() &&
-      CpuFeatures::SupportsSIMD128InCrankshaft()) {
-    return true;
-  }
   if (!CanInlinePropertyAccess(type_)) return false;
   if (IsJSObjectFieldAccessor()) return IsLoad();
   if (!LookupDescriptor()) return false;
@@ -6023,16 +6019,6 @@ bool HOptimizedGraphBuilder::PropertyAccessInfo::CanAccessAsMonomorphic(
   if (!CanAccessMonomorphic()) return false;
   STATIC_ASSERT(kMaxLoadPolymorphism == kMaxStorePolymorphism);
   if (types->length() > kMaxLoadPolymorphism) return false;
-
-  if (IsSIMD128PropertyCallback() &&
-      CpuFeatures::SupportsSIMD128InCrankshaft()) {
-    for (int i = 1; i < types->length(); ++i) {
-      if (types->at(i)->instance_type() == types->first()->instance_type()) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   HObjectAccess access = HObjectAccess::ForMap();  // bogus default
   if (GetJSObjectFieldAccess(&access)) {

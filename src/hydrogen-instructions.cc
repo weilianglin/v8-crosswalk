@@ -846,12 +846,8 @@ bool HInstruction::CanDeoptimize() {
     case HValue::kReturn:
     case HValue::kSeqStringGetChar:
     case HValue::kStoreCodeEntry:
-<<<<<<< HEAD
     case HValue::kStoreFrameContext:
-    case HValue::kStoreKeyed:
     case HValue::kStoreNamedField:
-=======
->>>>>>> 88f98ab... Introduce Float32x4, Float64x2, Int32x4, Float32x4Array, Float64x2Array
     case HValue::kStoreNamedGeneric:
     case HValue::kStringCharCodeAt:
     case HValue::kStringCharFromCode:

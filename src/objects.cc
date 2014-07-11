@@ -1816,7 +1816,7 @@ void Float32x4::Float32x4Print(StringStream* accumulator) {
   // print that using vsnprintf (which may truncate but never allocate if
   // there is no more space in the buffer).
   EmbeddedVector<char, 100> buffer;
-  OS::SNPrintF(buffer, "%.16g %.16g %.16g %.16g", x(), y(), z(), w());
+  SNPrintF(buffer, "%.16g %.16g %.16g %.16g", x(), y(), z(), w());
   accumulator->Add("%s", buffer.start());
 }
 
@@ -1839,7 +1839,7 @@ void Float64x2::Float64x2Print(StringStream* accumulator) {
   // print that using vsnprintf (which may truncate but never allocate if
   // there is no more space in the buffer).
   EmbeddedVector<char, 100> buffer;
-  OS::SNPrintF(buffer, "%.16g %.16g", x(), y());
+  SNPrintF(buffer, "%.16g %.16g", x(), y());
   accumulator->Add("%s", buffer.start());
 }
 
@@ -1852,7 +1852,7 @@ void Int32x4::Int32x4Print(StringStream* accumulator) {
   // print that using vsnprintf (which may truncate but never allocate if
   // there is no more space in the buffer).
   EmbeddedVector<char, 100> buffer;
-  OS::SNPrintF(buffer, "%u %u %u %u", x(), y(), z(), w());
+  SNPrintF(buffer, "%u %u %u %u", x(), y(), z(), w());
   accumulator->Add("%s", buffer.start());
 }
 
@@ -2134,7 +2134,7 @@ const char* Representation::Mnemonic() const {
     case kDouble: return "d";
     case kFloat32x4: return "float32x4";
     case kFloat64x2: return "float64x2";
-    case kInt32x4: return "int32x44";
+    case kInt32x4: return "int32x4";
     case kInteger32: return "i";
     case kHeapObject: return "h";
     case kExternal: return "x";

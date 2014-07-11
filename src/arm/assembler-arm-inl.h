@@ -48,7 +48,10 @@ namespace internal {
 
 
 bool CpuFeatures::SupportsCrankshaft() { return IsSupported(VFP3); }
-
+bool CpuFeatures::SupportsSIMD128InCrankshaft() {
+  // Not Implemented.
+  return false;
+}
 
 int Register::NumAllocatableRegisters() {
   return kMaxNumAllocatableRegisters;

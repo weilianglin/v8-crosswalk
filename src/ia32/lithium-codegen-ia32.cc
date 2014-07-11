@@ -2153,9 +2153,6 @@ void LCodeGen::DoBranch(LBranch* instr) {
     } else if (type.IsJSArray()) {
       ASSERT(!info()->IsStub());
       EmitBranch(instr, no_condition);
-    } else if (type.IsSIMD128()) {
-      ASSERT(!info()->IsStub());
-      EmitBranch(instr, no_condition);
     } else if (type.IsHeapNumber()) {
       ASSERT(!info()->IsStub());
       XMMRegister xmm_scratch = double_scratch0();
@@ -3155,69 +3152,6 @@ void LCodeGen::HandleExternalArrayOpRequiresTemp(
 }
 
 
-template<class T>
-void LCodeGen::DoLoadKeyedSIMD128ExternalArray(LLoadKeyed* instr) {
-  class DeferredSIMD128ToTagged V8_FINAL : public LDeferredCode {
-   public:
-    DeferredSIMD128ToTagged(LCodeGen* codegen,
-        LInstruction* instr,
-        Runtime::FunctionId id,
-        const X87Stack& x87_stack)
-      : LDeferredCode(codegen, x87_stack), instr_(instr), id_(id) { }
-    virtual void Generate() V8_OVERRIDE {
-      codegen()->DoDeferredSIMD128ToTagged(instr_, id_);
-    }
-    virtual LInstruction* instr() V8_OVERRIDE { return instr_; }
-   private:
-    LInstruction* instr_;
-    Runtime::FunctionId id_;
-  };
-
-  LOperand* key = instr->key();
-  ElementsKind elements_kind = instr->elements_kind();
-
-  if (CpuFeatures::IsSupported(SSE2)) {
-    CpuFeatureScope scope(masm(), SSE2);
-    Operand operand(BuildFastArrayOperand(
-        instr->elements(),
-        key,
-        instr->hydrogen()->key()->representation(),
-        elements_kind,
-        0,
-        instr->additional_index()));
-    __ movups(ToSIMD128Register(instr->result()), operand);
-  } else {
-    // Allocate a SIMD128 object on the heap.
-    Register reg = ToRegister(instr->result());
-    Register tmp = ToRegister(instr->temp());
-    DeferredSIMD128ToTagged* deferred = new(zone()) DeferredSIMD128ToTagged(
-        this, instr, static_cast<Runtime::FunctionId>(T::kRuntimeAllocatorId()),
-        x87_stack_);
-    if (FLAG_inline_new) {
-      __ AllocateSIMDHeapObject(T::kSize, reg, tmp, deferred->entry(),
-          static_cast<Heap::RootListIndex>(T::kMapRootIndex()));
-    } else {
-      __ jmp(deferred->entry());
-    }
-    __ bind(deferred->exit());
-
-    // Copy the SIMD128 value from the external array to the heap object.
-    STATIC_ASSERT(T::kValueSize % kPointerSize == 0);
-    for (int offset = 0; offset < T::kValueSize; offset += kPointerSize) {
-      Operand operand(BuildFastArrayOperand(
-          instr->elements(),
-          key,
-          instr->hydrogen()->key()->representation(),
-          elements_kind,
-          offset,
-          instr->additional_index()));
-      __ mov(tmp, operand);
-      __ mov(FieldOperand(reg, T::kValueOffset + offset), tmp);
-    }
-  }
-}
-
-
 void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
   ElementsKind elements_kind = instr->elements_kind();
   LOperand* key = instr->key();
@@ -3242,12 +3176,8 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
   } else if (elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
              elements_kind == FLOAT64_ELEMENTS) {
     __ movsd(ToDoubleRegister(instr->result()), operand);
-  } else if (IsFloat32x4ElementsKind(elements_kind)) {
-    DoLoadKeyedSIMD128ExternalArray<Float32x4>(instr);
-  } else if (IsFloat64x2ElementsKind(elements_kind)) {
-    DoLoadKeyedSIMD128ExternalArray<Float64x2>(instr);
-  } else if (IsInt32x4ElementsKind(elements_kind)) {
-    DoLoadKeyedSIMD128ExternalArray<Int32x4>(instr);
+  } else if (IsSIMD128ElementsKind(elements_kind)) {
+    __ movups(ToSIMD128Register(instr->result()), operand);
   } else {
     Register result(ToRegister(instr->result()));
     switch (elements_kind) {
@@ -4280,47 +4210,6 @@ void LCodeGen::DoBoundsCheck(LBoundsCheck* instr) {
 }
 
 
-template<class T>
-void LCodeGen::DoStoreKeyedSIMD128ExternalArray(LStoreKeyed* instr) {
-  LOperand* key = instr->key();
-  ElementsKind elements_kind = instr->elements_kind();
-
-  if (CpuFeatures::IsSafeForSnapshot(isolate(), SSE2)) {
-    CpuFeatureScope scope(masm(), SSE2);
-    Operand operand(BuildFastArrayOperand(
-        instr->elements(),
-        key,
-        instr->hydrogen()->key()->representation(),
-        elements_kind,
-        0,
-        instr->additional_index()));
-    __ movups(operand, ToSIMD128Register(instr->value()));
-  } else {
-    ASSERT(instr->value()->IsRegister());
-    Register temp = ToRegister(instr->temp());
-    Register input_reg = ToRegister(instr->value());
-    __ test(input_reg, Immediate(kSmiTagMask));
-    DeoptimizeIf(zero, instr->environment());
-    __ CmpObjectType(input_reg, T::kInstanceType, temp);
-    DeoptimizeIf(not_equal, instr->environment());
-
-    // Copy the SIMD128 value from the heap object to the external array.
-    STATIC_ASSERT(T::kValueSize % kPointerSize == 0);
-    for (int offset = 0; offset < T::kValueSize; offset += kPointerSize) {
-      Operand operand(BuildFastArrayOperand(
-          instr->elements(),
-          key,
-          instr->hydrogen()->key()->representation(),
-          elements_kind,
-          offset,
-          instr->additional_index()));
-      __ mov(temp, FieldOperand(input_reg, T::kValueOffset + offset));
-      __ mov(operand, temp);
-    }
-  }
-}
-
-
 void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
   ElementsKind elements_kind = instr->elements_kind();
   LOperand* key = instr->key();
@@ -4345,12 +4234,8 @@ void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
   } else if (elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
              elements_kind == FLOAT64_ELEMENTS) {
     __ movsd(operand, ToDoubleRegister(instr->value()));
-  } else if (IsFloat32x4ElementsKind(elements_kind)) {
-    DoStoreKeyedSIMD128ExternalArray<Float32x4>(instr);
-  } else if (IsFloat64x2ElementsKind(elements_kind)) {
-    DoStoreKeyedSIMD128ExternalArray<Float64x2>(instr);
-  } else if (IsInt32x4ElementsKind(elements_kind)) {
-    DoStoreKeyedSIMD128ExternalArray<Int32x4>(instr);
+  } else if (IsSIMD128ElementsKind(elements_kind)) {
+    __ movups(operand, ToSIMD128Register(instr->value()));
   } else {
     Register value = ToRegister(instr->value());
     switch (elements_kind) {
@@ -5923,7 +5808,7 @@ void LCodeGen::DoAllocateBlockContext(LAllocateBlockContext* instr) {
   __ push(ToRegister(instr->function()));
   CallRuntime(Runtime::kHiddenPushBlockContext, 2, instr);
   RecordSafepoint(Safepoint::kNoLazyDeopt);
-
+}
 
 template<class T>
 void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
@@ -5931,9 +5816,8 @@ void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
    public:
     DeferredSIMD128ToTagged(LCodeGen* codegen,
         LInstruction* instr,
-        Runtime::FunctionId id,
-        const X87Stack& x87_stack)
-      : LDeferredCode(codegen, x87_stack), instr_(instr), id_(id) { }
+        Runtime::FunctionId id)
+      : LDeferredCode(codegen), instr_(instr), id_(id) { }
     virtual void Generate() V8_OVERRIDE {
       codegen()->DoDeferredSIMD128ToTagged(instr_, id_);
     }
@@ -5943,14 +5827,12 @@ void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
     Runtime::FunctionId id_;
   };
 
-  CpuFeatureScope scope(masm(), SSE2);
   XMMRegister input_reg = ToSIMD128Register(instr->value());
   Register reg = ToRegister(instr->result());
   Register tmp = ToRegister(instr->temp());
 
   DeferredSIMD128ToTagged* deferred = new(zone()) DeferredSIMD128ToTagged(
-      this, instr, static_cast<Runtime::FunctionId>(T::kRuntimeAllocatorId()),
-      x87_stack_);
+      this, instr, static_cast<Runtime::FunctionId>(T::kRuntimeAllocatorId()));
   if (FLAG_inline_new) {
     __ AllocateSIMDHeapObject(T::kSize, reg, tmp, deferred->entry(),
         static_cast<Heap::RootListIndex>(T::kMapRootIndex()));
@@ -5985,7 +5867,6 @@ void LCodeGen::HandleTaggedToSIMD128(LTaggedToSIMD128* instr) {
   Register temp_reg = ToRegister(instr->temp());
   XMMRegister result_reg = ToSIMD128Register(result);
 
-  CpuFeatureScope scope(masm(), SSE2);
   __ test(input_reg, Immediate(kSmiTagMask));
   DeoptimizeIf(zero, instr->environment());
   __ CmpObjectType(input_reg, T::kInstanceType, temp_reg);
@@ -6007,7 +5888,6 @@ void LCodeGen::DoTaggedToSIMD128(LTaggedToSIMD128* instr) {
 
 
 void LCodeGen::DoNullarySIMDOperation(LNullarySIMDOperation* instr) {
-  CpuFeatureScope scope(masm(), SSE2);
   switch (instr->op()) {
     case kFloat32x4Zero: {
       XMMRegister result_reg = ToFloat32x4Register(instr->result());
@@ -6032,7 +5912,6 @@ void LCodeGen::DoNullarySIMDOperation(LNullarySIMDOperation* instr) {
 
 
 void LCodeGen::DoUnarySIMDOperation(LUnarySIMDOperation* instr) {
-  CpuFeatureScope scope(masm(), SSE2);
   uint8_t select = 0;
   switch (instr->op()) {
     case kSIMD128Change: {
@@ -6297,7 +6176,6 @@ void LCodeGen::DoUnarySIMDOperation(LUnarySIMDOperation* instr) {
 
 
 void LCodeGen::DoBinarySIMDOperation(LBinarySIMDOperation* instr) {
-  CpuFeatureScope scope(masm(), SSE2);
   uint8_t imm8 = 0;  // for with operation
   switch (instr->op()) {
     case kFloat32x4Add:
@@ -6749,7 +6627,6 @@ void LCodeGen::DoBinarySIMDOperation(LBinarySIMDOperation* instr) {
 
 
 void LCodeGen::DoTernarySIMDOperation(LTernarySIMDOperation* instr) {
-  CpuFeatureScope scope(masm(), SSE2);
   switch (instr->op()) {
     case kInt32x4Select: {
       ASSERT(instr->hydrogen()->first()->representation().IsInt32x4());
@@ -6843,7 +6720,6 @@ void LCodeGen::DoTernarySIMDOperation(LTernarySIMDOperation* instr) {
 
 
 void LCodeGen::DoQuarternarySIMDOperation(LQuarternarySIMDOperation* instr) {
-  CpuFeatureScope scope(masm(), SSE2);
   switch (instr->op()) {
     case kFloat32x4Constructor: {
       ASSERT(instr->hydrogen()->x()->representation().IsDouble());

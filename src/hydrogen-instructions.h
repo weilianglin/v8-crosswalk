@@ -8,6 +8,7 @@
 #include "src/v8.h"
 
 #include "src/allocation.h"
+#include "src/assembler.h"
 #include "src/code-stubs.h"
 #include "src/conversions.h"
 #include "src/data-flow.h"
@@ -5985,6 +5986,10 @@ class HObjectAccess V8_FINAL {
     return HObjectAccess(kDouble,
                          Float32x4::kValueOffset + kDoubleSize,
                          Representation::Double());
+  }
+
+  static HObjectAccess ForMapPrototype() {
+    return HObjectAccess(kInobject, Map::kPrototypeOffset);
   }
 
   static HObjectAccess ForElementsPointer() {

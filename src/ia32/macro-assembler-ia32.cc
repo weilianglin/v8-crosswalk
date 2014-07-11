@@ -979,7 +979,7 @@ void MacroAssembler::EnterExitFramePrologue() {
 void MacroAssembler::EnterExitFrameEpilogue(int argc, bool save_doubles) {
   // Optionally save all XMM registers.
   if (save_doubles) {
-    int space = XMMRegister::kNumRegisters * kSIMD128Size +
+    int space = XMMRegister::kMaxNumRegisters * kSIMD128Size +
         argc * kPointerSize;
     sub(esp, Immediate(space));
     const int offset = -2 * kPointerSize;
