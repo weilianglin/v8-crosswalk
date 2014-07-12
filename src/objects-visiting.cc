@@ -133,6 +133,9 @@ StaticVisitorBase::VisitorId StaticVisitorBase::GetVisitorId(
     case JS_MODULE_TYPE:
     case JS_VALUE_TYPE:
     case JS_DATE_TYPE:
+    case FLOAT32x4_TYPE:
+    case FLOAT64x2_TYPE:
+    case INT32x4_TYPE:
     case JS_ARRAY_TYPE:
     case JS_GLOBAL_PROXY_TYPE:
     case JS_GLOBAL_OBJECT_TYPE:
@@ -148,9 +151,6 @@ StaticVisitorBase::VisitorId StaticVisitorBase::GetVisitorId(
       return kVisitJSFunction;
 
     case HEAP_NUMBER_TYPE:
-    case FLOAT32x4_TYPE:
-    case FLOAT64x2_TYPE:
-    case INT32x4_TYPE:
 #define EXTERNAL_ARRAY_CASE(Type, type, TYPE, ctype, size)                     \
     case EXTERNAL_##TYPE##_ARRAY_TYPE:
 

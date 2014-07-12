@@ -1982,6 +1982,12 @@ int JSObject::GetHeaderSize() {
       return JSValue::kSize;
     case JS_DATE_TYPE:
       return JSDate::kSize;
+    case FLOAT32x4_TYPE:
+      return Float32x4::kSize;
+    case FLOAT64x2_TYPE:
+      return Float64x2::kSize;
+    case INT32x4_TYPE:
+      return Int32x4::kSize;
     case JS_ARRAY_TYPE:
       return JSArray::kSize;
     case JS_ARRAY_BUFFER_TYPE:

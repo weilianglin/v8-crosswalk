@@ -1502,21 +1502,21 @@ void Genesis::InitializeExperimentalGlobal() {
     native_context()->set_simd_object(*simd_object);
     // --- f l o a t 3 2 x 4 ---
     Handle<JSFunction> float32x4_fun =
-        InstallFunction(simd_object, "float32x4", JS_VALUE_TYPE, JSValue::kSize,
+        InstallFunction(simd_object, "float32x4", FLOAT32x4_TYPE, Float32x4::kSize,
                         isolate()->initial_object_prototype(),
                         Builtins::kIllegal);
     native_context()->set_float32x4_function(*float32x4_fun);
 
     // --- f l o a t 6 4 x 2 ---
     Handle<JSFunction> float64x2_fun =
-        InstallFunction(simd_object, "float64x2", JS_VALUE_TYPE, JSValue::kSize,
+        InstallFunction(simd_object, "float64x2", FLOAT64x2_TYPE, Float64x2::kSize,
                         isolate()->initial_object_prototype(),
                         Builtins::kIllegal);
     native_context()->set_float64x2_function(*float64x2_fun);
 
     // --- i n t 3 2 x 4 ---
     Handle<JSFunction> int32x4_fun =
-        InstallFunction(simd_object, "int32x4", JS_VALUE_TYPE, JSValue::kSize,
+        InstallFunction(simd_object, "int32x4", INT32x4_TYPE, Int32x4::kSize,
                         isolate()->initial_object_prototype(),
                         Builtins::kIllegal);
     native_context()->set_int32x4_function(*int32x4_fun);

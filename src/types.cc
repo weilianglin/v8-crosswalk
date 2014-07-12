@@ -194,6 +194,9 @@ int TypeImpl<Config>::BitsetType::Lub(i::Map* map) {
       return kNumber & kTaggedPtr;
     case JS_VALUE_TYPE:
     case JS_DATE_TYPE:
+    case FLOAT32x4_TYPE:
+    case FLOAT64x2_TYPE:
+    case INT32x4_TYPE:
     case JS_OBJECT_TYPE:
     case JS_CONTEXT_EXTENSION_OBJECT_TYPE:
     case JS_GENERATOR_OBJECT_TYPE:

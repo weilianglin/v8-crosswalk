@@ -149,19 +149,26 @@ function Int32x4Constructor(x, y, z, w) {
   }
 }
 
+function GetX () {
+
+}
+
 function SetUpFloat32x4() {
   %CheckIsBootstrapping();
+
 
   %SetCode($Float32x4, Float32x4Constructor);
 
   %FunctionSetPrototype($Float32x4, new $Float32x4(0.0, 0.0, 0.0, 0.0));
   %SetProperty($Float32x4.prototype, "constructor", $Float32x4, DONT_ENUM);
 
+  /*
   InstallGetter($Float32x4.prototype, "x", Float32x4GetX);
   InstallGetter($Float32x4.prototype, "y", Float32x4GetY);
   InstallGetter($Float32x4.prototype, "z", Float32x4GetZ);
   InstallGetter($Float32x4.prototype, "w", Float32x4GetW);
   InstallGetter($Float32x4.prototype, "signMask", Float32x4GetSignMask);
+  */
   InstallFunctions($Float32x4.prototype, DONT_ENUM, $Array(
     "toString", Float32x4ToString,
     "valueOf", Float32x4ValueOf
@@ -209,9 +216,9 @@ function SetUpInt32x4() {
 }
 
 SetUpFloat32x4();
-SetUpFloat64x2();
-SetUpInt32x4();
-
+//SetUpFloat64x2();
+//SetUpInt32x4();
+/*
 //------------------------------------------------------------------------------
 
 macro SIMD128_UNARY_FUNCTIONS(FUNCTION)
@@ -1099,3 +1106,4 @@ DECLARE_TYPED_ARRAY_FUNCTION(Int32x4)
 SetUpFloat32x4Array();
 SetUpFloat64x2Array();
 SetUpInt32x4Array();
+*/
