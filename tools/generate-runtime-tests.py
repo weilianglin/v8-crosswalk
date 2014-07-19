@@ -86,6 +86,10 @@ BLACKLISTED = [
   # TODO(jkummerow): Fix these and un-blacklist them!
   "CreateDateTimeFormat",
   "CreateNumberFormat",
+
+  "CreateFloat32x4",
+  "CreateFloat64x2",
+  "CreateInt32x4",
 ]
 
 
