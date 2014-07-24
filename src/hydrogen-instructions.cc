@@ -859,8 +859,11 @@ bool HInstruction::CanDeoptimize() {
     case HValue::kUnarySIMDOperation:
     case HValue::kBinarySIMDOperation:
     case HValue::kTernarySIMDOperation:
-    case HValue::kQuarternarySIMDOperation:
       return false;
+
+    case HValue::kQuarternarySIMDOperation:
+      return (HQuarternarySIMDOperation::cast(this)->op() == kInt32x4Bool) ?
+        true : false;
 
     case HValue::kStoreKeyed:
       return !CpuFeatures::SupportsSIMD128InCrankshaft() &&
