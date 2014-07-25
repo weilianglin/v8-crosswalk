@@ -3131,9 +3131,10 @@ void LCodeGen::DoAccessArgumentsAt(LAccessArgumentsAt* instr) {
 
 bool LCodeGen::HandleExternalArrayOpRequiresPreScale(
     LOperand* key,
+    Representation key_representation,
     ElementsKind elements_kind) {
   Register key_reg = ToRegister(key);
-  if (ExternalArrayOpRequiresPreScale(elements_kind)) {
+  if (ExternalArrayOpRequiresPreScale(key_representation, elements_kind)) {
     int pre_shift_size = ElementsKindToShiftSize(elements_kind) -
         static_cast<int>(maximal_scale_factor);
     ASSERT(pre_shift_size > 0);
@@ -3152,7 +3153,8 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
     Representation key_representation =
         instr->hydrogen()->key()->representation();
     if (ExternalArrayOpRequiresTemp(key_representation, elements_kind)) {
-      if (!HandleExternalArrayOpRequiresPreScale(key, elements_kind))
+      if (!HandleExternalArrayOpRequiresPreScale(
+          key, key_representation, elements_kind))
         __ SmiToInteger64(key_reg, key_reg);
     } else if (instr->hydrogen()->IsDehoisted()) {
       // Sign extend key because it could be a 32 bit negative value
@@ -3163,7 +3165,8 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
     Representation key_representation =
         instr->hydrogen()->key()->representation();
     if (ExternalArrayOpRequiresTemp(key_representation, elements_kind))
-      HandleExternalArrayOpRequiresPreScale(key, elements_kind);
+      HandleExternalArrayOpRequiresPreScale(
+          key, key_representation, elements_kind);
   }
 
   Operand operand(BuildFastArrayOperand(
@@ -3359,7 +3362,7 @@ Operand LCodeGen::BuildFastArrayOperand(
       ASSERT(SmiValuesAre31Bits());
       shift_size -= kSmiTagSize;
     }
-    if (ExternalArrayOpRequiresPreScale(elements_kind)) {
+    if (ExternalArrayOpRequiresPreScale(key_representation, elements_kind)) {
       // Make sure the key is pre-scaled against maximal_scale_factor.
       shift_size = static_cast<int>(maximal_scale_factor);
     }
@@ -5288,7 +5291,8 @@ void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
     Representation key_representation =
         instr->hydrogen()->key()->representation();
     if (ExternalArrayOpRequiresTemp(key_representation, elements_kind)) {
-      if (!HandleExternalArrayOpRequiresPreScale(key, elements_kind))
+      if (!HandleExternalArrayOpRequiresPreScale(
+          key, key_representation, elements_kind))
         __ SmiToInteger64(key_reg, key_reg);
     } else if (instr->hydrogen()->IsDehoisted()) {
       // Sign extend key because it could be a 32 bit negative value
@@ -5299,7 +5303,8 @@ void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
     Representation key_representation =
         instr->hydrogen()->key()->representation();
     if (ExternalArrayOpRequiresTemp(key_representation, elements_kind))
-      HandleExternalArrayOpRequiresPreScale(key, elements_kind);
+      HandleExternalArrayOpRequiresPreScale(
+          key, key_representation, elements_kind);
   }
 
   Operand operand(BuildFastArrayOperand(
@@ -6109,10 +6114,12 @@ void LCodeGen::HandleTaggedToSIMD128(LTaggedToSIMD128* instr) {
   ASSERT(input->IsRegister());
   LOperand* result = instr->result();
   ASSERT(result->IsSIMD128Register());
-  LOperand* temp_reg = instr->temp();
+  LOperand* temp = instr->temp();
+  ASSERT(temp->IsRegister());
 
   Register input_reg = ToRegister(input);
   XMMRegister result_reg = ToSIMD128Register(result);
+  Register temp_reg = ToRegister(temp);
 
   __ testp(input_reg, Immediate(kSmiTagMask));
   DeoptimizeIf(zero, instr->environment());

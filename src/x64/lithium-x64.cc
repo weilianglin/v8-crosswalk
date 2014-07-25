@@ -2447,14 +2447,14 @@ LInstruction* LChunkBuilder::DoLoadKeyed(HLoadKeyed* instr) {
   LInstruction* result = NULL;
 
   if (kPointerSize == kInt64Size) {
-    bool clobbers_key = ExternalArrayOpRequiresPreScale(elements_kind);
+    bool clobbers_key = ExternalArrayOpRequiresPreScale(
+        instr->key()->representation(), elements_kind);
     key = clobbers_key
         ? UseTempRegisterOrConstant(instr->key())
         : UseRegisterOrConstantAtStart(instr->key());
   } else {
     bool clobbers_key = ExternalArrayOpRequiresTemp(
-        instr->key()->representation(), elements_kind) ||
-        ExternalArrayOpRequiresPreScale(elements_kind);
+        instr->key()->representation(), elements_kind);
     key = clobbers_key
         ? UseTempRegister(instr->key())
         : UseRegisterOrConstantAtStart(instr->key());
@@ -2481,13 +2481,7 @@ LInstruction* LChunkBuilder::DoLoadKeyed(HLoadKeyed* instr) {
         (instr->representation().IsInt32x4() &&
          IsInt32x4ElementsKind(elements_kind)));
     LOperand* backing_store = UseRegister(instr->elements());
-    result = DefineAsRegister(new(zone()) LLoadKeyed(backing_store, key,
-        load_128bits_without_sse2 ? TempRegister() : NULL,
-        load_128bits_without_sse2 ? TempRegister() : NULL));
-    if (load_128bits_without_sse2) {
-      info()->MarkAsDeferredCalling();
-      AssignPointerMap(result);
-    }
+    result = DefineAsRegister(new(zone()) LLoadKeyed(backing_store, key));
   }
 
   if ((instr->is_external() || instr->is_fixed_typed_array()) ?
@@ -2548,7 +2542,7 @@ LInstruction* LChunkBuilder::DoStoreKeyed(HStoreKeyed* instr) {
       }
     }
 
-    return new(zone()) LStoreKeyed(object, key, val, NULL, NULL);
+    return new(zone()) LStoreKeyed(object, key, val);
   }
 
   ASSERT(
@@ -2574,7 +2568,8 @@ LInstruction* LChunkBuilder::DoStoreKeyed(HStoreKeyed* instr) {
       : UseRegister(instr->value());
   LOperand* key = NULL;
   if (kPointerSize == kInt64Size) {
-    bool clobbers_key = ExternalArrayOpRequiresPreScale(elements_kind);
+    bool clobbers_key = ExternalArrayOpRequiresPreScale(
+        instr->key()->representation(), elements_kind);
     key = clobbers_key
         ? UseTempRegisterOrConstant(instr->key())
         : UseRegisterOrConstantAtStart(instr->key());

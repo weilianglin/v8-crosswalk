@@ -1779,14 +1779,13 @@ inline static bool ExternalArrayOpRequiresTemp(
   // Operations that require the key to be divided by two to be converted into
   // an index cannot fold the scale operation into a load and need an extra
   // temp register to do the work.
-  return ExternalArrayOpRequiresPreScale(key_representation, elements_kind) ||
-      (SmiValuesAre31Bits() && key_representation.IsSmi() &&
+  return SmiValuesAre31Bits() && key_representation.IsSmi() &&
       (elements_kind == EXTERNAL_INT8_ELEMENTS ||
        elements_kind == EXTERNAL_UINT8_ELEMENTS ||
        elements_kind == EXTERNAL_UINT8_CLAMPED_ELEMENTS ||
        elements_kind == UINT8_ELEMENTS ||
        elements_kind == INT8_ELEMENTS ||
-       elements_kind == UINT8_CLAMPED_ELEMENTS));
+       elements_kind == UINT8_CLAMPED_ELEMENTS);
 }
 
 
@@ -2380,15 +2379,12 @@ class LStoreNamedGeneric V8_FINAL : public LTemplateInstruction<0, 3, 0> {
 };
 
 
-class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 2> {
+class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 0> {
  public:
-  LStoreKeyed(LOperand* object, LOperand* key, LOperand* value,
-              LOperand* temp0, LOperand* temp1) {
+  LStoreKeyed(LOperand* object, LOperand* key, LOperand* value) {
     inputs_[0] = object;
     inputs_[1] = key;
     inputs_[2] = value;
-    temps_[0] = temp0;
-    temps_[1] = temp1;
   }
 
   bool is_external() const { return hydrogen()->is_external(); }
@@ -2401,8 +2397,6 @@ class LStoreKeyed V8_FINAL : public LTemplateInstruction<0, 3, 2> {
   LOperand* elements() { return inputs_[0]; }
   LOperand* key() { return inputs_[1]; }
   LOperand* value() { return inputs_[2]; }
-  LOperand* temp0() { return temps_[0]; }
-  LOperand* temp1() { return temps_[1]; }
   ElementsKind elements_kind() const { return hydrogen()->elements_kind(); }
 
   DECLARE_CONCRETE_INSTRUCTION(StoreKeyed, "store-keyed")

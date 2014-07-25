@@ -322,6 +322,7 @@ class LCodeGen: public LCodeGenBase {
   void EnsureSpaceForLazyDeopt(int space_needed) V8_OVERRIDE;
   void DoLoadKeyedExternalArray(LLoadKeyed* instr);
   bool HandleExternalArrayOpRequiresPreScale(LOperand* key,
+                                             Representation key_representation,
                                              ElementsKind elements_kind);
   void DoLoadKeyedFixedDoubleArray(LLoadKeyed* instr);
   void DoLoadKeyedFixedArray(LLoadKeyed* instr);
