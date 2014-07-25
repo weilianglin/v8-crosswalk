@@ -1779,13 +1779,14 @@ inline static bool ExternalArrayOpRequiresTemp(
   // Operations that require the key to be divided by two to be converted into
   // an index cannot fold the scale operation into a load and need an extra
   // temp register to do the work.
-  return SmiValuesAre31Bits() && key_representation.IsSmi() &&
+  return ExternalArrayOpRequiresPreScale(key_representation, elements_kind) ||
+      (SmiValuesAre31Bits() && key_representation.IsSmi() &&
       (elements_kind == EXTERNAL_INT8_ELEMENTS ||
        elements_kind == EXTERNAL_UINT8_ELEMENTS ||
        elements_kind == EXTERNAL_UINT8_CLAMPED_ELEMENTS ||
        elements_kind == UINT8_ELEMENTS ||
        elements_kind == INT8_ELEMENTS ||
-       elements_kind == UINT8_CLAMPED_ELEMENTS);
+       elements_kind == UINT8_CLAMPED_ELEMENTS));
 }
 
 
