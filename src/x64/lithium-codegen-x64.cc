@@ -5889,6 +5889,7 @@ void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
 
   XMMRegister input_reg = ToSIMD128Register(instr->value());
   Register reg = ToRegister(instr->result());
+  Register tmp = ToRegister(instr->temp());
 
   DeferredSIMD128ToTagged* deferred =
       new(zone()) DeferredSIMD128ToTagged(this, instr,
@@ -5896,7 +5897,11 @@ void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
   // TODO(ningxin): implement the inline-new.
   __ jmp(deferred->entry());
   __ bind(deferred->exit());
-  __ movups(FieldOperand(reg, T::kValueOffset), input_reg);
+
+  // Load the inner FixedTypedArray object.
+  __ movp(tmp, FieldOperand(reg, T::kValueOffset));
+
+  __ movups(FieldOperand(tmp, FixedTypedArrayBase::kDataOffset), input_reg);
 }
 
 
@@ -6104,6 +6109,7 @@ void LCodeGen::HandleTaggedToSIMD128(LTaggedToSIMD128* instr) {
   ASSERT(input->IsRegister());
   LOperand* result = instr->result();
   ASSERT(result->IsSIMD128Register());
+  LOperand* temp_reg = instr->temp();
 
   Register input_reg = ToRegister(input);
   XMMRegister result_reg = ToSIMD128Register(result);
@@ -6112,7 +6118,12 @@ void LCodeGen::HandleTaggedToSIMD128(LTaggedToSIMD128* instr) {
   DeoptimizeIf(zero, instr->environment());
   __ CmpObjectType(input_reg, T::kInstanceType, kScratchRegister);
   DeoptimizeIf(not_equal, instr->environment());
-  __ movups(result_reg, FieldOperand(input_reg, T::kValueOffset));
+
+  // Load the inner FixedTypedArray object.
+  __ movp(temp_reg, FieldOperand(input_reg, T::kValueOffset));
+
+  __ movups(
+      result_reg, FieldOperand(temp_reg, FixedTypedArrayBase::kDataOffset));
 }
 
 

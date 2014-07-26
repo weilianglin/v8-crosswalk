@@ -2298,14 +2298,17 @@ class LNumberUntagD V8_FINAL : public LTemplateInstruction<1, 1, 0> {
 };
 
 
-class LTaggedToSIMD128 V8_FINAL : public LTemplateInstruction<1, 1, 0> {
+class LTaggedToSIMD128 V8_FINAL : public LTemplateInstruction<1, 1, 1> {
  public:
-  explicit LTaggedToSIMD128(LOperand* value, Representation representation)
+  explicit LTaggedToSIMD128(LOperand* value, LOperand* temp,
+                            Representation representation)
       : representation_(representation) {
     inputs_[0] = value;
+    temps_[0] = temp;
   }
 
   LOperand* value() { return inputs_[0]; }
+  LOperand* temp() { return temps_[0]; }
   Representation representation() const { return representation_; }
 
   DECLARE_CONCRETE_INSTRUCTION(TaggedToSIMD128, "simd128-untag")

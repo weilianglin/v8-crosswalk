@@ -2130,7 +2130,8 @@ LInstruction* LChunkBuilder::DoChange(HChange* instr) {
       return result;
     } else if (to.IsSIMD128()) {
       LOperand* value = UseRegister(instr->value());
-      LTaggedToSIMD128* res = new(zone()) LTaggedToSIMD128(value, to);
+      LOperand* temp = TempRegister();
+      LTaggedToSIMD128* res = new(zone()) LTaggedToSIMD128(value, temp, to);
       return AssignEnvironment(DefineAsRegister(res));
     } else if (to.IsSmi()) {
       LOperand* value = UseRegister(val);
