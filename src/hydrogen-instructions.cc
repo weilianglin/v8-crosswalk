@@ -856,14 +856,7 @@ bool HInstruction::CanDeoptimize() {
     case HValue::kUnknownOSRValue:
     case HValue::kUseConst:
     case HValue::kNullarySIMDOperation:
-    case HValue::kUnarySIMDOperation:
-    case HValue::kBinarySIMDOperation:
-    case HValue::kTernarySIMDOperation:
       return false;
-
-    case HValue::kQuarternarySIMDOperation:
-      return (HQuarternarySIMDOperation::cast(this)->op() == kInt32x4Bool) ?
-        true : false;
 
     case HValue::kStoreKeyed:
       return !CpuFeatures::SupportsSIMD128InCrankshaft() &&
@@ -921,6 +914,10 @@ bool HInstruction::CanDeoptimize() {
     case HValue::kTypeof:
     case HValue::kUnaryMathOperation:
     case HValue::kWrapReceiver:
+    case HValue::kUnarySIMDOperation:
+    case HValue::kBinarySIMDOperation:
+    case HValue::kTernarySIMDOperation:
+    case HValue::kQuarternarySIMDOperation:
       return true;
   }
   UNREACHABLE();
