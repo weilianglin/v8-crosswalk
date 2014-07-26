@@ -2315,7 +2315,8 @@ class LNumberUntagD V8_FINAL : public LTemplateInstruction<1, 1, 1> {
 class LTaggedToSIMD128 V8_FINAL : public LTemplateInstruction<1, 1, 1> {
  public:
   explicit LTaggedToSIMD128(LOperand* value, LOperand* temp,
-      Representation representation) : representation_(representation) {
+                            Representation representation)
+      : representation_(representation) {
     inputs_[0] = value;
     temps_[0] = temp;
   }
