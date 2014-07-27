@@ -1694,109 +1694,39 @@ void MacroAssembler::AllocateHeapNumber(Register result,
 }
 
 
-void MacroAssembler::AllocateFloat32x4(Register result,
-                                       Register scratch1,
-                                       Register scratch2,
-                                       Label* gc_required) {
-  // Allocate heap number in new space.
-  Allocate(Float32x4::kSize, result, scratch1, scratch2, gc_required,
-           TAG_OBJECT);
+#define SIMD128_HEAP_ALLOCATE_FUNCTIONS(V) \
+  V(Float32x4, float32x4)                  \
+  V(Float64x2, float64x2)                  \
+  V(Int32x4, int32x4)
 
-  // Set the map.
-  mov(FieldOperand(result, JSObject::kMapOffset),
-      Immediate(reinterpret_cast<intptr_t>(isolate()->native_context()->float32x4_function()->initial_map())));
-  mov(FieldOperand(result, JSObject::kPropertiesOffset),
-    Immediate(isolate()->factory()->empty_fixed_array()));
-  mov(FieldOperand(result, JSObject::kElementsOffset),
-      Immediate(isolate()->factory()->empty_fixed_array()));
+#define DECLARE_SIMD_HEAP_ALLOCATE_FUNCTION(TYPE, type)                    \
+void MacroAssembler::Allocate##TYPE(Register result,                       \
+                                    Register scratch1,                     \
+                                    Register scratch2,                     \
+                                    Label* gc_required) {                  \
+  Allocate(TYPE::kSize, result, scratch1, no_reg, gc_required, TAG_OBJECT);\
+                                                                           \
+  mov(FieldOperand(result, JSObject::kMapOffset),                          \
+      Immediate(reinterpret_cast<intptr_t>(                                \
+          isolate()->native_context()->type##_function()->initial_map())));\
+  mov(FieldOperand(result, JSObject::kPropertiesOffset),                   \
+      Immediate(isolate()->factory()->empty_fixed_array()));               \
+  mov(FieldOperand(result, JSObject::kElementsOffset),                     \
+      Immediate(isolate()->factory()->empty_fixed_array()));               \
+                                                                           \
+  Allocate(FixedTypedArrayBase::kDataOffset + k##TYPE##Size,               \
+           scratch1, scratch2, no_reg, gc_required, TAG_OBJECT);           \
+                                                                           \
+  mov(FieldOperand(scratch1, FixedTypedArrayBase::kMapOffset),             \
+      Immediate(isolate()->factory()->fixed_##type##_array_map()));        \
+  mov(scratch2, Immediate(1));                                             \
+  SmiTag(scratch2);                                                        \
+  mov(FieldOperand(result, FixedTypedArrayBase::kLengthOffset), scratch2); \
+                                                                           \
+  mov(FieldOperand(result, TYPE::kValueOffset), scratch1);                 \
 }
 
-void MacroAssembler::AllocateFloat32x4FixedTypeArray(Register result,
-                                                     Register scratch1,
-                                                     Register scratch2,
-                                                     Label* gc_required) {
-  // Allocate heap number in new space.
-  Allocate(FixedTypedArrayBase::kDataOffset + kFloat32x4Size, result, scratch1, scratch2, gc_required,
-           TAG_OBJECT);
-
-  // Set the map.
-  mov(FieldOperand(result, FixedTypedArrayBase::kMapOffset),
-      Immediate(isolate()->factory()->fixed_float32x4_array_map()));
-  mov(scratch1, Immediate(1));
-  SmiTag(scratch1);
-  mov(FieldOperand(result, FixedTypedArrayBase::kLengthOffset),
-      scratch1);
-}
-
-
-void MacroAssembler::AllocateInt32x4(Register result,
-                                       Register scratch1,
-                                       Register scratch2,
-                                       Label* gc_required) {
-  // Allocate heap number in new space.
-  Allocate(Int32x4::kSize, result, scratch1, scratch2, gc_required,
-           TAG_OBJECT);
-
-  // Set the map.
-  mov(FieldOperand(result, JSObject::kMapOffset),
-      Immediate(reinterpret_cast<intptr_t>(isolate()->native_context()->int32x4_function()->initial_map())));
-  mov(FieldOperand(result, JSObject::kPropertiesOffset),
-    Immediate(isolate()->factory()->empty_fixed_array()));
-  mov(FieldOperand(result, JSObject::kElementsOffset),
-      Immediate(isolate()->factory()->empty_fixed_array()));
-}
-
-void MacroAssembler::AllocateInt32x4FixedTypeArray(Register result,
-                                                     Register scratch1,
-                                                     Register scratch2,
-                                                     Label* gc_required) {
-  // Allocate heap number in new space.
-  Allocate(FixedTypedArrayBase::kDataOffset + kInt32x4Size, result, scratch1, scratch2, gc_required,
-           TAG_OBJECT);
-
-  // Set the map.
-  mov(FieldOperand(result, FixedTypedArrayBase::kMapOffset),
-      Immediate(isolate()->factory()->fixed_int32x4_array_map()));
-  mov(scratch1, Immediate(1));
-  SmiTag(scratch1);
-  mov(FieldOperand(result, FixedTypedArrayBase::kLengthOffset),
-      scratch1);
-}
-
-
-void MacroAssembler::AllocateFloat64x2(Register result,
-                                       Register scratch1,
-                                       Register scratch2,
-                                       Label* gc_required) {
-  // Allocate heap number in new space.
-  Allocate(Float64x2::kSize, result, scratch1, scratch2, gc_required,
-           TAG_OBJECT);
-
-  // Set the map.
-  mov(FieldOperand(result, JSObject::kMapOffset),
-      Immediate(reinterpret_cast<intptr_t>(isolate()->native_context()->float64x2_function()->initial_map())));
-  mov(FieldOperand(result, JSObject::kPropertiesOffset),
-    Immediate(isolate()->factory()->empty_fixed_array()));
-  mov(FieldOperand(result, JSObject::kElementsOffset),
-      Immediate(isolate()->factory()->empty_fixed_array()));
-}
-
-void MacroAssembler::AllocateFloat64x2FixedTypeArray(Register result,
-                                                     Register scratch1,
-                                                     Register scratch2,
-                                                     Label* gc_required) {
-  // Allocate heap number in new space.
-  Allocate(FixedTypedArrayBase::kDataOffset + kFloat64x2Size, result, scratch1, scratch2, gc_required,
-           TAG_OBJECT);
-
-  // Set the map.
-  mov(FieldOperand(result, FixedTypedArrayBase::kMapOffset),
-      Immediate(isolate()->factory()->fixed_float64x2_array_map()));
-  mov(scratch1, Immediate(1));
-  SmiTag(scratch1);
-  mov(FieldOperand(result, FixedTypedArrayBase::kLengthOffset),
-      scratch1);
-}
+SIMD128_HEAP_ALLOCATE_FUNCTIONS(DECLARE_SIMD_HEAP_ALLOCATE_FUNCTION)
 
 
 void MacroAssembler::AllocateTwoByteString(Register result,

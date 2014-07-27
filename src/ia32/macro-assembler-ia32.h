@@ -640,7 +640,8 @@ class MacroAssembler: public Assembler {
                           Register scratch2,
                           Label* gc_required);
 
-  // Allocate a float32x4 or int32x4 object in new space with undefined value.
+  // Allocate a float32x4, float64x2 and int32x4 object in new space with
+  // undefined value.
   // Returns tagged pointer in result register, or jumps to gc_required if new
   // space is full.
   void AllocateFloat32x4(Register result,
@@ -648,30 +649,15 @@ class MacroAssembler: public Assembler {
                           Register scratch2,
                           Label* gc_required);
 
-  void AllocateFloat32x4FixedTypeArray(Register result,
-                                       Register scratch1,
-                                       Register scratch2,
-                                       Label* gc_required);
-
   void AllocateInt32x4(Register result,
                        Register scratch1,
                        Register scratch2,
                        Label* gc_required);
 
-  void AllocateInt32x4FixedTypeArray(Register result,
-                                     Register scratch1,
-                                     Register scratch2,
-                                     Label* gc_required);
-
   void AllocateFloat64x2(Register result,
                          Register scratch1,
                          Register scratch2,
                          Label* gc_required);
-       
-  void AllocateFloat64x2FixedTypeArray(Register result,
-                                       Register scratch1,
-                                       Register scratch2,
-                                       Label* gc_required);
 
   // Allocate a sequential string. All the header fields of the string object
   // are initialized.

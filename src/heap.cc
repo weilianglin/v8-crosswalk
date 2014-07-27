@@ -2633,94 +2633,50 @@ AllocationResult Heap::AllocateHeapNumber(double value,
 }
 
 
-AllocationResult Heap::AllocateFloat32x4(float32x4_value_t value,
-                                         PretenureFlag pretenure) {
-  STATIC_ASSERT(Float32x4::kSize <= Page::kMaxRegularHeapObjectSize);
+#define SIMD128_HEAP_ALLOCATE_FUNCTIONS(V) \
+  V(Float32x4, float32x4)                  \
+  V(Float64x2, float64x2)                  \
+  V(Int32x4, int32x4)
 
-  AllocationSpace space = SelectSpace(Float32x4::kSize, OLD_DATA_SPACE, pretenure);
 
-  HeapObject* result;
-  { AllocationResult allocation = AllocateRaw(Float32x4::kSize, space, OLD_DATA_SPACE);
-    if (!allocation.To(&result)) return allocation;
-  }
-
-  result->set_map_no_write_barrier(isolate()->native_context()->float32x4_function()->initial_map());
-  JSObject::cast(result)->set_properties(empty_fixed_array());
-  JSObject::cast(result)->set_elements(empty_fixed_array());
-
-  HeapObject* storage;
-  space = SelectSpace(FixedTypedArrayBase::kDataOffset + kFloat32x4Size, OLD_DATA_SPACE, pretenure);
-  AllocationResult allocation = AllocateRaw(FixedTypedArrayBase::kDataOffset + kFloat32x4Size, space, OLD_DATA_SPACE);
-  if (!allocation.To(&storage)) return allocation;
-
-  storage->set_map(*isolate()->factory()->fixed_float32x4_array_map());
-  FixedTypedArrayBase* elements = FixedTypedArrayBase::cast(storage);
-  elements->set_length(1);
-  memset(elements->DataPtr(), 0, elements->DataSize());
-  FixedFloat32x4Array::cast(storage)->set(0, value);
-  Float32x4::cast(result)->set_value(storage);
-  return result;
+#define DECLARE_SIMD_HEAP_ALLOCATE_FUNCTION(TYPE, type)               \
+AllocationResult Heap::Allocate##TYPE(type##_value_t value,           \
+                                      PretenureFlag pretenure) {      \
+  STATIC_ASSERT(TYPE::kSize <= Page::kMaxRegularHeapObjectSize);      \
+                                                                      \
+  AllocationSpace space =                                             \
+      SelectSpace(TYPE::kSize, OLD_DATA_SPACE, pretenure);            \
+                                                                      \
+  HeapObject* result;                                                 \
+  { AllocationResult allocation =                                     \
+        AllocateRaw(TYPE::kSize, space, OLD_DATA_SPACE);              \
+    if (!allocation.To(&result)) return allocation;                   \
+  }                                                                   \
+                                                                      \
+  result->set_map_no_write_barrier(                                   \
+  isolate()->native_context()->type##_function()->initial_map());     \
+  JSObject::cast(result)->set_properties(empty_fixed_array());        \
+  JSObject::cast(result)->set_elements(empty_fixed_array());          \
+                                                                      \
+  HeapObject* storage;                                                \
+  int storage_size =                                                  \
+      FixedTypedArrayBase::kDataOffset + k##TYPE##Size;               \
+  space = SelectSpace(storage_size, OLD_DATA_SPACE, pretenure);       \
+  AllocationResult allocation =                                       \
+      AllocateRaw(storage_size, space, OLD_DATA_SPACE);               \
+  if (!allocation.To(&storage)) return allocation;                    \
+                                                                      \
+  storage->set_map(                                                   \
+  *isolate()->factory()->fixed_##type##_array_map());                 \
+  FixedTypedArrayBase* elements = FixedTypedArrayBase::cast(storage); \
+  elements->set_length(1);                                            \
+  Fixed##TYPE##Array::cast(storage)->set(0, value);                   \
+  Float32x4::cast(result)->set_value(storage);                        \
+  return result;                                                      \
 }
 
 
-AllocationResult Heap::AllocateFloat64x2(float64x2_value_t value,
-                                         PretenureFlag pretenure) {
-  STATIC_ASSERT(Float64x2::kSize <= Page::kMaxRegularHeapObjectSize);
-
-  AllocationSpace space = SelectSpace(Float64x2::kSize, OLD_DATA_SPACE, pretenure);
-
-  HeapObject* result;
-  { AllocationResult allocation = AllocateRaw(Float64x2::kSize, space, OLD_DATA_SPACE);
-    if (!allocation.To(&result)) return allocation;
-  }
-
-  result->set_map_no_write_barrier(isolate()->native_context()->float64x2_function()->initial_map());
-  JSObject::cast(result)->set_properties(empty_fixed_array());
-  JSObject::cast(result)->set_elements(empty_fixed_array());
-
-  HeapObject* storage;
-  space = SelectSpace(FixedTypedArrayBase::kDataOffset + kFloat64x2Size, OLD_DATA_SPACE, pretenure);
-  AllocationResult allocation = AllocateRaw(FixedTypedArrayBase::kDataOffset + kFloat64x2Size, space, OLD_DATA_SPACE);
-  if (!allocation.To(&storage)) return allocation;
-
-  storage->set_map(*isolate()->factory()->fixed_float64x2_array_map());
-  FixedTypedArrayBase* elements = FixedTypedArrayBase::cast(storage);
-  elements->set_length(1);
-  memset(elements->DataPtr(), 0, elements->DataSize());
-  FixedFloat64x2Array::cast(storage)->set(0, value);
-  Float64x2::cast(result)->set_value(storage);
-  return result;
-}
-
-
-AllocationResult Heap::AllocateInt32x4(int32x4_value_t value,
-                                       PretenureFlag pretenure) {
-  STATIC_ASSERT(Int32x4::kSize <= Page::kMaxRegularHeapObjectSize);
-
-  AllocationSpace space = SelectSpace(Int32x4::kSize, OLD_DATA_SPACE, pretenure);
-
-  HeapObject* result;
-  { AllocationResult allocation = AllocateRaw(Int32x4::kSize, space, OLD_DATA_SPACE);
-    if (!allocation.To(&result)) return allocation;
-  }
-
-  result->set_map_no_write_barrier(isolate()->native_context()->int32x4_function()->initial_map());
-  JSObject::cast(result)->set_properties(empty_fixed_array());
-  JSObject::cast(result)->set_elements(empty_fixed_array());
-
-  HeapObject* storage;
-  space = SelectSpace(FixedTypedArrayBase::kDataOffset + kInt32x4Size, OLD_DATA_SPACE, pretenure);
-  AllocationResult allocation = AllocateRaw(FixedTypedArrayBase::kDataOffset + kInt32x4Size, space, OLD_DATA_SPACE);
-  if (!allocation.To(&storage)) return allocation;
-
-  storage->set_map(*isolate()->factory()->fixed_int32x4_array_map());
-  FixedTypedArrayBase* elements = FixedTypedArrayBase::cast(storage);
-  elements->set_length(1);
-  memset(elements->DataPtr(), 0, elements->DataSize());
-  FixedInt32x4Array::cast(storage)->set(0, value);
-  Int32x4::cast(result)->set_value(storage);
-  return result;
-}
+SIMD128_HEAP_ALLOCATE_FUNCTIONS(DECLARE_SIMD_HEAP_ALLOCATE_FUNCTION)
 
 
 AllocationResult Heap::AllocateCell(Object* value) {

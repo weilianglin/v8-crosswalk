@@ -5805,16 +5805,12 @@ void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
 
   if (true) {
     if (T::kInstanceType == FLOAT32x4_TYPE) {
-      __ AllocateFloat32x4(reg, tmp, no_reg, deferred->entry());
-      __ AllocateFloat32x4FixedTypeArray(tmp, tmp2, no_reg, deferred->entry());
+      __ AllocateFloat32x4(reg, tmp, tmp2, deferred->entry());
     } else if (T::kInstanceType == INT32x4_TYPE) {
-      __ AllocateInt32x4(reg, tmp, no_reg, deferred->entry());
-      __ AllocateInt32x4FixedTypeArray(tmp, tmp2, no_reg, deferred->entry());
+      __ AllocateInt32x4(reg, tmp, tmp2, deferred->entry());
     } else if (T::kInstanceType == FLOAT64x2_TYPE) {
-      __ AllocateFloat64x2(reg, tmp, no_reg, deferred->entry());
-      __ AllocateFloat64x2FixedTypeArray(tmp, tmp2, no_reg, deferred->entry());
+      __ AllocateFloat64x2(reg, tmp, tmp2, deferred->entry());
     }
-    __ mov(FieldOperand(reg, T::kValueOffset), tmp);
   } else {
     __ jmp(deferred->entry());
   }
