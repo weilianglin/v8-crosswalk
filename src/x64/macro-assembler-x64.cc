@@ -4691,18 +4691,21 @@ void MacroAssembler::Allocate##TYPE(Register result,                       \
   Allocate(TYPE::kSize, result, scratch1, no_reg, gc_required, TAG_OBJECT);\
                                                                            \
   movp(FieldOperand(result, JSObject::kMapOffset),                         \
-      Immediate(reinterpret_cast<intptr_t>(                                \
+      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(             \
           isolate()->native_context()->type##_function()->initial_map())));\
   movp(FieldOperand(result, JSObject::kPropertiesOffset),                  \
-      Immediate(isolate()->factory()->empty_fixed_array()));               \
+      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(             \
+          *isolate()->factory()->empty_fixed_array())));                   \
   movp(FieldOperand(result, JSObject::kElementsOffset),                    \
-      Immediate(isolate()->factory()->empty_fixed_array()));               \
+      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(             \
+          *isolate()->factory()->empty_fixed_array())));                     \
                                                                            \
   Allocate(FixedTypedArrayBase::kDataOffset + k##TYPE##Size,               \
            scratch1, scratch2, no_reg, gc_required, TAG_OBJECT);           \
                                                                            \
   movp(FieldOperand(scratch1, FixedTypedArrayBase::kMapOffset),            \
-      Immediate(isolate()->factory()->fixed_##type##_array_map()));        \
+      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(             \
+          *isolate()->factory()->fixed_##type##_array_map())));             \
   movp(scratch2, Immediate(1));                                            \
   SmiTag(scratch2);                                                        \
   movp(FieldOperand(result, FixedTypedArrayBase::kLengthOffset), scratch2);\

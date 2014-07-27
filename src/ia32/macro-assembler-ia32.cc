@@ -1704,6 +1704,7 @@ void MacroAssembler::Allocate##TYPE(Register result,                       \
                                     Register scratch1,                     \
                                     Register scratch2,                     \
                                     Label* gc_required) {                  \
+  /* Allocate SIMD128 object */                                            \
   Allocate(TYPE::kSize, result, scratch1, no_reg, gc_required, TAG_OBJECT);\
                                                                            \
   mov(FieldOperand(result, JSObject::kMapOffset),                          \
@@ -1713,7 +1714,7 @@ void MacroAssembler::Allocate##TYPE(Register result,                       \
       Immediate(isolate()->factory()->empty_fixed_array()));               \
   mov(FieldOperand(result, JSObject::kElementsOffset),                     \
       Immediate(isolate()->factory()->empty_fixed_array()));               \
-                                                                           \
+  /* Allocate FixedTypedArray object */                                    \
   Allocate(FixedTypedArrayBase::kDataOffset + k##TYPE##Size,               \
            scratch1, scratch2, no_reg, gc_required, TAG_OBJECT);           \
                                                                            \
@@ -1721,8 +1722,9 @@ void MacroAssembler::Allocate##TYPE(Register result,                       \
       Immediate(isolate()->factory()->fixed_##type##_array_map()));        \
   mov(scratch2, Immediate(1));                                             \
   SmiTag(scratch2);                                                        \
-  mov(FieldOperand(result, FixedTypedArrayBase::kLengthOffset), scratch2); \
-                                                                           \
+  mov(FieldOperand(scratch1, FixedTypedArrayBase::kLengthOffset),          \
+      scratch2);                                                           \
+  /* Assign TifxedTypedArray object to SIMD128 object */                   \
   mov(FieldOperand(result, TYPE::kValueOffset), scratch1);                 \
 }
 
