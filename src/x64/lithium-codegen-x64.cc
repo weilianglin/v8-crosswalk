@@ -5895,13 +5895,22 @@ void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
   XMMRegister input_reg = ToSIMD128Register(instr->value());
   Register reg = ToRegister(instr->result());
   Register tmp = ToRegister(instr->temp());
+  Register tmp2 = ToRegister(instr->temp2());
 
   DeferredSIMD128ToTagged* deferred =
       new(zone()) DeferredSIMD128ToTagged(this, instr,
           static_cast<Runtime::FunctionId>(T::kRuntimeAllocatorId()));
-  // TODO(ningxin): implement the inline-new.
-  __ jmp(deferred->entry());
-  __ bind(deferred->exit());
+  if (FLAG_inline_new) {
+    if (T::kInstanceType == FLOAT32x4_TYPE) {
+      __ AllocateFloat32x4(reg, tmp, tmp2, deferred->entry());
+    } else if (T::kInstanceType == INT32x4_TYPE) {
+      __ AllocateInt32x4(reg, tmp, tmp2, deferred->entry());
+    } else if (T::kInstanceType == FLOAT64x2_TYPE) {
+      __ AllocateFloat64x2(reg, tmp, tmp2, deferred->entry());
+    }
+  } else {
+    __ jmp(deferred->entry());
+  }
 
   // Load the inner FixedTypedArray object.
   __ movp(tmp, FieldOperand(reg, T::kValueOffset));

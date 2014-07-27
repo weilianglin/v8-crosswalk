@@ -4678,13 +4678,39 @@ void MacroAssembler::AllocateHeapNumber(Register result,
 }
 
 
-void MacroAssembler::AllocateSIMDHeapObject(int size,
-                                            Register result,
-                                            Register scratch,
-                                            Label* gc_required,
-                                            Heap::RootListIndex map_index) {
-  UNREACHABLE();  // NOTIMPLEMENTED
+#define SIMD128_HEAP_ALLOCATE_FUNCTIONS(V) \
+  V(Float32x4, float32x4)                  \
+  V(Float64x2, float64x2)                  \
+  V(Int32x4, int32x4)
+
+#define DECLARE_SIMD_HEAP_ALLOCATE_FUNCTION(TYPE, type)                    \
+void MacroAssembler::Allocate##TYPE(Register result,                       \
+                                    Register scratch1,                     \
+                                    Register scratch2,                     \
+                                    Label* gc_required) {                  \
+  Allocate(TYPE::kSize, result, scratch1, no_reg, gc_required, TAG_OBJECT);\
+                                                                           \
+  movp(FieldOperand(result, JSObject::kMapOffset),                         \
+      Immediate(reinterpret_cast<intptr_t>(                                \
+          isolate()->native_context()->type##_function()->initial_map())));\
+  movp(FieldOperand(result, JSObject::kPropertiesOffset),                  \
+      Immediate(isolate()->factory()->empty_fixed_array()));               \
+  movp(FieldOperand(result, JSObject::kElementsOffset),                    \
+      Immediate(isolate()->factory()->empty_fixed_array()));               \
+                                                                           \
+  Allocate(FixedTypedArrayBase::kDataOffset + k##TYPE##Size,               \
+           scratch1, scratch2, no_reg, gc_required, TAG_OBJECT);           \
+                                                                           \
+  movp(FieldOperand(scratch1, FixedTypedArrayBase::kMapOffset),            \
+      Immediate(isolate()->factory()->fixed_##type##_array_map()));        \
+  movp(scratch2, Immediate(1));                                            \
+  SmiTag(scratch2);                                                        \
+  movp(FieldOperand(result, FixedTypedArrayBase::kLengthOffset), scratch2);\
+                                                                           \
+  movp(FieldOperand(result, TYPE::kValueOffset), scratch1);                \
 }
+
+SIMD128_HEAP_ALLOCATE_FUNCTIONS(DECLARE_SIMD_HEAP_ALLOCATE_FUNCTION)
 
 
 void MacroAssembler::AllocateTwoByteString(Register result,

@@ -5803,7 +5803,7 @@ void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
   DeferredSIMD128ToTagged* deferred = new(zone()) DeferredSIMD128ToTagged(
       this, instr, static_cast<Runtime::FunctionId>(T::kRuntimeAllocatorId()));
 
-  if (true) {
+  if (FLAG_inline_new) {
     if (T::kInstanceType == FLOAT32x4_TYPE) {
       __ AllocateFloat32x4(reg, tmp, tmp2, deferred->entry());
     } else if (T::kInstanceType == INT32x4_TYPE) {
