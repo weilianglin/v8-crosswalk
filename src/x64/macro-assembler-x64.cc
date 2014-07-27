@@ -4687,28 +4687,30 @@ void MacroAssembler::AllocateHeapNumber(Register result,
 void MacroAssembler::Allocate##TYPE(Register result,                       \
                                     Register scratch1,                     \
                                     Register scratch2,                     \
+                                    Register scratch3,                     \
                                     Label* gc_required) {                  \
   Allocate(TYPE::kSize, result, scratch1, no_reg, gc_required, TAG_OBJECT);\
                                                                            \
   movp(FieldOperand(result, JSObject::kMapOffset),                         \
-      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(             \
-          isolate()->native_context()->type##_function()->initial_map())));\
+      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(           \
+          isolate()->native_context()->type##_function()->initial_map()))));\
   movp(FieldOperand(result, JSObject::kPropertiesOffset),                  \
-      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(             \
-          *isolate()->factory()->empty_fixed_array())));                   \
+      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(           \
+          *isolate()->factory()->empty_fixed_array()))));                  \
   movp(FieldOperand(result, JSObject::kElementsOffset),                    \
-      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(             \
-          *isolate()->factory()->empty_fixed_array())));                     \
+      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(           \
+          *isolate()->factory()->empty_fixed_array()))));                  \
                                                                            \
   Allocate(FixedTypedArrayBase::kDataOffset + k##TYPE##Size,               \
            scratch1, scratch2, no_reg, gc_required, TAG_OBJECT);           \
                                                                            \
   movp(FieldOperand(scratch1, FixedTypedArrayBase::kMapOffset),            \
-      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(             \
-          *isolate()->factory()->fixed_##type##_array_map())));             \
-  movp(scratch2, Immediate(1));                                            \
-  SmiTag(scratch2);                                                        \
-  movp(FieldOperand(result, FixedTypedArrayBase::kLengthOffset), scratch2);\
+      Immediate(static_cast<int32_t>(reinterpret_cast<intptr_t>(           \
+          *isolate()->factory()->fixed_##type##_array_map()))));           \
+  movp(scratch3, Immediate(1));                                            \
+  Integer32ToSmi(scratch2, scratch3);                                  \
+  movp(FieldOperand(scratch1, FixedTypedArrayBase::kLengthOffset),         \
+       scratch2);                                                          \
                                                                            \
   movp(FieldOperand(result, TYPE::kValueOffset), scratch1);                \
 }
