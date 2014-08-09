@@ -1585,7 +1585,7 @@ void HForceRepresentation::PrintDataTo(StringStream* stream) {
 
 
 void HChange::PrintDataTo(StringStream* stream) {
-  HUnaryOperation::PrintDataTo(stream);
+  //HUnaryOperation::PrintDataTo(stream);
   stream->Add(" %s to %s", from().Mnemonic(), to().Mnemonic());
 
   if (CanTruncateToSmi()) stream->Add(" truncating-smi");
@@ -1602,7 +1602,7 @@ HValue* HUnaryMathOperation::Canonicalize() {
     if (val->representation().IsSmiOrInteger32()) {
       if (val->representation().Equals(representation())) return val;
       return Prepend(new(block()->zone()) HChange(
-          val, representation(), false, false));
+          context(), val, representation(), false, false));
     }
   }
   if (op() == kMathFloor && value()->IsDiv() && value()->UseCount() == 1) {
@@ -1616,7 +1616,7 @@ HValue* HUnaryMathOperation::Canonicalize() {
       left = HChange::cast(left)->value();
     } else if (hdiv->observed_input_representation(1).IsSmiOrInteger32()) {
       left = Prepend(new(block()->zone()) HChange(
-          left, Representation::Integer32(), false, false));
+          context(), left, Representation::Integer32(), false, false));
     } else {
       return this;
     }
@@ -1633,7 +1633,7 @@ HValue* HUnaryMathOperation::Canonicalize() {
       right = HChange::cast(right)->value();
     } else if (hdiv->observed_input_representation(2).IsSmiOrInteger32()) {
       right = Prepend(new(block()->zone()) HChange(
-          right, Representation::Integer32(), false, false));
+          context(), right, Representation::Integer32(), false, false));
     } else {
       return this;
     }

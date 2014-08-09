@@ -1537,7 +1537,9 @@ int Shell::Main(int argc, char* argv[]) {
       }
 #endif
     } else {
+      //for (int i = 0; i < 3; i++) {
       result = RunMain(isolate, argc, argv);
+      //}
     }
 
     // Run interactive shell if explicitly requested or if no script has been

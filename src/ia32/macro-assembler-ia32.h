@@ -647,16 +647,22 @@ class MacroAssembler: public Assembler {
   void AllocateFloat32x4(Register result,
                           Register scratch1,
                           Register scratch2,
+                          Register scratch3,
+                          Register context,
                           Label* gc_required);
 
   void AllocateInt32x4(Register result,
                        Register scratch1,
                        Register scratch2,
+                       Register scratch3,
+                       Register context,
                        Label* gc_required);
 
   void AllocateFloat64x2(Register result,
                          Register scratch1,
                          Register scratch2,
+                         Register scratch3,
+                         Register context,
                          Label* gc_required);
 
   // Allocate a sequential string. All the header fields of the string object

@@ -1989,13 +1989,15 @@ LInstruction* LChunkBuilder::DoChange(HChange* instr) {
   } else if (from.IsSIMD128()) {
     ASSERT(to.IsTagged());
     info()->MarkAsDeferredCalling();
+    LOperand* context = UseRegister(instr->context());
     LOperand* value = UseRegister(instr->value());
     LOperand* temp = TempRegister();
     LOperand* temp2 = TempRegister();
+    LOperand* temp3 = TempRegister();
 
     // Make sure that temp and result_temp are different registers.
     LUnallocated* result_temp = TempRegister();
-    LSIMD128ToTagged* result = new(zone()) LSIMD128ToTagged(value, temp, temp2);
+    LSIMD128ToTagged* result = new(zone()) LSIMD128ToTagged(value, context, temp, temp2, temp3);
     return AssignPointerMap(Define(result, result_temp));
   }
   UNREACHABLE();
