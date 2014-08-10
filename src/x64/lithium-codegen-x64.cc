@@ -5897,11 +5897,14 @@ void LCodeGen::HandleSIMD128ToTagged(LSIMD128ToTagged* instr) {
   Register tmp = ToRegister(instr->temp());
   Register tmp2 = ToRegister(instr->temp2());
   Register tmp3 = ToRegister(instr->temp3());
+  Register context = ToRegister(instr->context());
+  ASSERT(context.is(rsi));
 
   DeferredSIMD128ToTagged* deferred =
       new(zone()) DeferredSIMD128ToTagged(this, instr,
           static_cast<Runtime::FunctionId>(T::kRuntimeAllocatorId()));
   if (FLAG_inline_new) {
+    __ JumpIfSmi(context, deferred->entry());
     if (T::kInstanceType == FLOAT32x4_TYPE) {
       __ AllocateFloat32x4(reg, tmp, tmp2, tmp3, deferred->entry());
     } else if (T::kInstanceType == INT32x4_TYPE) {

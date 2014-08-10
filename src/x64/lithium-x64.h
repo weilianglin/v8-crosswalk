@@ -2210,17 +2210,19 @@ class LNumberTagD V8_FINAL : public LTemplateInstruction<1, 1, 1> {
 };
 
 
-class LSIMD128ToTagged V8_FINAL : public LTemplateInstruction<1, 1, 3> {
+class LSIMD128ToTagged V8_FINAL : public LTemplateInstruction<1, 2, 3> {
  public:
-  explicit LSIMD128ToTagged(LOperand* value, LOperand* temp,
+  explicit LSIMD128ToTagged(LOperand* context, LOperand* value, LOperand* temp,
                             LOperand* temp2, LOperand* temp3) {
-    inputs_[0] = value;
+    inputs_[0] = context;
+    inputs_[1] = value;
     temps_[0] = temp;
     temps_[1] = temp2;
     temps_[2] = temp3;
   }
 
-  LOperand* value() { return inputs_[0]; }
+  LOperand* context() { return inputs_[0]; }
+  LOperand* value() { return inputs_[1]; }
   LOperand* temp() { return temps_[0]; }
   LOperand* temp2() { return temps_[1]; }
   LOperand* temp3() { return temps_[2]; }
