@@ -2220,21 +2220,20 @@ class LNumberTagD V8_FINAL : public LTemplateInstruction<1, 1, 1> {
 };
 
 
-class LSIMD128ToTagged V8_FINAL : public LTemplateInstruction<1, 2, 3> {
+class LSIMD128ToTagged V8_FINAL : public LTemplateInstruction<1, 2, 2> {
  public:
-  explicit LSIMD128ToTagged(LOperand* value, LOperand* context, LOperand* temp, LOperand* temp2, LOperand* temp3) {
-    inputs_[0] = value;
-    inputs_[1] = context;
+  explicit LSIMD128ToTagged(LOperand* context, LOperand* value,
+                            LOperand* temp, LOperand* temp2) {
+    inputs_[0] = context;
+    inputs_[1] = value;
     temps_[0] = temp;
     temps_[1] = temp2;
-    temps_[2] = temp3;
   }
 
-  LOperand* value() { return inputs_[0]; }
-  LOperand* context() { return inputs_[1]; }
+  LOperand* context() { return inputs_[0]; }
+  LOperand* value() { return inputs_[1]; }
   LOperand* temp() { return temps_[0]; }
   LOperand* temp2() { return temps_[1]; }
-  LOperand* temp3() { return temps_[2]; }
 
   DECLARE_CONCRETE_INSTRUCTION(SIMD128ToTagged, "simd128-tag")
   DECLARE_HYDROGEN_ACCESSOR(Change)

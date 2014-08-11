@@ -1699,31 +1699,18 @@ void MacroAssembler::AllocateHeapNumber(Register result,
   V(Float64x2, float64x2, FLOAT64x2)                  \
   V(Int32x4, int32x4, INT32x4)
 
-#define DECLARE_SIMD_HEAP_ALLOCATE_FUNCTION(Type, type, TYPE)                    \
+#define DECLARE_SIMD_HEAP_ALLOCATE_FUNCTION(Type, type, TYPE)              \
 void MacroAssembler::Allocate##Type(Register result,                       \
                                     Register scratch1,                     \
                                     Register scratch2,                     \
-                                    Register scratch3,\
-                                    Register context,\
                                     Label* gc_required) {                  \
   /* Allocate SIMD128 object */                                            \
   Allocate(Type::kSize, result, scratch1, no_reg, gc_required, TAG_OBJECT);\
-                                                                           \
-   mov(scratch1,\
-      Operand(context, Context::SlotOffset(Context::GLOBAL_OBJECT_INDEX)));\
-  mov(scratch1,\
-      FieldOperand(scratch1, GlobalObject::kNativeContextOffset));\
-  mov(scratch1, Operand(scratch1, Context::SlotOffset(Context::TYPE##_FUNCTION_INDEX)));\
-  mov(scratch1, FieldOperand(scratch1, JSFunction::kPrototypeOrInitialMapOffset));                  \
-  if (FLAG_debug_code) { \
-    cmpb(FieldOperand(scratch1, Map::kInstanceSizeOffset), \
-            Type::kSize >> kPointerSizeLog2); \
-    Assert(equal, kUnexpectedStringWrapperInstanceSize);\
-  }\
-  mov(FieldOperand(result, JSObject::kMapOffset), scratch1);             \
- /*mov(FieldOperand(result, JSObject::kMapOffset),                          \
-     Immediate(reinterpret_cast<intptr_t>(                                \
-         isolate()->native_context()->type##_function()->initial_map())));*/\
+  /* Fetch and assign the map */                                           \
+  LoadGlobalFunction(Context::TYPE##_FUNCTION_INDEX, scratch1);            \
+  LoadGlobalFunctionInitialMap(scratch1, scratch1);                        \
+  mov(FieldOperand(result, JSObject::kMapOffset), scratch1);               \
+  /* Initialize properties and elements. */                                \
   mov(FieldOperand(result, JSObject::kPropertiesOffset),                   \
       Immediate(isolate()->factory()->empty_fixed_array()));               \
   mov(FieldOperand(result, JSObject::kElementsOffset),                     \
@@ -2579,7 +2566,6 @@ void MacroAssembler::LoadGlobalFunctionInitialMap(Register function,
                                                   Register map) {
   // Load the initial map.  The global functions all have initial maps.
   mov(map, FieldOperand(function, JSFunction::kPrototypeOrInitialMapOffset));
-  /*
   if (emit_debug_code()) {
     Label ok, fail;
     CheckMap(map, isolate()->factory()->meta_map(), &fail, DO_SMI_CHECK);
@@ -2587,7 +2573,7 @@ void MacroAssembler::LoadGlobalFunctionInitialMap(Register function,
     bind(&fail);
     Abort(kGlobalFunctionsMustHaveInitialMap);
     bind(&ok);
-  }*/
+  }
 }
 
 
