@@ -1996,7 +1996,8 @@ LInstruction* LChunkBuilder::DoChange(HChange* instr) {
 
     // Make sure that temp and result_temp are different registers.
     LUnallocated* result_temp = TempRegister();
-    LSIMD128ToTagged* result = new(zone()) LSIMD128ToTagged(context, value, temp, temp2);
+    LSIMD128ToTagged* result =
+        new(zone()) LSIMD128ToTagged(context, value, temp, temp2);
     return AssignPointerMap(Define(result, result_temp));
   }
   UNREACHABLE();

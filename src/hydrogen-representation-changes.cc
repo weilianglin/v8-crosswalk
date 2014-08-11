@@ -47,7 +47,8 @@ void HRepresentationChangesPhase::InsertRepresentationChangeForUse(
           value, kSIMD128Change, to);
     } else {
       new_value = new(graph()->zone()) HChange(
-          graph()->entry_block()->last_environment()->context(), value, to, is_truncating_to_smi, is_truncating_to_int);
+          graph()->entry_block()->last_environment()->context(),
+          value, to, is_truncating_to_smi, is_truncating_to_int);
     }
     if (!use_value->operand_position(use_index).IsUnknown()) {
       new_value->set_position(use_value->operand_position(use_index));

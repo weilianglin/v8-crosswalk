@@ -1585,7 +1585,7 @@ void HForceRepresentation::PrintDataTo(StringStream* stream) {
 
 
 void HChange::PrintDataTo(StringStream* stream) {
-  //HUnaryOperation::PrintDataTo(stream);
+  value()->PrintNameTo(stream);
   stream->Add(" %s to %s", from().Mnemonic(), to().Mnemonic());
 
   if (CanTruncateToSmi()) stream->Add(" truncating-smi");
