@@ -1706,8 +1706,16 @@ void MacroAssembler::Allocate##Type(Register result,                       \
                                     Label* gc_required) {                  \
   /* Allocate SIMD128 object */                                            \
   Allocate(Type::kSize, result, scratch1, no_reg, gc_required, TAG_OBJECT);\
-  /* Fetch and assign the map */                                           \
-  LoadGlobalFunction(Context::TYPE##_FUNCTION_INDEX, scratch1);            \
+  /* Load the initial map and assign to new allocated object. */           \
+  mov(scratch1, Operand(ebp, StandardFrameConstants::kContextOffset));     \
+  mov(scratch1,                                                            \
+      Operand(scratch1,                                                    \
+              Context::SlotOffset(Context::GLOBAL_OBJECT_INDEX)));         \
+  mov(scratch1,                                                            \
+      FieldOperand(scratch1, GlobalObject::kNativeContextOffset));         \
+  mov(scratch1,                                                            \
+      Operand(scratch1,                                                    \
+              Context::SlotOffset(Context::TYPE##_FUNCTION_INDEX)));       \
   LoadGlobalFunctionInitialMap(scratch1, scratch1);                        \
   mov(FieldOperand(result, JSObject::kMapOffset), scratch1);               \
   /* Initialize properties and elements. */                                \
