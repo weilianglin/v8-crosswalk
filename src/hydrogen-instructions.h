@@ -1634,19 +1634,16 @@ class HForceRepresentation V8_FINAL : public HTemplateInstruction<1> {
 };
 
 
-class HChange V8_FINAL : public HTemplateInstruction<2> {
+class HChange V8_FINAL : public HUnaryOperation {
  public:
-  HChange(HValue* context,
-          HValue* value,
+  HChange(HValue* value,
           Representation to,
           bool is_truncating_to_smi,
           bool is_truncating_to_int32)
-      : HTemplateInstruction<2>(HType::Tagged()) {
+      : HUnaryOperation(value) {
     ASSERT(!value->representation().IsNone());
     ASSERT(!to.IsNone());
     ASSERT(!value->representation().Equals(to));
-    SetOperandAt(0, context);
-    SetOperandAt(1, value);
     set_representation(to);
     SetFlag(kUseGVN);
     SetFlag(kCanOverflow);
@@ -1674,9 +1671,6 @@ class HChange V8_FINAL : public HTemplateInstruction<2> {
   bool can_convert_undefined_to_nan() {
     return CheckUsesForFlag(kAllowUndefinedAsNaN);
   }
-
-  HValue* context() const { return OperandAt(0); }
-  HValue* value() const { return OperandAt(1); }
 
   virtual HType CalculateInferredType() V8_OVERRIDE;
   virtual HValue* Canonicalize() V8_OVERRIDE;
