@@ -15274,6 +15274,120 @@ RUNTIME_FUNCTION(Runtime_MaxSmi) {
 }
 
 
+template<typename T>
+inline static bool SimdTypeLoadValue(
+    Isolate* isolate,
+    Handle<JSArrayBuffer> buffer,
+    Handle<Object> byte_offset_obj,
+    T* result) {
+  size_t byte_offset = 0;
+  if (!TryNumberToSize(isolate, *byte_offset_obj, &byte_offset)) {
+    return false;
+  }
+
+  size_t buffer_byte_length =
+      NumberToSize(isolate, buffer->byte_length());
+  if (byte_offset + sizeof(T) > buffer_byte_length)  {  // overflow
+    return false;
+  }
+
+  union Value {
+    T data;
+    uint8_t bytes[sizeof(T)];
+  };
+
+  Value value;
+  size_t buffer_offset = byte_offset;
+  ASSERT(
+      NumberToSize(isolate, buffer->byte_length())
+      >= buffer_offset + sizeof(T));
+  uint8_t* source =
+        static_cast<uint8_t*>(buffer->backing_store()) + buffer_offset;
+  CopyBytes<sizeof(T)>(value.bytes, source);
+  *result = value.data;
+  return true;
+}
+
+
+template<typename T>
+static bool SimdTypeStoreValue(
+    Isolate* isolate,
+    Handle<JSArrayBuffer> buffer,
+    Handle<Object> byte_offset_obj,
+    T data) {
+  size_t byte_offset = 0;
+  if (!TryNumberToSize(isolate, *byte_offset_obj, &byte_offset)) {
+    return false;
+  }
+
+  size_t buffer_byte_length =
+      NumberToSize(isolate, buffer->byte_length());
+  if (byte_offset + sizeof(T) > buffer_byte_length)  {  // overflow
+    return false;
+  }
+
+  union Value {
+    T data;
+    uint8_t bytes[sizeof(T)];
+  };
+
+  Value value;
+  value.data = data;
+  size_t buffer_offset = byte_offset;
+  ASSERT(
+      NumberToSize(isolate, buffer->byte_length())
+      >= buffer_offset + sizeof(T));
+  uint8_t* target =
+        static_cast<uint8_t*>(buffer->backing_store()) + buffer_offset;
+  CopyBytes<sizeof(T)>(target, value.bytes);
+  return true;
+}
+
+
+#define SIMD128_LOAD_RUNTIME_FUNCTION(Type, ValueType)           \
+RUNTIME_FUNCTION(Runtime_##Type##Load) {                         \
+  HandleScope scope(isolate);                                    \
+  ASSERT(args.length() == 2);                                    \
+  CONVERT_ARG_HANDLE_CHECKED(JSArrayBuffer, buffer, 0);          \
+  CONVERT_NUMBER_ARG_HANDLE_CHECKED(offset, 1);                  \
+  ValueType result;                                              \
+  if (SimdTypeLoadValue(isolate, buffer, offset, &result)) {     \
+    return *isolate->factory()->New##Type(result);               \
+  } else {                                                       \
+    return isolate->Throw(*isolate->factory()->NewRangeError(    \
+        "invalid_offset",                                        \
+        HandleVector<Object>(NULL, 0)));                         \
+  }                                                              \
+}
+
+
+SIMD128_LOAD_RUNTIME_FUNCTION(Float32x4, float32x4_value_t)
+SIMD128_LOAD_RUNTIME_FUNCTION(Float64x2, float64x2_value_t)
+SIMD128_LOAD_RUNTIME_FUNCTION(Int32x4, int32x4_value_t)
+
+
+#define SIMD128_STORE_RUNTIME_FUNCTION(Type, ValueType)                     \
+RUNTIME_FUNCTION(Runtime_##Type##Store) {                                   \
+  HandleScope scope(isolate);                                               \
+  ASSERT(args.length() == 3);                                               \
+  CONVERT_ARG_HANDLE_CHECKED(JSArrayBuffer, buffer, 0);                     \
+  CONVERT_NUMBER_ARG_HANDLE_CHECKED(offset, 1);                             \
+  CONVERT_ARG_CHECKED(Type, value, 2);                                      \
+  ValueType v = value->get();                                               \
+  if (SimdTypeStoreValue(isolate, buffer, offset, v)) {                     \
+    return isolate->heap()->undefined_value();                              \
+  } else {                                                                  \
+    return isolate->Throw(*isolate->factory()->NewRangeError(               \
+        "invalid_data_view_accessor_offset",                                \
+        HandleVector<Object>(NULL, 0)));                                    \
+  }                                                                         \
+}
+
+SIMD128_STORE_RUNTIME_FUNCTION(Float32x4, float32x4_value_t)
+SIMD128_STORE_RUNTIME_FUNCTION(Float64x2, float64x2_value_t)
+SIMD128_STORE_RUNTIME_FUNCTION(Int32x4, int32x4_value_t)
+
+
 #define RETURN_Float32x4_RESULT(value)                                         \
   return *isolate->factory()->NewFloat32x4(value);
 
