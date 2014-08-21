@@ -343,6 +343,38 @@ FLOAT64x2_BINARY_FUNCTIONS_WITH_FLOAT64_PARAMETER(DECLARE_FLOAT64x2_BINARY_FUNCT
 INT32x4_BINARY_FUNCTIONS_WITH_INT32_PARAMETER(DECLARE_INT32x4_BINARY_FUNCTION_WITH_INT32_PARAMETER)
 INT32x4_BINARY_FUNCTIONS_WITH_BOOLEAN_PARAMETER(DECLARE_INT32x4_BINARY_FUNCTION_WITH_BOOLEAN_PARAMETER)
 
+macro DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(TYPE)
+function TYPELoadJS(arraybuffer, offset) {
+  if (!IS_ARRAYBUFFER(arraybuffer)) {
+    throw MakeTypeError('argument is not ArrayBuffer');
+  }
+  if (%_ArgumentsLength() < 2) {
+    throw MakeTypeError('invalid_argument');
+  }
+  return %TYPELoad(arraybuffer,
+                   ToPositiveDataViewOffset(offset));
+}
+
+function TYPEStoreJS(arraybuffer, offset, value) {
+  if (!IS_ARRAYBUFFER(arraybuffer)) {
+    throw MakeTypeError('argument is not ArrayBuffer');
+  }
+  if (%_ArgumentsLength() < 3) {
+    throw MakeTypeError('invalid_argument');
+  }
+
+  CheckTYPE(value);
+
+  %TYPEStore(arraybuffer,
+             ToPositiveDataViewOffset(offset),
+             value);
+}
+endmacro
+
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4)
+
 function Float32x4SplatJS(f) {
   f = TO_NUMBER_INLINE(f);
   return %CreateFloat32x4(f, f, f, f);
@@ -735,6 +767,8 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD float32x4 object.
   InstallFunctions($SIMD.float32x4, DONT_ENUM, $Array(
     // Float32x4 operations
+    "load", Float32x4LoadJS,
+    "store", Float32x4StoreJS,
     "splat", Float32x4SplatJS,
     "zero", Float32x4ZeroJS,
     // Unary
@@ -777,6 +811,8 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD float64x2 object.
   InstallFunctions($SIMD.float64x2, DONT_ENUM, $Array(
     // Float64x2 operations
+    "load", Float64x2LoadJS,
+    "store", Float64x2StoreJS,
     "splat", Float64x2SplatJS,
     "zero", Float64x2ZeroJS,
     // Unary
@@ -800,6 +836,8 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD int32x4 object.
   InstallFunctions($SIMD.int32x4, DONT_ENUM, $Array(
     // Int32x4 operations
+    "load", Int32x4LoadJS,
+    "store", Int32x4StoreJS,
     "zero", Int32x4ZeroJS,
     "splat", Int32x4SplatJS,
     "bool", Int32x4BoolJS,

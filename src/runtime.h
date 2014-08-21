@@ -158,6 +158,8 @@ namespace internal {
   F(AllocateInt32x4, 0, 1)                                  \
                                                             \
   /* SIMD */                                                \
+  F(Float32x4Load, 2, 1)                                    \
+  F(Float32x4Store, 3, 1)                                   \
   F(Float32x4Abs, 1, 1)                                     \
   F(Float32x4BitsToInt32x4, 1, 1)                           \
   F(Float32x4Neg, 1, 1)                                     \
@@ -186,6 +188,8 @@ namespace internal {
   F(Float32x4Clamp, 3, 1)                                   \
   F(Float32x4ShuffleMix, 3, 1)                              \
   F(Float32x4Select, 3, 1)                                  \
+  F(Float64x2Load, 2, 1)                                    \
+  F(Float64x2Store, 3, 1)                                   \
   F(Float64x2Abs, 1, 1)                                     \
   F(Float64x2Neg, 1, 1)                                     \
   F(Float64x2Sqrt, 1, 1)                                    \
@@ -199,6 +203,8 @@ namespace internal {
   F(Float64x2WithX, 2, 1)                                   \
   F(Float64x2WithY, 2, 1)                                   \
   F(Float64x2Clamp, 3, 1)                                   \
+  F(Int32x4Load, 2, 1)                                      \
+  F(Int32x4Store, 3, 1)                                     \
   F(Int32x4BitsToFloat32x4, 1, 1)                           \
   F(Int32x4Neg, 1, 1)                                       \
   F(Int32x4Not, 1, 1)                                       \
