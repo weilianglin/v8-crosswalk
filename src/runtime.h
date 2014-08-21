@@ -421,6 +421,9 @@ namespace internal {
   F(DataViewGetUint32, 3, 1) \
   F(DataViewGetFloat32, 3, 1) \
   F(DataViewGetFloat64, 3, 1) \
+  F(DataViewGetFloat32x4, 3, 1) \
+  F(DataViewGetFloat64x2, 3, 1) \
+  F(DataViewGetInt32x4, 3, 1) \
   \
   F(DataViewSetInt8, 4, 1) \
   F(DataViewSetUint8, 4, 1) \
@@ -430,6 +433,9 @@ namespace internal {
   F(DataViewSetUint32, 4, 1) \
   F(DataViewSetFloat32, 4, 1) \
   F(DataViewSetFloat64, 4, 1) \
+  F(DataViewSetFloat32x4, 4, 1) \
+  F(DataViewSetFloat64x2, 4, 1) \
+  F(DataViewSetInt32x4, 4, 1) \
   \
   /* Statements */ \
   F(NewObjectFromBound, 1, 1) \

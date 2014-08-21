@@ -1435,6 +1435,9 @@ DATA_VIEW_GETTER(Uint32, uint32_t, NewNumberFromUint)
 DATA_VIEW_GETTER(Int32, int32_t, NewNumberFromInt)
 DATA_VIEW_GETTER(Float32, float, NewNumber)
 DATA_VIEW_GETTER(Float64, double, NewNumber)
+DATA_VIEW_GETTER(Float32x4, float32x4_value_t, NewFloat32x4)
+DATA_VIEW_GETTER(Float64x2, float64x2_value_t, NewFloat64x2)
+DATA_VIEW_GETTER(Int32x4, int32x4_value_t, NewInt32x4)
 
 #undef DATA_VIEW_GETTER
 
@@ -1521,6 +1524,30 @@ DATA_VIEW_SETTER(Float64, double)
 
 #undef DATA_VIEW_SETTER
 
+#define DATA_VIEW_SIMD128_SETTER(TypeName, Type)                              \
+  RUNTIME_FUNCTION(Runtime_DataViewSet##TypeName) {                           \
+    HandleScope scope(isolate);                                               \
+    ASSERT(args.length() == 4);                                               \
+    CONVERT_ARG_HANDLE_CHECKED(JSDataView, holder, 0);                        \
+    CONVERT_NUMBER_ARG_HANDLE_CHECKED(offset, 1);                             \
+    CONVERT_ARG_CHECKED(TypeName, value, 2);                                  \
+    CONVERT_BOOLEAN_ARG_CHECKED(is_little_endian, 3);                         \
+    Type v = value->get();                                                    \
+    if (DataViewSetValue(                                                     \
+          isolate, holder, offset, is_little_endian, v)) {                    \
+      return isolate->heap()->undefined_value();                              \
+    } else {                                                                  \
+      return isolate->Throw(*isolate->factory()->NewRangeError(               \
+          "invalid_data_view_accessor_offset",                                \
+          HandleVector<Object>(NULL, 0)));                                    \
+    }                                                                         \
+  }
+
+DATA_VIEW_SIMD128_SETTER(Float32x4, float32x4_value_t)
+DATA_VIEW_SIMD128_SETTER(Float64x2, float64x2_value_t)
+DATA_VIEW_SIMD128_SETTER(Int32x4, int32x4_value_t)
+
+#undef DATA_VIEW_SIMD128_SETTER
 
 RUNTIME_FUNCTION(Runtime_SetInitialize) {
   HandleScope scope(isolate);

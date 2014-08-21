@@ -1041,3 +1041,60 @@ DECLARE_TYPED_ARRAY_FUNCTION(Int32x4)
 SetUpFloat32x4Array();
 SetUpFloat64x2Array();
 SetUpInt32x4Array();
+
+// --------------------------- DataView -----------------------------
+
+var $DataView = global.DataView;
+
+macro DATA_VIEW_GETTER_SETTER_SIMD(TYPENAME)
+function DataViewGetTYPENAMEJS(offset, little_endian) {
+  if (!IS_DATAVIEW(this)) {
+    throw MakeTypeError('incompatible_method_receiver',
+                        ['DataView.getTYPENAME', this]);
+  }
+  if (%_ArgumentsLength() < 1) {
+    throw MakeTypeError('invalid_argument');
+  }
+  return %DataViewGetTYPENAME(this,
+                              ToPositiveDataViewOffset(offset),
+                              !!little_endian);
+}
+
+function DataViewSetTYPENAMEJS(offset, value, little_endian) {
+  if (!IS_DATAVIEW(this)) {
+    throw MakeTypeError('incompatible_method_receiver',
+                        ['DataView.setTYPENAME', this]);
+  }
+  if (%_ArgumentsLength() < 2) {
+    throw MakeTypeError('invalid_argument');
+  }
+
+  CheckTYPENAME(value);
+
+  %DataViewSetTYPENAME(this,
+                       ToPositiveDataViewOffset(offset),
+                       value,
+                       !!little_endian);
+}
+endmacro
+
+DATA_VIEW_GETTER_SETTER_SIMD(Float32x4)
+DATA_VIEW_GETTER_SETTER_SIMD(Float64x2)
+DATA_VIEW_GETTER_SETTER_SIMD(Int32x4)
+
+function SetupDataViewForSIMD() {
+  %CheckIsBootstrapping();
+
+  InstallFunctions($DataView.prototype, DONT_ENUM, $Array(
+      "getFloat32x4", DataViewGetFloat32x4JS,
+      "setFloat32x4", DataViewSetFloat32x4JS,
+
+      "getFloat64x2", DataViewGetFloat64x2JS,
+      "setFloat64x2", DataViewSetFloat64x2JS,
+
+      "getInt32x4", DataViewGetInt32x4JS,
+      "setInt32x4", DataViewSetInt32x4JS
+  ));
+}
+
+SetupDataViewForSIMD();
