@@ -343,6 +343,68 @@ FLOAT64x2_BINARY_FUNCTIONS_WITH_FLOAT64_PARAMETER(DECLARE_FLOAT64x2_BINARY_FUNCT
 INT32x4_BINARY_FUNCTIONS_WITH_INT32_PARAMETER(DECLARE_INT32x4_BINARY_FUNCTION_WITH_INT32_PARAMETER)
 INT32x4_BINARY_FUNCTIONS_WITH_BOOLEAN_PARAMETER(DECLARE_INT32x4_BINARY_FUNCTION_WITH_BOOLEAN_PARAMETER)
 
+function isTypedArray(o) {
+  return (%_ClassOf(o) === 'Int8Array') ||
+         (%_ClassOf(o) === 'Uint8Array') ||
+         (%_ClassOf(o) === 'Uint8ClampedArray') ||
+         (%_ClassOf(o) === 'Int16Array') ||
+         (%_ClassOf(o) === 'Uint16Array') ||
+         (%_ClassOf(o) === 'Int32Array') ||
+         (%_ClassOf(o) === 'Uint32Array') ||
+         (%_ClassOf(o) === 'Float32Array') ||
+         (%_ClassOf(o) === 'Float64Array') ||
+         (%_ClassOf(o) === 'Int32x4Array') ||
+         (%_ClassOf(o) === 'Float32x4Array');
+}
+
+macro DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(TYPE, LANES, NBYTES)
+function TYPELoadLANESJS(tarray, index) {
+  if (%_ArgumentsLength() < 2) {
+    throw MakeTypeError('invalid_argument');
+  }
+  if (!isTypedArray(tarray)) {
+    throw MakeTypeError('The 1st argument must be a typed array.');
+  }
+  if (!IS_NUMBER(index)) {
+    throw MakeTypeError('The 2nd argument must be a Number.');
+  }
+  var offset = TO_INTEGER(index) * tarray.BYTES_PER_ELEMENT;
+  if (offset < 0 || (offset + NBYTES) > tarray.byteLength)
+    throw MakeRangeError('The value of index is invalid.');
+  var arraybuffer = tarray.buffer;
+  return %TYPELoadLANES(arraybuffer, offset);
+}
+
+function TYPEStoreLANESJS(tarray, index, value) {
+  if (%_ArgumentsLength() < 3) {
+    throw MakeTypeError('invalid_argument');
+  }
+  if (!isTypedArray(tarray)) {
+    throw MakeTypeError('The 1st argument must be a typed array.');
+  }
+  if (!IS_NUMBER(index)) {
+    throw MakeTypeError('The 2nd argument must be a Number.');
+  }
+  CheckTYPE(value);
+  var offset = TO_INTEGER(index) * tarray.BYTES_PER_ELEMENT;
+  if (offset < 0 || (offset + NBYTES) > tarray.byteLength)
+    throw MakeRangeError('The value of index is invalid.');
+  var arraybuffer = tarray.buffer;
+  %TYPEStoreLANES(arraybuffer, offset, value);
+}
+endmacro
+
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZW, 16)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZ, 12)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XY, 8)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, X, 4)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, XY, 16)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, X, 8)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZW, 16)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZ, 12)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XY, 8)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, X, 4)
+
 function Float32x4SplatJS(f) {
   f = TO_NUMBER_INLINE(f);
   return %CreateFloat32x4(f, f, f, f);
@@ -735,6 +797,14 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD float32x4 object.
   InstallFunctions($SIMD.float32x4, DONT_ENUM, $Array(
     // Float32x4 operations
+    "load", Float32x4LoadXYZWJS,
+    "loadX", Float32x4LoadXJS,
+    "loadXY", Float32x4LoadXYJS,
+    "loadXYZ", Float32x4LoadXYZJS,
+    "store", Float32x4StoreXYZWJS,
+    "storeX", Float32x4StoreXJS,
+    "storeXY", Float32x4StoreXYJS,
+    "storeXYZ", Float32x4StoreXYZJS,
     "splat", Float32x4SplatJS,
     "zero", Float32x4ZeroJS,
     // Unary
@@ -777,6 +847,10 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD float64x2 object.
   InstallFunctions($SIMD.float64x2, DONT_ENUM, $Array(
     // Float64x2 operations
+    "load", Float64x2LoadXYJS,
+    "loadX", Float64x2LoadXJS,
+    "store", Float64x2StoreXYJS,
+    "storeX", Float64x2StoreXJS,
     "splat", Float64x2SplatJS,
     "zero", Float64x2ZeroJS,
     // Unary
@@ -800,6 +874,14 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD int32x4 object.
   InstallFunctions($SIMD.int32x4, DONT_ENUM, $Array(
     // Int32x4 operations
+    "load", Int32x4LoadXYZWJS,
+    "loadX", Int32x4LoadXJS,
+    "loadXY", Int32x4LoadXYJS,
+    "loadXYZ", Int32x4LoadXYZJS,
+    "store", Int32x4StoreXYZWJS,
+    "storeX", Int32x4StoreXJS,
+    "storeXY", Int32x4StoreXYJS,
+    "storeXYZ", Int32x4StoreXYZJS,
     "zero", Int32x4ZeroJS,
     "splat", Int32x4SplatJS,
     "bool", Int32x4BoolJS,
