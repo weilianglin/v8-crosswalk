@@ -987,6 +987,19 @@ class HValue : public ZoneObject {
     return new(zone) I(p1, p2, p3, p4, p5, p6);                                \
   }
 
+#define DECLARE_INSTRUCTION_FACTORY_P7(I, P1, P2, P3, P4, P5, P6, P7)          \
+  static I* New(Zone* zone,                                                    \
+                HValue* context,                                               \
+                P1 p1,                                                         \
+                P2 p2,                                                         \
+                P3 p3,                                                         \
+                P4 p4,                                                         \
+                P5 p5,                                                         \
+                P6 p6,                                                         \
+                P7 p7) {                                                       \
+    return new(zone) I(p1, p2, p3, p4, p5, p6, p7);                            \
+  }
+
 #define DECLARE_INSTRUCTION_WITH_CONTEXT_FACTORY_P0(I)                         \
   static I* New(Zone* zone, HValue* context) {                                 \
     return new(zone) I(context);                                               \
@@ -6504,6 +6517,9 @@ class HLoadKeyed V8_FINAL
                                  ElementsKind, LoadKeyedHoleMode);
   DECLARE_INSTRUCTION_FACTORY_P6(HLoadKeyed, HValue*, HValue*, HValue*,
                                  ElementsKind, LoadKeyedHoleMode, int);
+  DECLARE_INSTRUCTION_FACTORY_P7(HLoadKeyed, HValue*, HValue*, HValue*,
+                                 ElementsKind, LoadKeyedHoleMode, int,
+                                 BuiltinFunctionId);
 
   bool is_external() const {
     return IsExternalArrayElementsKind(elements_kind());
@@ -6533,6 +6549,8 @@ class HLoadKeyed V8_FINAL
   virtual int MaxBaseOffsetBits() {
     return kBitsForBaseOffset;
   }
+  BuiltinFunctionId op() {return op_;}
+
   HValue* GetKey() { return key(); }
   void SetKey(HValue* key) { SetOperandAt(1, key); }
   bool IsDehoisted() { return IsDehoistedField::decode(bit_field_); }
@@ -6592,8 +6610,9 @@ class HLoadKeyed V8_FINAL
              HValue* dependency,
              ElementsKind elements_kind,
              LoadKeyedHoleMode mode = NEVER_RETURN_HOLE,
-             int offset = kDefaultKeyedHeaderOffsetSentinel)
-      : bit_field_(0) {
+             int offset = kDefaultKeyedHeaderOffsetSentinel,
+             BuiltinFunctionId op = kNumberOfBuiltinFunction)
+      : bit_field_(0), op_(op) {
     offset = offset == kDefaultKeyedHeaderOffsetSentinel
         ? GetDefaultHeaderSizeForElementsKind(elements_kind)
         : offset;
@@ -6631,7 +6650,9 @@ class HLoadKeyed V8_FINAL
         SetDependsOnFlag(kDoubleArrayElements);
       }
     } else {
-      if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
+      if (op_ == kDataViewGetFloat32x4)
+        set_representation(Representation::Float32x4());
+      else if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
           elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
           elements_kind == FLOAT32_ELEMENTS ||
           elements_kind == FLOAT64_ELEMENTS) {
@@ -6696,6 +6717,7 @@ class HLoadKeyed V8_FINAL
     public BitField<bool, kStartIsDehoisted, kBitsForIsDehoisted>
     {};  // NOLINT
   uint32_t bit_field_;
+  BuiltinFunctionId op_;
 };
 
 

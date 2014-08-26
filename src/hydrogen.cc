@@ -2324,7 +2324,8 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
     ElementsKind elements_kind,
     PropertyAccessType access_type,
     LoadKeyedHoleMode load_mode,
-    KeyedAccessStoreMode store_mode) {
+    KeyedAccessStoreMode store_mode,
+    BuiltinFunctionId op) {
   ASSERT((!IsExternalArrayElementsKind(elements_kind) &&
               !IsFixedTypedArrayElementsKind(elements_kind)) ||
          !is_js_array);
@@ -2388,7 +2389,7 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
       checked_key = Add<HBoundsCheck>(key, length);
       return AddElementAccess(
           backing_store, checked_key, val,
-          checked_object, elements_kind, access_type);
+          checked_object, elements_kind, access_type, NEVER_RETURN_HOLE, op);
     }
   }
   ASSERT(fast_smi_only_elements ||
@@ -2425,7 +2426,7 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
     }
   }
   return AddElementAccess(elements, checked_key, val, checked_object,
-                          elements_kind, access_type, load_mode);
+                          elements_kind, access_type, load_mode, op);
 }
 
 
@@ -2593,7 +2594,8 @@ HInstruction* HGraphBuilder::AddElementAccess(
     HValue* dependency,
     ElementsKind elements_kind,
     PropertyAccessType access_type,
-    LoadKeyedHoleMode load_mode) {
+    LoadKeyedHoleMode load_mode,
+    BuiltinFunctionId op) {
   if (access_type == STORE) {
     ASSERT(val != NULL);
     if (elements_kind == EXTERNAL_UINT8_CLAMPED_ELEMENTS ||
@@ -2609,7 +2611,8 @@ HInstruction* HGraphBuilder::AddElementAccess(
   ASSERT(access_type == LOAD);
   ASSERT(val == NULL);
   HLoadKeyed* load = Add<HLoadKeyed>(
-      elements, checked_key, dependency, elements_kind, load_mode);
+      elements, checked_key, dependency, elements_kind, load_mode,
+      kDefaultKeyedHeaderOffsetSentinel, op);
   if (FLAG_opt_safe_uint32_operations &&
       (elements_kind == EXTERNAL_UINT32_ELEMENTS ||
        elements_kind == UINT32_ELEMENTS)) {
@@ -8682,6 +8685,28 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         HInstruction* op =
             HQuarternarySIMDOperation::New(zone(), context, x, y, z, w, id);
         ast_context()->ReturnInstruction(op, expr->id());
+        return true;
+      }
+      break;
+    case kDataViewGetFloat32x4:
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
+        HValue* key = Pop();
+        HValue* little_endian = Pop();
+        HValue* dataview = Pop();
+        ASSERT(dataview == receiver);
+        Drop(1);  // Drop function.
+        HValue* buffer = Add<HLoadNamedField>(
+          dataview,
+          HObjectAccess::ForJSArrayBufferViewBuffer());
+        HInstruction* instr = BuildUncheckedMonomorphicElementAccess(
+            buffer, key, NULL,
+            buffer->instance_type() == JS_ARRAY_TYPE,
+            buffer->elements_kind(),
+            LOAD,  // is_store.
+            NEVER_RETURN_HOLE,  // load_mode.
+            STANDARD_STORE,
+            id);
+        ast_context()->ReturnValue(instr);
         return true;
       }
       break;

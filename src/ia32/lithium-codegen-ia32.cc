@@ -3150,6 +3150,7 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
       instr->hydrogen()->key()->representation(),
       elements_kind,
       instr->base_offset()));
+  BuiltinFunctionId id = instr->hydrogen()->op();
   if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
       elements_kind == FLOAT32_ELEMENTS) {
     XMMRegister result(ToDoubleRegister(instr->result()));
@@ -3159,6 +3160,8 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
              elements_kind == FLOAT64_ELEMENTS) {
     __ movsd(ToDoubleRegister(instr->result()), operand);
   } else if (IsSIMD128ElementsKind(elements_kind)) {
+    __ movups(ToSIMD128Register(instr->result()), operand);
+  } else if (id == kDataViewGetFloat32x4) {
     __ movups(ToSIMD128Register(instr->result()), operand);
   } else {
     Register result(ToRegister(instr->result()));
