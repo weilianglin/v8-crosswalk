@@ -1136,3 +1136,61 @@ function SetupDataViewForSIMD() {
 }
 
 SetupDataViewForSIMD();
+
+// --------------------------- Typed Array -----------------------------
+
+var $Float32Array = global.Float32Array;
+
+function Float32ArrayGetFloat32x4JS(offset) {
+  if (!(%_ClassOf(this) === 'Float32Array')) {
+    throw MakeTypeError('incompatible_method_receiver',
+                        ["Float32Array.getFloat32x4", this]);
+  }
+  if (%_ArgumentsLength() < 1) {
+    throw MakeTypeError('invalid_argument');
+  }
+  var intOffset = IS_UNDEFINED(offset) ? 0 : TO_INTEGER(offset);
+  if (intOffset < 0) {
+    throw MakeTypeError("typed_array_negative_offset");
+  }
+
+  if (intOffset > %_MaxSmi()) {
+    throw MakeRangeError("typed_array_too_large_offset");
+  }
+  var byte_offset = intOffset << 2;
+  return %Float32ArrayGetFloat32x4(this, byte_offset);
+}
+
+
+function Float32ArraySetFloat32x4JS(offset, value) {
+  if (!(%_ClassOf(this) === 'Float32Array')) {
+    throw MakeTypeError('incompatible_method_receiver',
+                        ["Float32Array.setFloat32x4", this]);
+  } 
+  if (%_ArgumentsLength() < 2) {
+    throw MakeTypeError('invalid_argument');
+  }
+  var intOffset = IS_UNDEFINED(offset) ? 0 : TO_INTEGER(offset);
+  if (intOffset < 0) {
+    throw MakeTypeError("typed_array_negative_offset");
+  }
+
+  if (intOffset > %_MaxSmi()) {
+    throw MakeRangeError("typed_array_too_large_offset");
+  }
+  var byte_offset = intOffset << 2;
+  CheckFloat32x4(value);
+  return %Float32ArraySetFloat32x4(this, byte_offset, value);
+}
+
+
+function SetupFloat32ArrayGetFloat32x4() {
+  %CheckIsBootstrapping();
+
+  InstallFunctions($Float32Array.prototype, DONT_ENUM, $Array(
+      "getFloat32x4", Float32ArrayGetFloat32x4JS,
+      "setFloat32x4", Float32ArraySetFloat32x4JS
+  ));
+}
+
+SetupFloat32ArrayGetFloat32x4();

@@ -6650,7 +6650,7 @@ class HLoadKeyed V8_FINAL
         SetDependsOnFlag(kDoubleArrayElements);
       }
     } else {
-      if (op_ == kDataViewGetFloat32x4)
+      if (op_ == kFloat32ArrayGetFloat32x4)
         set_representation(Representation::Float32x4());
       else if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
           elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
@@ -6954,6 +6954,9 @@ class HStoreKeyed V8_FINAL
                                  ElementsKind, StoreFieldOrKeyedMode);
   DECLARE_INSTRUCTION_FACTORY_P6(HStoreKeyed, HValue*, HValue*, HValue*,
                                  ElementsKind, StoreFieldOrKeyedMode, int);
+  DECLARE_INSTRUCTION_FACTORY_P7(HStoreKeyed, HValue*, HValue*, HValue*,
+                                 ElementsKind, StoreFieldOrKeyedMode, int,
+                                 BuiltinFunctionId);
 
   virtual Representation RequiredInputRepresentation(int index) V8_OVERRIDE {
     // kind_fast:               tagged[int32] = tagged
@@ -6970,6 +6973,10 @@ class HStoreKeyed V8_FINAL
     }
 
     ASSERT_EQ(index, 2);
+
+    if (op() == kFloat32ArraySetFloat32x4) {
+      return Representation::Float32x4();
+    }
 
     if (IsDoubleOrFloatElementsKind(elements_kind())) {
       return Representation::Double();
@@ -7015,6 +7022,9 @@ class HStoreKeyed V8_FINAL
     if (IsUninitialized()) {
       return Representation::None();
     }
+    if (op() == kFloat32ArraySetFloat32x4) {
+      return Representation::Float32x4();
+    }
     if (IsDoubleOrFloatElementsKind(elements_kind())) {
       return Representation::Double();
     }
@@ -7043,6 +7053,7 @@ class HStoreKeyed V8_FINAL
     return Representation::None();
   }
 
+  BuiltinFunctionId op() const { return op_; }
   HValue* elements() const { return OperandAt(0); }
   HValue* key() const { return OperandAt(1); }
   HValue* value() const { return OperandAt(2); }
@@ -7107,7 +7118,8 @@ class HStoreKeyed V8_FINAL
   HStoreKeyed(HValue* obj, HValue* key, HValue* val,
               ElementsKind elements_kind,
               StoreFieldOrKeyedMode store_mode = INITIALIZING_STORE,
-              int offset = kDefaultKeyedHeaderOffsetSentinel)
+              int offset = kDefaultKeyedHeaderOffsetSentinel,
+              BuiltinFunctionId op = kNumberOfBuiltinFunction)
       : elements_kind_(elements_kind),
       base_offset_(offset == kDefaultKeyedHeaderOffsetSentinel
           ? GetDefaultHeaderSizeForElementsKind(elements_kind)
@@ -7115,7 +7127,8 @@ class HStoreKeyed V8_FINAL
       is_dehoisted_(false),
       is_uninitialized_(false),
       store_mode_(store_mode),
-      dominator_(NULL) {
+      dominator_(NULL),
+      op_(op){
     SetOperandAt(0, obj);
     SetOperandAt(1, key);
     SetOperandAt(2, val);
@@ -7156,6 +7169,7 @@ class HStoreKeyed V8_FINAL
   bool is_uninitialized_ : 1;
   StoreFieldOrKeyedMode store_mode_: 1;
   HValue* dominator_;
+  BuiltinFunctionId op_;
 };
 
 

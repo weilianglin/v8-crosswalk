@@ -3150,18 +3150,20 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
       instr->hydrogen()->key()->representation(),
       elements_kind,
       instr->base_offset()));
-  BuiltinFunctionId id = instr->hydrogen()->op();
   if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
       elements_kind == FLOAT32_ELEMENTS) {
-    XMMRegister result(ToDoubleRegister(instr->result()));
-    __ movss(result, operand);
-    __ cvtss2sd(result, result);
+    BuiltinFunctionId id = instr->hydrogen()->op();
+    if (id == kFloat32ArrayGetFloat32x4) {
+      __ movups(ToSIMD128Register(instr->result()), operand);
+    } else {
+      XMMRegister result(ToDoubleRegister(instr->result()));
+      __ movss(result, operand);
+      __ cvtss2sd(result, result);
+    }
   } else if (elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
              elements_kind == FLOAT64_ELEMENTS) {
     __ movsd(ToDoubleRegister(instr->result()), operand);
   } else if (IsSIMD128ElementsKind(elements_kind)) {
-    __ movups(ToSIMD128Register(instr->result()), operand);
-  } else if (id == kDataViewGetFloat32x4) {
     __ movups(ToSIMD128Register(instr->result()), operand);
   } else {
     Register result(ToRegister(instr->result()));
@@ -4213,9 +4215,14 @@ void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
       instr->base_offset()));
   if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
       elements_kind == FLOAT32_ELEMENTS) {
-    XMMRegister xmm_scratch = double_scratch0();
-    __ cvtsd2ss(xmm_scratch, ToDoubleRegister(instr->value()));
-    __ movss(operand, xmm_scratch);
+    BuiltinFunctionId id = instr->hydrogen()->op();
+    if (id == kFloat32ArraySetFloat32x4) {
+     __ movups(operand, ToSIMD128Register(instr->value()));
+    } else {
+      XMMRegister xmm_scratch = double_scratch0();
+      __ cvtsd2ss(xmm_scratch, ToDoubleRegister(instr->value()));
+      __ movss(operand, xmm_scratch);
+    }
   } else if (elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
              elements_kind == FLOAT64_ELEMENTS) {
     __ movsd(operand, ToDoubleRegister(instr->value()));

@@ -152,6 +152,8 @@ namespace internal {
   /* SIMD */ \
   F(Float32x4Load, 2, 1) \
   F(Float32x4Store, 3, 1) \
+  F(Float32ArrayGetFloat32x4, 2, 1) \
+  F(Float32ArraySetFloat32x4, 3, 1) \
   F(Float32x4Abs, 1, 1) \
   F(Float32x4BitsToInt32x4, 1, 1) \
   F(Float32x4Neg, 1, 1) \

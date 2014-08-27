@@ -15388,6 +15388,43 @@ SIMD128_STORE_RUNTIME_FUNCTION(Float64x2, float64x2_value_t)
 SIMD128_STORE_RUNTIME_FUNCTION(Int32x4, int32x4_value_t)
 
 
+RUNTIME_FUNCTION(Runtime_Float32ArrayGetFloat32x4) {
+  HandleScope scope(isolate);
+  ASSERT(args.length() == 2);
+  CONVERT_ARG_HANDLE_CHECKED(JSTypedArray, array, 0);
+  CONVERT_NUMBER_ARG_HANDLE_CHECKED(byte_offset, 1);
+  ASSERT(array->GetElementsKind() == EXTERNAL_FLOAT32_ELEMENTS ||
+         array->GetElementsKind() == FLOAT32_ELEMENTS);
+  float32x4_value_t result;
+  if (SimdTypeLoadValue(isolate, array->GetBuffer(), byte_offset, &result)) {
+    return *isolate->factory()->NewFloat32x4(result);
+  } else {
+    return isolate->Throw(*isolate->factory()->NewRangeError(
+        "invalid_offset",
+        HandleVector<Object>(NULL, 0)));
+  }
+}
+
+
+RUNTIME_FUNCTION(Runtime_Float32ArraySetFloat32x4) {
+  HandleScope scope(isolate);
+  ASSERT(args.length() == 3);
+  CONVERT_ARG_HANDLE_CHECKED(JSTypedArray, array, 0);
+  CONVERT_NUMBER_ARG_HANDLE_CHECKED(byte_offset, 1);
+  CONVERT_ARG_CHECKED(Float32x4, value, 2);
+  ASSERT(array->GetElementsKind() == EXTERNAL_FLOAT32_ELEMENTS ||
+         array->GetElementsKind() == FLOAT32_ELEMENTS);
+  float32x4_value_t v = value->get();
+  if (SimdTypeStoreValue(isolate, array->GetBuffer(), byte_offset, v)) {
+    return isolate->heap()->undefined_value();
+  } else {
+    return isolate->Throw(*isolate->factory()->NewRangeError(
+        "invalid_data_view_accessor_offset",
+        HandleVector<Object>(NULL, 0)));
+  }
+}
+
+
 #define RETURN_Float32x4_RESULT(value)                                         \
   return *isolate->factory()->NewFloat32x4(value);
 

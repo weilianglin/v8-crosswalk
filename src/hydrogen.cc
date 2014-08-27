@@ -2605,7 +2605,9 @@ HInstruction* HGraphBuilder::AddElementAccess(
     return Add<HStoreKeyed>(elements, checked_key, val, elements_kind,
                             elements_kind == FAST_SMI_ELEMENTS
                               ? STORE_TO_INITIALIZED_ENTRY
-                              : INITIALIZING_STORE);
+                              : INITIALIZING_STORE,
+                            kDefaultKeyedHeaderOffsetSentinel,
+                            op);
   }
 
   ASSERT(access_type == LOAD);
@@ -8688,25 +8690,45 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         return true;
       }
       break;
-    case kDataViewGetFloat32x4:
-      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
+    case kFloat32ArrayGetFloat32x4:
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 2) {
         HValue* key = Pop();
-        HValue* little_endian = Pop();
-        HValue* dataview = Pop();
-        ASSERT(dataview == receiver);
+        HValue* float32_array = Pop();
+        ASSERT(float32_array == receiver);
         Drop(1);  // Drop function.
-        HValue* buffer = Add<HLoadNamedField>(
-          dataview,
-          HObjectAccess::ForJSArrayBufferViewBuffer());
+        // TODO(ningxin): check the boundary for Float32x4
         HInstruction* instr = BuildUncheckedMonomorphicElementAccess(
-            buffer, key, NULL,
-            buffer->instance_type() == JS_ARRAY_TYPE,
-            buffer->elements_kind(),
+            float32_array, key, NULL,
+            receiver_map->instance_type() == JS_ARRAY_TYPE,
+            receiver_map->elements_kind(),
             LOAD,  // is_store.
             NEVER_RETURN_HOLE,  // load_mode.
             STANDARD_STORE,
             id);
         ast_context()->ReturnValue(instr);
+        return true;
+      }
+      break;
+    case kFloat32ArraySetFloat32x4:
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
+        HValue* value = Pop();
+        HValue* key = Pop();
+        HValue* float32_array = Pop();
+        ASSERT(float32_array == receiver);
+        Drop(1);  // Drop function.
+        // TODO(ningxin): check the boundary for Float32x4
+        KeyedAccessStoreMode store_mode = STANDARD_STORE;
+        BuildUncheckedMonomorphicElementAccess(
+            float32_array, key, value,
+            receiver_map->instance_type() == JS_ARRAY_TYPE,
+            receiver_map->elements_kind(),
+            STORE,  // is_store.
+            NEVER_RETURN_HOLE,  // load_mode.
+            store_mode,
+            id);
+        Push(value);
+        Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
+        ast_context()->ReturnValue(Pop());
         return true;
       }
       break;
