@@ -128,6 +128,9 @@ StaticVisitorBase::VisitorId StaticVisitorBase::GetVisitorId(
     case JS_MESSAGE_OBJECT_TYPE:
     case JS_SET_ITERATOR_TYPE:
     case JS_MAP_ITERATOR_TYPE:
+      return GetVisitorIdForSize(kVisitJSObject, kVisitJSObjectGeneric,
+                                 instance_size);
+
     case FLOAT32x4_TYPE:
     case FLOAT64x2_TYPE:
     case INT32x4_TYPE:

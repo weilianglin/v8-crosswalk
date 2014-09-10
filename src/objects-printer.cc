@@ -61,13 +61,13 @@ void HeapObject::HeapObjectPrint(OStream& os) {  // NOLINT
       os << ">";
       break;
     case FLOAT32x4_TYPE:
-      Float32x4::cast(this)->Float32x4Print(out);
+      //Float32x4::cast(this)->Float32x4Print(out);
       break;
     case FLOAT64x2_TYPE:
-      Float64x2::cast(this)->Float64x2Print(out);
+      //Float64x2::cast(this)->Float64x2Print(out);
       break;
     case INT32x4_TYPE:
-      Int32x4::cast(this)->Int32x4Print(out);
+      //Int32x4::cast(this)->Int32x4Print(out);
       break;
     case FIXED_DOUBLE_ARRAY_TYPE:
       FixedDoubleArray::cast(this)->FixedDoubleArrayPrint(os);
@@ -273,7 +273,8 @@ static void DoPrintElements(OStream& os, Object* object) {  // NOLINT
 
 
 template<class T>
-static void DoPrintFloat32x4Elements(FILE* out, Object* object) {
+static void DoPrintFloat32x4Elements(OStream& os, Object* object) {
+  /*
   T* p = T::cast(object);
   for (int i = 0; i < p->length(); i++) {
     float32x4_value_t value =  p->get_scalar(i);
@@ -281,21 +282,25 @@ static void DoPrintFloat32x4Elements(FILE* out, Object* object) {
            i, value.storage[0], value.storage[1],
            value.storage[2], value.storage[3]);
   }
+  */
 }
 
 
 template<class T>
-static void DoPrintFloat64x2Elements(FILE* out, Object* object) {
+static void DoPrintFloat64x2Elements(OStream& os, Object* object) {
+  /*
   T* p = T::cast(object);
   for (int i = 0; i < p->length(); i++) {
     float64x2_value_t value =  p->get_scalar(i);
     PrintF(out, "   %d: (%f, %f)\n", i, value.storage[0], value.storage[1]);
   }
+  */
 }
 
 
 template<class T>
-static void DoPrintInt32x4Elements(FILE* out, Object* object) {
+static void DoPrintInt32x4Elements(OStream& os, Object* object) {
+  /*
   T* p = T::cast(object);
   for (int i = 0; i < p->length(); i++) {
     int32x4_value_t value =  p->get_scalar(i);
@@ -303,6 +308,7 @@ static void DoPrintInt32x4Elements(FILE* out, Object* object) {
            i, value.storage[0], value.storage[1],
            value.storage[2], value.storage[3]);
   }
+  */
 }
 
 
@@ -348,19 +354,19 @@ void JSObject::PrintElements(OStream& os) {  // NOLINT
 
 #define PRINT_FLOAT32x4_ELEMENTS(Kind, Type)                                \
     case Kind: {                                                            \
-      DoPrintFloat32x4Elements<Type>(out, elements());                      \
+      DoPrintFloat32x4Elements<Type>(os, elements());                      \
       break;                                                                \
     }
 
 #define PRINT_FLOAT64x2_ELEMENTS(Kind, Type)                                \
     case Kind: {                                                            \
-      DoPrintFloat64x2Elements<Type>(out, elements());                      \
+      DoPrintFloat64x2Elements<Type>(os, elements());                      \
       break;                                                                \
     }
 
 #define PRINT_INT32x4_ELEMENTS(Kind, Type)                                  \
     case Kind: {                                                            \
-      DoPrintInt32x4Elements<Type>(out, elements());                        \
+      DoPrintInt32x4Elements<Type>(os, elements());                        \
       break;                                                                \
     }
 

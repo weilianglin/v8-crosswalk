@@ -1286,6 +1286,7 @@ void NewSpace::Grow() {
 void NewSpace::Shrink() {
   int new_capacity = Max(InitialCapacity(), 2 * SizeAsInt());
   int rounded_new_capacity = RoundUp(new_capacity, Page::kPageSize);
+  int capacity = Capacity();
   if (rounded_new_capacity < Capacity() &&
       to_space_.ShrinkTo(rounded_new_capacity)) {
     // Only shrink from-space if we managed to shrink to-space.
