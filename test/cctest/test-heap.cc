@@ -1685,7 +1685,7 @@ static void FillUpNewSpace(NewSpace* new_space) {
   HandleScope scope(isolate);
   AlwaysAllocateScope always_allocate(isolate);
   intptr_t available = new_space->EffectiveCapacity() - new_space->Size();
-  intptr_t number_of_fillers = (available / FixedArray::SizeFor(32)) - 1;
+  intptr_t number_of_fillers = (RoundDown(available, Page::kPageSize) / FixedArray::SizeFor(32)) - 1;
   for (intptr_t i = 0; i < number_of_fillers; i++) {
     CHECK(heap->InNewSpace(*factory->NewFixedArray(32, NOT_TENURED)));
   }
@@ -1707,6 +1707,11 @@ TEST(GrowAndShrinkNewSpace) {
 
   // Explicitly growing should double the space capacity.
   intptr_t old_capacity, new_capacity;
+  old_capacity = new_space->Capacity();
+  new_space->Grow();
+  new_capacity = new_space->Capacity();
+  CHECK(2 * old_capacity == new_capacity);
+
   old_capacity = new_space->Capacity();
   new_space->Grow();
   new_capacity = new_space->Capacity();
