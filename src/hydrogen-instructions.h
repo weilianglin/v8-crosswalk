@@ -1015,6 +1015,19 @@ OStream& operator<<(OStream& os, const ChangesOf& v);
     return new(zone) I(p1, p2, p3, p4, p5, p6);                                \
   }
 
+#define DECLARE_INSTRUCTION_FACTORY_P7(I, P1, P2, P3, P4, P5, P6, P7)          \
+  static I* New(Zone* zone,                                                    \
+                HValue* context,                                               \
+                P1 p1,                                                         \
+                P2 p2,                                                         \
+                P3 p3,                                                         \
+                P4 p4,                                                         \
+                P5 p5,                                                         \
+                P6 p6,                                                         \
+                P7 p7) {                                                       \
+    return new(zone) I(p1, p2, p3, p4, p5, p6, p7);                            \
+  }
+
 #define DECLARE_INSTRUCTION_WITH_CONTEXT_FACTORY_P0(I)                         \
   static I* New(Zone* zone, HValue* context) {                                 \
     return new(zone) I(context);                                               \
@@ -6569,6 +6582,9 @@ class HLoadKeyed V8_FINAL
                                  ElementsKind, LoadKeyedHoleMode);
   DECLARE_INSTRUCTION_FACTORY_P6(HLoadKeyed, HValue*, HValue*, HValue*,
                                  ElementsKind, LoadKeyedHoleMode, int);
+  DECLARE_INSTRUCTION_FACTORY_P7(HLoadKeyed, HValue*, HValue*, HValue*,
+                                 ElementsKind, LoadKeyedHoleMode, int,
+                                 BuiltinFunctionId);
 
   bool is_external() const {
     return IsExternalArrayElementsKind(elements_kind());
@@ -6588,6 +6604,7 @@ class HLoadKeyed V8_FINAL
   bool HasDependency() const { return OperandAt(0) != OperandAt(2); }
   uint32_t base_offset() const { return BaseOffsetField::decode(bit_field_); }
   bool TryIncreaseBaseOffset(uint32_t increase_by_value);
+  BuiltinFunctionId op() {return op_;}
   HValue* GetKey() { return key(); }
   void SetKey(HValue* key) { SetOperandAt(1, key); }
   bool IsDehoisted() const { return IsDehoistedField::decode(bit_field_); }
@@ -6647,8 +6664,9 @@ class HLoadKeyed V8_FINAL
              HValue* dependency,
              ElementsKind elements_kind,
              LoadKeyedHoleMode mode = NEVER_RETURN_HOLE,
-             int offset = kDefaultKeyedHeaderOffsetSentinel)
-      : bit_field_(0) {
+             int offset = kDefaultKeyedHeaderOffsetSentinel,
+             BuiltinFunctionId op = kNumberOfBuiltinFunction)
+      : bit_field_(0), op_(op) {
     offset = offset == kDefaultKeyedHeaderOffsetSentinel
         ? GetDefaultHeaderSizeForElementsKind(elements_kind)
         : offset;
@@ -6686,7 +6704,9 @@ class HLoadKeyed V8_FINAL
         SetDependsOnFlag(kDoubleArrayElements);
       }
     } else {
-      if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
+      if (op_ == kFloat32ArrayGetFloat32x4)
+        set_representation(Representation::Float32x4());
+      else if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
           elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
           elements_kind == FLOAT32_ELEMENTS ||
           elements_kind == FLOAT64_ELEMENTS) {
@@ -6751,6 +6771,7 @@ class HLoadKeyed V8_FINAL
     public BitField<bool, kStartIsDehoisted, kBitsForIsDehoisted>
     {};  // NOLINT
   uint32_t bit_field_;
+  BuiltinFunctionId op_;
 };
 
 
@@ -7002,6 +7023,9 @@ class HStoreKeyed V8_FINAL
                                  ElementsKind, StoreFieldOrKeyedMode);
   DECLARE_INSTRUCTION_FACTORY_P6(HStoreKeyed, HValue*, HValue*, HValue*,
                                  ElementsKind, StoreFieldOrKeyedMode, int);
+  DECLARE_INSTRUCTION_FACTORY_P7(HStoreKeyed, HValue*, HValue*, HValue*,
+                                 ElementsKind, StoreFieldOrKeyedMode, int,
+                                 BuiltinFunctionId);
 
   virtual Representation RequiredInputRepresentation(int index) V8_OVERRIDE {
     // kind_fast:               tagged[int32] = tagged
@@ -7018,6 +7042,9 @@ class HStoreKeyed V8_FINAL
     }
 
     DCHECK_EQ(index, 2);
+    if (op() == kFloat32ArraySetFloat32x4) {
+      return Representation::Float32x4();
+    }
     return RequiredValueRepresentation(elements_kind_, store_mode_);
   }
 
@@ -7072,12 +7099,16 @@ class HStoreKeyed V8_FINAL
     if (IsUninitialized()) {
       return Representation::None();
     }
+    if (op() == kFloat32ArraySetFloat32x4) {
+      return Representation::Float32x4();
+    }
     Representation r = RequiredValueRepresentation(elements_kind_, store_mode_);
     // For fast object elements kinds, don't assume anything.
     if (r.IsTagged()) return Representation::None();
     return r;
   }
 
+  BuiltinFunctionId op() const { return op_; }
   HValue* elements() const { return OperandAt(0); }
   HValue* key() const { return OperandAt(1); }
   HValue* value() const { return OperandAt(2); }
@@ -7133,7 +7164,8 @@ class HStoreKeyed V8_FINAL
   HStoreKeyed(HValue* obj, HValue* key, HValue* val,
               ElementsKind elements_kind,
               StoreFieldOrKeyedMode store_mode = INITIALIZING_STORE,
-              int offset = kDefaultKeyedHeaderOffsetSentinel)
+              int offset = kDefaultKeyedHeaderOffsetSentinel,
+              BuiltinFunctionId op = kNumberOfBuiltinFunction)
       : elements_kind_(elements_kind),
       base_offset_(offset == kDefaultKeyedHeaderOffsetSentinel
           ? GetDefaultHeaderSizeForElementsKind(elements_kind)
@@ -7141,7 +7173,8 @@ class HStoreKeyed V8_FINAL
       is_dehoisted_(false),
       is_uninitialized_(false),
       store_mode_(store_mode),
-      dominator_(NULL) {
+      dominator_(NULL),
+      op_(op){
     SetOperandAt(0, obj);
     SetOperandAt(1, key);
     SetOperandAt(2, val);
@@ -7179,6 +7212,7 @@ class HStoreKeyed V8_FINAL
   bool is_uninitialized_ : 1;
   StoreFieldOrKeyedMode store_mode_: 1;
   HValue* dominator_;
+  BuiltinFunctionId op_;
 };
 
 

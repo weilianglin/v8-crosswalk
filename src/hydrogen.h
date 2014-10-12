@@ -1421,7 +1421,8 @@ class HGraphBuilder {
       ElementsKind elements_kind,
       PropertyAccessType access_type,
       LoadKeyedHoleMode load_mode,
-      KeyedAccessStoreMode store_mode);
+      KeyedAccessStoreMode store_mode,
+      BuiltinFunctionId id = kNumberOfBuiltinFunction);
 
   HInstruction* AddElementAccess(
       HValue* elements,
@@ -1430,7 +1431,8 @@ class HGraphBuilder {
       HValue* dependency,
       ElementsKind elements_kind,
       PropertyAccessType access_type,
-      LoadKeyedHoleMode load_mode = NEVER_RETURN_HOLE);
+      LoadKeyedHoleMode load_mode = NEVER_RETURN_HOLE,
+      BuiltinFunctionId id = kNumberOfBuiltinFunction);
 
   HInstruction* AddLoadStringInstanceType(HValue* string);
   HInstruction* AddLoadStringLength(HValue* string);

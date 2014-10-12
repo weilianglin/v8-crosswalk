@@ -2398,7 +2398,8 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
     ElementsKind elements_kind,
     PropertyAccessType access_type,
     LoadKeyedHoleMode load_mode,
-    KeyedAccessStoreMode store_mode) {
+    KeyedAccessStoreMode store_mode,
+    BuiltinFunctionId op) {
   DCHECK((!IsExternalArrayElementsKind(elements_kind) &&
               !IsFixedTypedArrayElementsKind(elements_kind)) ||
          !is_js_array);
@@ -2462,7 +2463,7 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
       checked_key = Add<HBoundsCheck>(key, length);
       return AddElementAccess(
           backing_store, checked_key, val,
-          checked_object, elements_kind, access_type);
+          checked_object, elements_kind, access_type, NEVER_RETURN_HOLE, op);
     }
   }
   DCHECK(fast_smi_only_elements ||
@@ -2502,7 +2503,7 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
     }
   }
   return AddElementAccess(elements, checked_key, val, checked_object,
-                          elements_kind, access_type, load_mode);
+                          elements_kind, access_type, load_mode, op);
 }
 
 
@@ -2670,7 +2671,8 @@ HInstruction* HGraphBuilder::AddElementAccess(
     HValue* dependency,
     ElementsKind elements_kind,
     PropertyAccessType access_type,
-    LoadKeyedHoleMode load_mode) {
+    LoadKeyedHoleMode load_mode,
+    BuiltinFunctionId op) {
   if (access_type == STORE) {
     DCHECK(val != NULL);
     if (elements_kind == EXTERNAL_UINT8_CLAMPED_ELEMENTS ||
@@ -2678,13 +2680,15 @@ HInstruction* HGraphBuilder::AddElementAccess(
       val = Add<HClampToUint8>(val);
     }
     return Add<HStoreKeyed>(elements, checked_key, val, elements_kind,
-                            STORE_TO_INITIALIZED_ENTRY);
+                            STORE_TO_INITIALIZED_ENTRY,
+                            kDefaultKeyedHeaderOffsetSentinel, op);
   }
 
   DCHECK(access_type == LOAD);
   DCHECK(val == NULL);
   HLoadKeyed* load = Add<HLoadKeyed>(
-      elements, checked_key, dependency, elements_kind, load_mode);
+      elements, checked_key, dependency, elements_kind, load_mode,
+      kDefaultKeyedHeaderOffsetSentinel, op);
   if (FLAG_opt_safe_uint32_operations &&
       (elements_kind == EXTERNAL_UINT32_ELEMENTS ||
        elements_kind == UINT32_ELEMENTS)) {
@@ -8839,6 +8843,48 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         } else {
           return false;
         }
+      }
+      break;
+    case kFloat32ArrayGetFloat32x4:
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 2) {
+        HValue* key = Pop();
+        HValue* float32_array = Pop();
+        DCHECK(float32_array == receiver);
+        Drop(1);  // Drop function.
+        // TODO(ningxin): check the boundary for Float32x4
+        HInstruction* instr = BuildUncheckedMonomorphicElementAccess(
+            float32_array, key, NULL,
+            receiver_map->instance_type() == JS_ARRAY_TYPE,
+            receiver_map->elements_kind(),
+            LOAD,  // is_store.
+            NEVER_RETURN_HOLE,  // load_mode.
+            STANDARD_STORE,
+            id);
+        ast_context()->ReturnValue(instr);
+        return true;
+      }
+      break;
+    case kFloat32ArraySetFloat32x4:
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
+        HValue* value = Pop();
+        HValue* key = Pop();
+        HValue* float32_array = Pop();
+        DCHECK(float32_array == receiver);
+        Drop(1);  // Drop function.
+        // TODO(ningxin): check the boundary for Float32x4
+        KeyedAccessStoreMode store_mode = STANDARD_STORE;
+        BuildUncheckedMonomorphicElementAccess(
+            float32_array, key, value,
+            receiver_map->instance_type() == JS_ARRAY_TYPE,
+            receiver_map->elements_kind(),
+            STORE,  // is_store.
+            NEVER_RETURN_HOLE,  // load_mode.
+            store_mode,
+            id);
+        Push(value);
+        Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
+        ast_context()->ReturnValue(Pop());
+        return true;
       }
       break;
     case kFloat32x4ArrayGetAt:
