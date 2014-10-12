@@ -167,3 +167,54 @@ testDataViewInt32x4();
 testDataViewInt32x4();
 %OptimizeFunctionOnNextCall(testDataViewInt32x4);
 testDataViewInt32x4();
+
+function testFloat32ArrayFloat32x4() {
+  var f32_array = new Float32Array(12);
+  var f32x4_array = new Float32x4Array(f32_array.buffer);
+  f32x4_array[0] = SIMD.float32x4(1.0, 2.0, 3.0, 4.0);
+  f32x4_array[1] = SIMD.float32x4(5.0, 6.0, 7.0, 8.0);
+  f32x4_array[2] = SIMD.float32x4(9.0, 10.0, 11.0, 12.0);
+
+  var v1 = f32_array.getFloat32x4(0);
+  var v2 = f32_array.getFloat32x4(4);
+  var v3 = f32_array.getFloat32x4(8);
+
+  assertEquals(1.0, v1.x);
+  assertEquals(2.0, v1.y);
+  assertEquals(3.0, v1.z);
+  assertEquals(4.0, v1.w);
+
+  assertEquals(5.0, v2.x);
+  assertEquals(6.0, v2.y);
+  assertEquals(7.0, v2.z);
+  assertEquals(8.0, v2.w);
+
+  assertEquals(9.0, v3.x);
+  assertEquals(10.0, v3.y);
+  assertEquals(11.0, v3.z);
+  assertEquals(12.0, v3.w);
+
+  f32_array.setFloat32x4(0, SIMD.float32x4(12.0, 11.0, 10.0, 9.0));
+  f32_array.setFloat32x4(4, SIMD.float32x4(8.0, 7.0, 6.0, 5.0));
+  f32_array.setFloat32x4(8, SIMD.float32x4(4.0, 3.0, 2.0, 1.0));
+
+  assertEquals(12.0, f32x4_array[0].x);
+  assertEquals(11.0, f32x4_array[0].y);
+  assertEquals(10.0, f32x4_array[0].z);
+  assertEquals(9.0, f32x4_array[0].w);
+
+  assertEquals(8.0, f32x4_array[1].x);
+  assertEquals(7.0, f32x4_array[1].y);
+  assertEquals(6.0, f32x4_array[1].z);
+  assertEquals(5.0, f32x4_array[1].w);
+
+  assertEquals(4.0, f32x4_array[2].x);
+  assertEquals(3.0, f32x4_array[2].y);
+  assertEquals(2.0, f32x4_array[2].z);
+  assertEquals(1.0, f32x4_array[2].w);
+}
+
+testFloat32ArrayFloat32x4();
+testFloat32ArrayFloat32x4();
+%OptimizeFunctionOnNextCall(testFloat32ArrayFloat32x4);
+testFloat32ArrayFloat32x4();
