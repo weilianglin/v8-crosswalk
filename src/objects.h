@@ -6815,6 +6815,8 @@ class Script: public Struct {
   V(SIMD.int32x4, bool, Int32x4Bool, Int32x4, Tagged, Tagged, Tagged, Tagged)
 
 #define SIMD_ARRAY_OPERATIONS(V)                                               \
+  V(SIMD.float32x4, load, Float32x4Load)            \
+  V(SIMD.float32x4, store, Float32x4Store)            \
   V(Float32x4Array.prototype, getAt, Float32x4ArrayGetAt)                      \
   V(Float32x4Array.prototype, setAt, Float32x4ArraySetAt)                      \
   V(Float64x2Array.prototype, getAt, Float64x2ArrayGetAt)                      \
