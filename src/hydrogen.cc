@@ -2403,7 +2403,8 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
     ElementsKind elements_kind,
     PropertyAccessType access_type,
     LoadKeyedHoleMode load_mode,
-    KeyedAccessStoreMode store_mode) {
+    KeyedAccessStoreMode store_mode,
+    BuiltinFunctionId op) {
   DCHECK((!IsExternalArrayElementsKind(elements_kind) &&
               !IsFixedTypedArrayElementsKind(elements_kind)) ||
          !is_js_array);
@@ -2467,7 +2468,7 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
       checked_key = Add<HBoundsCheck>(key, length);
       return AddElementAccess(
           backing_store, checked_key, val,
-          checked_object, elements_kind, access_type);
+          checked_object, elements_kind, access_type, NEVER_RETURN_HOLE, op);
     }
   }
   DCHECK(fast_smi_only_elements ||
@@ -2507,7 +2508,7 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
     }
   }
   return AddElementAccess(elements, checked_key, val, checked_object,
-                          elements_kind, access_type, load_mode);
+                          elements_kind, access_type, load_mode, op);
 }
 
 
@@ -2675,7 +2676,8 @@ HInstruction* HGraphBuilder::AddElementAccess(
     HValue* dependency,
     ElementsKind elements_kind,
     PropertyAccessType access_type,
-    LoadKeyedHoleMode load_mode) {
+    LoadKeyedHoleMode load_mode,
+    BuiltinFunctionId op) {
   if (access_type == STORE) {
     DCHECK(val != NULL);
     if (elements_kind == EXTERNAL_UINT8_CLAMPED_ELEMENTS ||
@@ -2683,13 +2685,15 @@ HInstruction* HGraphBuilder::AddElementAccess(
       val = Add<HClampToUint8>(val);
     }
     return Add<HStoreKeyed>(elements, checked_key, val, elements_kind,
-                            STORE_TO_INITIALIZED_ENTRY);
+                            STORE_TO_INITIALIZED_ENTRY,
+                            kDefaultKeyedHeaderOffsetSentinel, op);
   }
 
   DCHECK(access_type == LOAD);
   DCHECK(val == NULL);
   HLoadKeyed* load = Add<HLoadKeyed>(
-      elements, checked_key, dependency, elements_kind, load_mode);
+      elements, checked_key, dependency, elements_kind, load_mode,
+      kDefaultKeyedHeaderOffsetSentinel, op);
   if (FLAG_opt_safe_uint32_operations &&
       (elements_kind == EXTERNAL_UINT32_ELEMENTS ||
        elements_kind == UINT32_ELEMENTS)) {
@@ -8404,6 +8408,25 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
 }
 
 
+static Handle<Map> TypedArrayMap(Isolate* isolate,
+  ExternalArrayType array_type,
+  ElementsKind target_kind) {
+  Handle<Context> native_context = isolate->native_context();
+  Handle<JSFunction> fun;
+  switch (array_type) {
+#define TYPED_ARRAY_CASE(Type, type, TYPE, ctype, size)                       \
+    case kExternal##Type##Array:                                              \
+      fun = Handle<JSFunction>(native_context->type##_array_fun());           \
+      break;
+
+    TYPED_ARRAYS(TYPED_ARRAY_CASE)
+#undef TYPED_ARRAY_CASE
+  }
+  Handle<Map> map(fun->initial_map());
+  return Map::AsElementsKind(map, target_kind);
+}
+
+
 bool HOptimizedGraphBuilder::TryInlineBuiltinMethodCall(
     Call* expr,
     HValue* receiver,
@@ -8871,6 +8894,50 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         } else {
           return false;
         }
+      }
+      break;
+    case kFloat32x4Load:
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
+        HValue* key = Pop();
+        HValue* tarray = Pop();
+        Drop(2);  // Drop receiver and function.
+        Handle<Map> float32_array_map = TypedArrayMap(
+          isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
+        Add<HCheckMaps>(tarray, float32_array_map);
+        HInstruction* instr = BuildUncheckedMonomorphicElementAccess(
+            tarray, key, NULL,
+            false,
+            EXTERNAL_FLOAT32_ELEMENTS,
+            LOAD,  // is_store.
+            NEVER_RETURN_HOLE,  // load_mode.
+            STANDARD_STORE,
+            id);
+        ast_context()->ReturnValue(instr);
+        return true;
+      }
+      break;
+    case kFloat32x4Store:
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 4) {
+        HValue* value = Pop();
+        HValue* key = Pop();
+        HValue* tarray = Pop();
+        Drop(2);  // Drop receiver and function.
+        Handle<Map> float32_array_map = TypedArrayMap(
+          isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
+        Add<HCheckMaps>(tarray, float32_array_map);
+        KeyedAccessStoreMode store_mode = STANDARD_STORE;
+        BuildUncheckedMonomorphicElementAccess(
+          tarray, key, value,
+            false,
+            EXTERNAL_FLOAT32_ELEMENTS,
+            STORE,  // is_store.
+            NEVER_RETURN_HOLE,  // load_mode.
+            store_mode,
+            id);
+        Push(value);
+        Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
+        ast_context()->ReturnValue(Pop());
+        return true;
       }
       break;
     case kFloat32x4ArrayGetAt:
@@ -9871,25 +9938,6 @@ void HOptimizedGraphBuilder::GenerateDataViewInitialize(
     BuildArrayBufferViewInitialization<JSDataView>(
         obj, buffer, byte_offset, byte_length);
   }
-}
-
-
-static Handle<Map> TypedArrayMap(Isolate* isolate,
-                                 ExternalArrayType array_type,
-                                 ElementsKind target_kind) {
-  Handle<Context> native_context = isolate->native_context();
-  Handle<JSFunction> fun;
-  switch (array_type) {
-#define TYPED_ARRAY_CASE(Type, type, TYPE, ctype, size)                       \
-    case kExternal##Type##Array:                                              \
-      fun = Handle<JSFunction>(native_context->type##_array_fun());           \
-      break;
-
-    TYPED_ARRAYS(TYPED_ARRAY_CASE)
-#undef TYPED_ARRAY_CASE
-  }
-  Handle<Map> map(fun->initial_map());
-  return Map::AsElementsKind(map, target_kind);
 }
 
 
