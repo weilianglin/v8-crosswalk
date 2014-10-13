@@ -5951,6 +5951,7 @@ void LCodeGen::DoUnarySIMDOperation(LUnarySIMDOperation* instr) {
       DeoptimizeIf(no_condition, instr->environment());
       return;
     }
+    case kFloat32x4Not:
     case kFloat32x4Abs:
     case kFloat32x4Neg:
     case kFloat32x4Reciprocal:
@@ -5960,6 +5961,9 @@ void LCodeGen::DoUnarySIMDOperation(LUnarySIMDOperation* instr) {
       DCHECK(instr->hydrogen()->value()->representation().IsFloat32x4());
       XMMRegister input_reg = ToFloat32x4Register(instr->value());
       switch (instr->op()) {
+        case kFloat32x4Not:
+          __ notps(input_reg);
+          break;
         case kFloat32x4Abs:
           __ absps(input_reg);
           break;
@@ -6209,6 +6213,9 @@ void LCodeGen::DoUnarySIMDOperation(LUnarySIMDOperation* instr) {
 void LCodeGen::DoBinarySIMDOperation(LBinarySIMDOperation* instr) {
   uint8_t imm8 = 0;  // for with operation
   switch (instr->op()) {
+    case kFloat32x4And:
+    case kFloat32x4Or:
+    case kFloat32x4Xor:
     case kFloat32x4Add:
     case kFloat32x4Sub:
     case kFloat32x4Mul:
@@ -6221,6 +6228,15 @@ void LCodeGen::DoBinarySIMDOperation(LBinarySIMDOperation* instr) {
       XMMRegister left_reg = ToFloat32x4Register(instr->left());
       XMMRegister right_reg = ToFloat32x4Register(instr->right());
       switch (instr->op()) {
+        case kFloat32x4And:
+          __ andps(left_reg, right_reg);
+          break;
+        case kFloat32x4Or:
+          __ orps(left_reg, right_reg);
+          break;
+        case kFloat32x4Xor:
+          __ xorps(left_reg, right_reg);
+          break;
         case kFloat32x4Add:
           __ addps(left_reg, right_reg);
           break;

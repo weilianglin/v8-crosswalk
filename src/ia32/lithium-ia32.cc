@@ -2817,6 +2817,7 @@ LInstruction* LChunkBuilder::DoUnarySIMDOperation(HUnarySIMDOperation* instr) {
       return AssignEnvironment(DefineAsRegister(result));
     case kFloat32x4Abs:
     case kFloat32x4Neg:
+    case kFloat32x4Not:
     case kFloat32x4Reciprocal:
     case kFloat32x4ReciprocalSqrt:
     case kFloat32x4Sqrt:
@@ -2878,6 +2879,9 @@ LInstruction* LChunkBuilder::DoBinarySIMDOperation(
     HBinarySIMDOperation* instr) {
   switch (instr->op()) {
     case kFloat32x4Add:
+    case kFloat32x4And:
+    case kFloat32x4Or:
+    case kFloat32x4Xor:
     case kFloat32x4Div:
     case kFloat32x4Max:
     case kFloat32x4Min:

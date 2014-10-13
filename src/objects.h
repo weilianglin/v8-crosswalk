@@ -7193,6 +7193,7 @@ class Script: public Struct {
     Float32x4, Float32x4)                                                      \
   V(SIMD.float32x4, splat, Float32x4Splat, Float32x4, Double)                  \
   V(SIMD.float32x4, sqrt, Float32x4Sqrt, Float32x4, Float32x4)                 \
+  V(SIMD.float32x4, not, Float32x4Not, Float32x4, Float32x4)                   \
   V(SIMD.float64x2, abs, Float64x2Abs, Float64x2, Float64x2)                   \
   V(SIMD.float64x2, neg, Float64x2Neg, Float64x2, Float64x2)                   \
   V(SIMD.float64x2, sqrt, Float64x2Sqrt, Float64x2, Float64x2)                 \
@@ -7227,6 +7228,9 @@ class Script: public Struct {
 
 #define SIMD_BINARY_OPERATIONS(V)                                              \
   V(SIMD.float32x4, add, Float32x4Add, Float32x4, Float32x4, Float32x4)        \
+  V(SIMD.float32x4, and, Float32x4And, Float32x4, Float32x4, Float32x4)        \
+  V(SIMD.float32x4, or, Float32x4Or, Float32x4, Float32x4, Float32x4)          \
+  V(SIMD.float32x4, xor, Float32x4Xor, Float32x4, Float32x4, Float32x4)        \
   V(SIMD.float32x4, div, Float32x4Div, Float32x4, Float32x4, Float32x4)        \
   V(SIMD.float32x4, max, Float32x4Max, Float32x4, Float32x4, Float32x4)        \
   V(SIMD.float32x4, min, Float32x4Min, Float32x4, Float32x4, Float32x4)        \
