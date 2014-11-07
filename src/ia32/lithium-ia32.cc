@@ -1877,7 +1877,9 @@ LInstruction* LChunkBuilder::DoBoundsCheck(HBoundsCheck* instr) {
   LOperand* length = !index->IsConstantOperand()
       ? UseOrConstantAtStart(instr->length())
       : UseAtStart(instr->length());
-  LInstruction* result = new(zone()) LBoundsCheck(index, length);
+  LOperand* temp0 = TempRegister();
+  LOperand* temp1 = TempRegister();
+  LInstruction* result = new(zone()) LBoundsCheck(index, length, temp0, temp1);
   if (!FLAG_debug_code || !instr->skip_check()) {
     result = AssignEnvironment(result);
   }

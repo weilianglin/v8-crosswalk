@@ -4060,6 +4060,7 @@ class HBoundsCheckBaseIndexInformation;
 class HBoundsCheck FINAL : public HTemplateInstruction<2> {
  public:
   DECLARE_INSTRUCTION_FACTORY_P2(HBoundsCheck, HValue*, HValue*);
+  DECLARE_INSTRUCTION_FACTORY_P4(HBoundsCheck, HValue*, HValue*, BuiltinFunctionId, ElementsKind);
 
   bool skip_check() const { return skip_check_; }
   void set_skip_check() { skip_check_ = true; }
@@ -4098,6 +4099,8 @@ class HBoundsCheck FINAL : public HTemplateInstruction<2> {
   HValue* length() const { return OperandAt(1); }
   bool allow_equality() const { return allow_equality_; }
   void set_allow_equality(bool v) { allow_equality_ = v; }
+  BuiltinFunctionId op() const { return op_; }
+  ElementsKind element_kind() const { return element_kind_; }
 
   virtual int RedefinedOperandIndex() OVERRIDE { return 0; }
   virtual bool IsPurelyInformativeDefinition() OVERRIDE {
@@ -4117,16 +4120,21 @@ class HBoundsCheck FINAL : public HTemplateInstruction<2> {
   int offset_;
   int scale_;
   bool allow_equality_;
+  BuiltinFunctionId op_;
+  ElementsKind element_kind_;
 
  private:
   // Normally HBoundsCheck should be created using the
   // HGraphBuilder::AddBoundsCheck() helper.
   // However when building stubs, where we know that the arguments are Int32,
   // it makes sense to invoke this constructor directly.
-  HBoundsCheck(HValue* index, HValue* length)
+  HBoundsCheck(HValue* index, HValue* length,
+               BuiltinFunctionId op = kNumberOfBuiltinFunction,
+               ElementsKind element_kind = EXTERNAL_INT8_ELEMENTS)
     : skip_check_(false),
       base_(NULL), offset_(0), scale_(0),
-      allow_equality_(false) {
+      allow_equality_(false), op_(op),
+      element_kind_(element_kind) {
     SetOperandAt(0, index);
     SetOperandAt(1, length);
     SetFlag(kFlexibleRepresentation);

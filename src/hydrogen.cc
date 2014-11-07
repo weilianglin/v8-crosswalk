@@ -2465,7 +2465,7 @@ HInstruction* HGraphBuilder::BuildUncheckedMonomorphicElementAccess(
       return result;
     } else {
       DCHECK(store_mode == STANDARD_STORE);
-      checked_key = Add<HBoundsCheck>(key, length);
+      checked_key = Add<HBoundsCheck>(key, length, op, elements_kind);
       return AddElementAccess(
           backing_store, checked_key, val,
           checked_object, elements_kind, access_type, NEVER_RETURN_HOLE, op);

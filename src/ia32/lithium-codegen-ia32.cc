@@ -4208,17 +4208,50 @@ void LCodeGen::DoStoreNamedGeneric(LStoreNamedGeneric* instr) {
 
 void LCodeGen::DoBoundsCheck(LBoundsCheck* instr) {
   Condition cc = instr->hydrogen()->allow_equality() ? above : above_equal;
-  if (instr->index()->IsConstantOperand()) {
-    __ cmp(ToOperand(instr->length()),
-           ToImmediate(LConstantOperand::cast(instr->index()),
-                       instr->hydrogen()->length()->representation()));
-    cc = CommuteCondition(cc);
-  } else if (instr->length()->IsConstantOperand()) {
-    __ cmp(ToOperand(instr->index()),
-           ToImmediate(LConstantOperand::cast(instr->length()),
-                       instr->hydrogen()->index()->representation()));
+  if (instr->hydrogen()->op() == kFloat32x4Load ||
+    instr->hydrogen()->op() == kFloat32x4Store) {
+    cc = above;
+    Register index_in_bytes = ToRegister(instr->temp0());
+    Register length_in_bytes = ToRegister(instr->temp1());
+    if (instr->index()->IsConstantOperand())
+      __ mov(index_in_bytes, ToImmediate(LConstantOperand::cast(instr->index()),
+          instr->hydrogen()->index()->representation()));
+    else
+      __ mov(index_in_bytes, ToRegister(instr->index()));
+    int index_shift_size =
+        ElementsKindToShiftSize(instr->hydrogen()->element_kind());
+    if (instr->hydrogen()->index()->representation().IsSmi()) {
+      index_shift_size -= kSmiTagSize;
+    }
+    DCHECK(index_shift_size > 0);
+    __ shl(index_in_bytes, index_shift_size);
+    __ add(index_in_bytes, Immediate(16));
+    if (instr->length()->IsConstantOperand())
+      __ mov(length_in_bytes, ToImmediate(LConstantOperand::cast(instr->length()),
+      instr->hydrogen()->length()->representation()));
+    else
+      __ mov(length_in_bytes, ToRegister(instr->length()));
+    int length_shift_size =
+      ElementsKindToShiftSize(instr->hydrogen()->element_kind());
+    if (instr->hydrogen()->length()->representation().IsSmi()) {
+      length_shift_size -= kSmiTagSize;
+    }
+    DCHECK(length_shift_size > 0);
+    __ shl(length_in_bytes, length_shift_size);
+    __ cmp(index_in_bytes, length_in_bytes);
   } else {
-    __ cmp(ToRegister(instr->index()), ToOperand(instr->length()));
+    if (instr->index()->IsConstantOperand()) {
+      __ cmp(ToOperand(instr->length()),
+        ToImmediate(LConstantOperand::cast(instr->index()),
+        instr->hydrogen()->length()->representation()));
+      cc = CommuteCondition(cc);
+    } else if (instr->length()->IsConstantOperand()) {
+      __ cmp(ToOperand(instr->index()),
+        ToImmediate(LConstantOperand::cast(instr->length()),
+        instr->hydrogen()->index()->representation()));
+    } else {
+      __ cmp(ToRegister(instr->index()), ToOperand(instr->length()));
+    }
   }
   if (FLAG_debug_code && instr->hydrogen()->skip_check()) {
     Label done;
