@@ -8952,18 +8952,41 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         HValue* key = Pop();
         HValue* tarray = Pop();
         Drop(2);  // Drop receiver and function.
-        //Handle<Map> float32_array_map = TypedArrayMap(
-        //  isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-        //Add<HCheckMaps>(tarray, float32_array_map);
-        KeyedAccessStoreMode store_mode = STANDARD_STORE;
-        BuildUncheckedMonomorphicElementAccess(
-          tarray, key, value,
+        {
+          NoObservableSideEffectsScope scope(this);
+          IfBuilder external_f32array_map_checker(this);
+          Handle<Map> float32_array_map = TypedArrayMap(
+            isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
+          external_f32array_map_checker.If<HCompareMap>(tarray, float32_array_map);
+          external_f32array_map_checker.Then();
+          BuildUncheckedMonomorphicElementAccess(
+            tarray, key, value,
             false,
             EXTERNAL_FLOAT32_ELEMENTS,
             STORE,  // is_store.
             NEVER_RETURN_HOLE,  // load_mode.
-            store_mode,
+            STANDARD_STORE,
             id);
+          external_f32array_map_checker.Else();
+          {
+            IfBuilder fixed_f32array_map_checker(this);
+            Handle<Map> fixed_f32array_map(
+              isolate()->heap()->MapForFixedTypedArray(kExternalFloat32Array));
+            fixed_f32array_map_checker.If<HCompareMap>(tarray, fixed_f32array_map);
+            fixed_f32array_map_checker.Then();
+            BuildUncheckedMonomorphicElementAccess(
+              tarray, key, value,
+              false,
+              FLOAT32_ELEMENTS,
+              STORE,  // is_store.
+              NEVER_RETURN_HOLE,  // load_mode.
+              STANDARD_STORE,
+              id);
+            fixed_f32array_map_checker.ElseDeopt("not a Float32Array map");
+            fixed_f32array_map_checker.End();
+          }
+          external_f32array_map_checker.End();
+        }
         Push(value);
         Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
         ast_context()->ReturnValue(Pop());
