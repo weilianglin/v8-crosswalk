@@ -1263,6 +1263,34 @@ HValue* HGraphBuilder::BuildGetElementsKind(HValue* object) {
 }
 
 
+HValue* HGraphBuilder::BuildLoadStoreSIMD128(
+    HGraphBuilder::IfBuilder* if_builder,
+    HValue* receiver,
+    HValue* key,
+    HValue* value,
+    ElementsKind kind,
+    BuiltinFunctionId id) {
+  DCHECK(IsExternalArrayElementsKind(kind) || IsFixedTypedArrayElementsKind(kind));
+
+  HValue* elements_kind = BuildGetElementsKind(receiver);
+  HValue* external_float32_elements = Add<HConstant>(kind);
+  if_builder->If<HCompareNumericAndBranch>(
+    elements_kind, external_float32_elements, Token::EQ);
+  if_builder->Then();
+  PropertyAccessType access_type = LOAD;
+  if (id == kFloat32x4Store)
+    access_type = STORE;
+  return BuildUncheckedMonomorphicElementAccess(
+    receiver, key, value,
+    false,
+    kind,
+    access_type,
+    NEVER_RETURN_HOLE,
+    STANDARD_STORE,
+    id);
+}
+
+
 HValue* HGraphBuilder::BuildCheckHeapObject(HValue* obj) {
   if (obj->type().IsHeapObject()) return obj;
   return Add<HCheckHeapObject>(obj);
@@ -8902,44 +8930,17 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         HValue* tarray = Pop();
         Drop(2);  // Drop receiver and function.
         HValue* result;
-        { 
+        {
           NoObservableSideEffectsScope scope(this);
           BuildCheckHeapObject(tarray);
-          HValue* elements_kind = BuildGetElementsKind(tarray);
-          HValue* external_f32array_elements_kind = Add<HConstant>(EXTERNAL_FLOAT32_ELEMENTS);
-          IfBuilder external_f32array_elements_kind_checker(this);
-          external_f32array_elements_kind_checker.If<HCompareNumericAndBranch>(
-              elements_kind, external_f32array_elements_kind, Token::EQ);
-          external_f32array_elements_kind_checker.Then();
-          result = BuildUncheckedMonomorphicElementAccess(
-              tarray, key, NULL,
-              false,
-              EXTERNAL_FLOAT32_ELEMENTS,
-              LOAD,  // is_store.
-              NEVER_RETURN_HOLE,  // load_mode.
-              STANDARD_STORE,
-              id);
+          IfBuilder kind_checker(this);
+          result = BuildLoadStoreSIMD128(&kind_checker, tarray, key, NULL, EXTERNAL_FLOAT32_ELEMENTS, id);
           if (!ast_context()->IsEffect()) Push(result);
-          external_f32array_elements_kind_checker.Else();
-          {
-            HValue* fixed_f32array_elements_kind = Add<HConstant>(FLOAT32_ELEMENTS);
-            IfBuilder fixed_f32array_elements_kind_checker(this);
-            fixed_f32array_elements_kind_checker.If<HCompareNumericAndBranch>(
-                elements_kind, fixed_f32array_elements_kind, Token::EQ);
-            fixed_f32array_elements_kind_checker.Then();
-            result = BuildUncheckedMonomorphicElementAccess(
-                tarray, key, NULL,
-                false,
-                FLOAT32_ELEMENTS,
-                LOAD,  // is_store.
-                NEVER_RETURN_HOLE,  // load_mode.
-                STANDARD_STORE,
-                id);
-            if (!ast_context()->IsEffect()) Push(result);
-            fixed_f32array_elements_kind_checker.ElseDeopt("tarray is not EXTERNAL_FLOAT32_ELEMENTS or FLOAT32_ELEMENTS");
-            fixed_f32array_elements_kind_checker.End();
-          }
-          external_f32array_elements_kind_checker.End();
+          kind_checker.Else();
+          result = BuildLoadStoreSIMD128(&kind_checker, tarray, key, NULL, FLOAT32_ELEMENTS, id);
+          if (!ast_context()->IsEffect()) Push(result);
+          kind_checker.ElseDeopt("ElementsKind unhandled in SIMD128 load");
+          kind_checker.End();
         }
         result = ast_context()->IsEffect() ? graph()->GetConstant0() : Top();
         Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
@@ -8956,39 +8957,13 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         Drop(2);  // Drop receiver and function.
         {
           NoObservableSideEffectsScope scope(this);
-          IfBuilder external_f32array_elements_kind_checker(this);
           BuildCheckHeapObject(tarray);
-          HValue* elements_kind = BuildGetElementsKind(tarray);
-          HValue* external_f32array_elements_kind = Add<HConstant>(EXTERNAL_FLOAT32_ELEMENTS);
-          external_f32array_elements_kind_checker.If<HCompareNumericAndBranch>(elements_kind, external_f32array_elements_kind, Token::EQ);
-          external_f32array_elements_kind_checker.Then();
-          BuildUncheckedMonomorphicElementAccess(
-            tarray, key, value,
-            false,
-            EXTERNAL_FLOAT32_ELEMENTS,
-            STORE,  // is_store.
-            NEVER_RETURN_HOLE,  // load_mode.
-            STANDARD_STORE,
-            id);
-          external_f32array_elements_kind_checker.Else();
-          {
-            HValue* fixed_f32array_elements_kind = Add<HConstant>(FLOAT32_ELEMENTS);
-            IfBuilder fixed_f32array_elements_kind_checker(this);
-            fixed_f32array_elements_kind_checker.If<HCompareNumericAndBranch>(
-              elements_kind, fixed_f32array_elements_kind, Token::EQ);
-            fixed_f32array_elements_kind_checker.Then();
-            BuildUncheckedMonomorphicElementAccess(
-              tarray, key, value,
-              false,
-              FLOAT32_ELEMENTS,
-              STORE,  // is_store.
-              NEVER_RETURN_HOLE,  // load_mode.
-              STANDARD_STORE,
-              id);
-            fixed_f32array_elements_kind_checker.ElseDeopt("tarray is not EXTERNAL_FLOAT32_ELEMENTS or FLOAT32_ELEMENTS");
-            fixed_f32array_elements_kind_checker.End();
-          }
-          external_f32array_elements_kind_checker.End();
+          IfBuilder kind_checker(this);
+          BuildLoadStoreSIMD128(&kind_checker, tarray, key, value, EXTERNAL_FLOAT32_ELEMENTS, id);
+          kind_checker.Else();
+          BuildLoadStoreSIMD128(&kind_checker, tarray, key, value, FLOAT32_ELEMENTS, id);
+          kind_checker.ElseDeopt("ElementsKind unhandled in SIMD128 store");
+          kind_checker.End();
         }
         Push(value);
         Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);

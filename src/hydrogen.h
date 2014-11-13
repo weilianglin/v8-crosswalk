@@ -1679,6 +1679,15 @@ class HGraphBuilder {
     int deopt_merge_at_join_block_count_;
   };
 
+  HValue* BuildLoadStoreSIMD128(
+    HGraphBuilder::IfBuilder* if_builder,
+    HValue* receiver,
+    HValue* key,
+    HValue* value,
+    ElementsKind kind,
+    BuiltinFunctionId id);
+
+
   class LoopBuilder FINAL {
    public:
     enum Direction {
