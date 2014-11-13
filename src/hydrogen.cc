@@ -8905,9 +8905,10 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         { 
           NoObservableSideEffectsScope scope(this);
           IfBuilder external_f32array_map_checker(this);
-          Handle<Map> float32_array_map = TypedArrayMap(
-            isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-          external_f32array_map_checker.If<HCompareMap>(tarray, float32_array_map);
+          BuildCheckHeapObject(tarray);
+          HValue* elements_kind = BuildGetElementsKind(tarray);
+          HValue* external_f32array_elements_kind = Add<HConstant>(EXTERNAL_FLOAT32_ELEMENTS);
+          external_f32array_map_checker.If<HCompareNumericAndBranch>(elements_kind, external_f32array_elements_kind, Token::EQ);
           external_f32array_map_checker.Then();
           result = BuildUncheckedMonomorphicElementAccess(
             tarray, key, NULL,
@@ -8918,25 +8919,7 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
             STANDARD_STORE,
             id);
           if (!ast_context()->IsEffect()) Push(result);
-          external_f32array_map_checker.Else();
-          {
-            IfBuilder fixed_f32array_map_checker(this);
-            Handle<Map> fixed_f32array_map(
-                isolate()->heap()->MapForFixedTypedArray(kExternalFloat32Array));
-            fixed_f32array_map_checker.If<HCompareMap>(tarray, fixed_f32array_map);
-            fixed_f32array_map_checker.Then();
-            result = BuildUncheckedMonomorphicElementAccess(
-              tarray, key, NULL,
-              false,
-              FLOAT32_ELEMENTS,
-              LOAD,  // is_store.
-              NEVER_RETURN_HOLE,  // load_mode.
-              STANDARD_STORE,
-              id);
-            if (!ast_context()->IsEffect()) Push(result);
-            fixed_f32array_map_checker.ElseDeopt("not a Float32Array map");
-            fixed_f32array_map_checker.End();
-          }
+          external_f32array_map_checker.ElseDeopt("not EXTERNAL_FLOAT32_ELEMENTS");
           external_f32array_map_checker.End();
         }
         result = ast_context()->IsEffect() ? graph()->GetConstant0() : Top();
@@ -8955,9 +8938,10 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         {
           NoObservableSideEffectsScope scope(this);
           IfBuilder external_f32array_map_checker(this);
-          Handle<Map> float32_array_map = TypedArrayMap(
-            isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-          external_f32array_map_checker.If<HCompareMap>(tarray, float32_array_map);
+          BuildCheckHeapObject(tarray);
+          HValue* elements_kind = BuildGetElementsKind(tarray);
+          HValue* external_f32array_elements_kind = Add<HConstant>(EXTERNAL_FLOAT32_ELEMENTS);
+          external_f32array_map_checker.If<HCompareNumericAndBranch>(elements_kind, external_f32array_elements_kind, Token::EQ);
           external_f32array_map_checker.Then();
           BuildUncheckedMonomorphicElementAccess(
             tarray, key, value,
@@ -8967,24 +8951,7 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
             NEVER_RETURN_HOLE,  // load_mode.
             STANDARD_STORE,
             id);
-          external_f32array_map_checker.Else();
-          {
-            IfBuilder fixed_f32array_map_checker(this);
-            Handle<Map> fixed_f32array_map(
-              isolate()->heap()->MapForFixedTypedArray(kExternalFloat32Array));
-            fixed_f32array_map_checker.If<HCompareMap>(tarray, fixed_f32array_map);
-            fixed_f32array_map_checker.Then();
-            BuildUncheckedMonomorphicElementAccess(
-              tarray, key, value,
-              false,
-              FLOAT32_ELEMENTS,
-              STORE,  // is_store.
-              NEVER_RETURN_HOLE,  // load_mode.
-              STANDARD_STORE,
-              id);
-            fixed_f32array_map_checker.ElseDeopt("not a Float32Array map");
-            fixed_f32array_map_checker.End();
-          }
+          external_f32array_map_checker.ElseDeopt("not EXTERNAL_FLOAT32_ELEMENTS");
           external_f32array_map_checker.End();
         }
         Push(value);
