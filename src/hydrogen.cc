@@ -8981,7 +8981,7 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
               elements_kind, fixed_f32array_elements_kind, Token::EQ);
             fixed_f32array_elements_kind_checker.Then();
             BuildUncheckedMonomorphicElementAccess(
-              tarray, key, NULL,
+              tarray, key, value,
               false,
               FLOAT32_ELEMENTS,
               STORE,  // is_store.
