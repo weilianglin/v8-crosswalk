@@ -8909,6 +8909,9 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
           HValue* elements_kind = BuildGetElementsKind(tarray);
           HValue* external_f32array_elements_kind = Add<HConstant>(EXTERNAL_FLOAT32_ELEMENTS);
           external_f32array_map_checker.If<HCompareNumericAndBranch>(elements_kind, external_f32array_elements_kind, Token::EQ);
+          external_f32array_map_checker.Or();
+          HValue* fixed_f32array_elements_kind = Add<HConstant>(FLOAT32_ELEMENTS);
+          external_f32array_map_checker.If<HCompareNumericAndBranch>(elements_kind, fixed_f32array_elements_kind, Token::EQ);
           external_f32array_map_checker.Then();
           result = BuildUncheckedMonomorphicElementAccess(
             tarray, key, NULL,
@@ -8942,6 +8945,9 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
           HValue* elements_kind = BuildGetElementsKind(tarray);
           HValue* external_f32array_elements_kind = Add<HConstant>(EXTERNAL_FLOAT32_ELEMENTS);
           external_f32array_map_checker.If<HCompareNumericAndBranch>(elements_kind, external_f32array_elements_kind, Token::EQ);
+          external_f32array_map_checker.Or();
+          HValue* fixed_f32array_elements_kind = Add<HConstant>(FLOAT32_ELEMENTS);
+          external_f32array_map_checker.If<HCompareNumericAndBranch>(elements_kind, fixed_f32array_elements_kind, Token::EQ);
           external_f32array_map_checker.Then();
           BuildUncheckedMonomorphicElementAccess(
             tarray, key, value,
