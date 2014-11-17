@@ -1047,6 +1047,22 @@ int DisassemblerIA32::InstructionDecode(v8::internal::Vector<char> out_buffer,
                            NameOfXMMRegister(regop),
                            NameOfXMMRegister(rm));
             data++;
+          } else if (f0byte == 0x12) {
+            data += 2;
+            int mod, regop, rm;
+            get_modrm(*data, &mod, &regop, &rm);
+            AppendToBuffer("movhlps %s,%s",
+                           NameOfXMMRegister(regop),
+                           NameOfXMMRegister(rm));
+            data++;
+          } else if (f0byte == 0x16) {
+            data += 2;
+            int mod, regop, rm;
+            get_modrm(*data, &mod, &regop, &rm);
+            AppendToBuffer("movlhps %s,%s",
+                           NameOfXMMRegister(regop),
+                           NameOfXMMRegister(rm));
+            data++;
           } else if (f0byte == 0x10) {
             data += 2;
             int mod, regop, rm;
@@ -1055,6 +1071,32 @@ int DisassemblerIA32::InstructionDecode(v8::internal::Vector<char> out_buffer,
             data += PrintRightXMMOperand(data);
           } else if (f0byte == 0x11) {
             AppendToBuffer("movups ");
+            data += 2;
+            int mod, regop, rm;
+            get_modrm(*data, &mod, &regop, &rm);
+            data += PrintRightXMMOperand(data);
+            AppendToBuffer(",%s", NameOfXMMRegister(regop));
+          }  else if (f0byte == 0x12) {
+            data += 2;
+            int mod, regop, rm;
+            get_modrm(*data, &mod, &regop, &rm);
+            AppendToBuffer("movlps %s,", NameOfXMMRegister(regop));
+            data += PrintRightXMMOperand(data);
+          } else if (f0byte == 0x13) {
+            AppendToBuffer("movlps ");
+            data += 2;
+            int mod, regop, rm;
+            get_modrm(*data, &mod, &regop, &rm);
+            data += PrintRightXMMOperand(data);
+            AppendToBuffer(",%s", NameOfXMMRegister(regop));
+          } else if (f0byte == 0x16) {
+            data += 2;
+            int mod, regop, rm;
+            get_modrm(*data, &mod, &regop, &rm);
+            AppendToBuffer("movhps %s,", NameOfXMMRegister(regop));
+            data += PrintRightXMMOperand(data);
+          } else if (f0byte == 0x17) {
+            AppendToBuffer("movhps ");
             data += 2;
             int mod, regop, rm;
             get_modrm(*data, &mod, &regop, &rm);
@@ -1467,6 +1509,13 @@ int DisassemblerIA32::InstructionDecode(v8::internal::Vector<char> out_buffer,
             AppendToBuffer("punpackldq %s,",
                             NameOfXMMRegister(regop));
             data += PrintRightXMMOperand(data);
+          } else if (*data == 0xD6) {
+            AppendToBuffer("movq ");
+            data += 3;
+            int mod, regop, rm;
+            get_modrm(*data, &mod, &regop, &rm);
+            data += PrintRightXMMOperand(data);
+            AppendToBuffer(",%s", NameOfXMMRegister(regop));
           } else if (*data == 0xF4) {
             data++;
             int mod, regop, rm;
@@ -1824,6 +1873,12 @@ int DisassemblerIA32::InstructionDecode(v8::internal::Vector<char> out_buffer,
             get_modrm(*data, &mod, &regop, &rm);
             data += PrintRightXMMOperand(data);
             AppendToBuffer(",%s", NameOfXMMRegister(regop));
+          } else if (b2 == 0x7E) {
+            data += 3;
+            int mod, regop, rm;
+            get_modrm(*data, &mod, &regop, &rm);
+            AppendToBuffer("movq %s,", NameOfXMMRegister(regop));
+            data += PrintRightXMMOperand(data);
           } else {
             UnimplementedInstruction();
           }

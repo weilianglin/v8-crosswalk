@@ -6746,7 +6746,8 @@ class HLoadKeyed FINAL
         SetDependsOnFlag(kDoubleArrayElements);
       }
     } else {
-      if (op_ == kFloat32x4Load)
+      if (op_ == kFloat32x4Load || op_ == kFloat32x4LoadX ||
+          op_ == kFloat32x4LoadXY || op_ == kFloat32x4LoadXYZ)
         set_representation(Representation::Float32x4());
       else if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
           elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
@@ -7084,7 +7085,8 @@ class HStoreKeyed FINAL
     }
 
     DCHECK_EQ(index, 2);
-    if (op() == kFloat32x4Store) {
+    if (op() == kFloat32x4Store || op() == kFloat32x4StoreX ||
+        op() == kFloat32x4StoreXY || op() == kFloat32x4StoreXYZ) {
       return Representation::Float32x4();
     }
     return RequiredValueRepresentation(elements_kind_, store_mode_);
@@ -7141,7 +7143,8 @@ class HStoreKeyed FINAL
     if (IsUninitialized()) {
       return Representation::None();
     }
-    if (op() == kFloat32x4Store) {
+    if (op() == kFloat32x4Store || op() == kFloat32x4StoreX ||
+        op() == kFloat32x4StoreXY || op() == kFloat32x4StoreXYZ) {
       return Representation::Float32x4();
     }
     Representation r = RequiredValueRepresentation(elements_kind_, store_mode_);

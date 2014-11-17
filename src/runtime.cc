@@ -15450,7 +15450,7 @@ inline static bool SimdTypeLoadValue(
 
   size_t buffer_byte_length =
       NumberToSize(isolate, buffer->byte_length());
-  if (byte_offset + sizeof(T) > buffer_byte_length)  {  // overflow
+  if (byte_offset + Bytes > buffer_byte_length)  {  // overflow
     return false;
   }
 

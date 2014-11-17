@@ -8897,6 +8897,9 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
       }
       break;
     case kFloat32x4Load:
+    case kFloat32x4LoadX:
+    case kFloat32x4LoadXY:
+    case kFloat32x4LoadXYZ:
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
         HValue* key = Pop();
         HValue* tarray = Pop();
@@ -8917,6 +8920,9 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
       }
       break;
     case kFloat32x4Store:
+    case kFloat32x4StoreX:
+    case kFloat32x4StoreXY:
+    case kFloat32x4StoreXYZ:
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 4) {
         HValue* value = Pop();
         HValue* key = Pop();

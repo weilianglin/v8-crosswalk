@@ -3154,6 +3154,22 @@ void LCodeGen::DoLoadKeyedExternalArray(LLoadKeyed* instr) {
     BuiltinFunctionId id = instr->hydrogen()->op();
     if (id == kFloat32x4Load) {
       __ movups(ToSIMD128Register(instr->result()), operand);
+    } else if (id == kFloat32x4LoadX) {
+      __ movss(ToSIMD128Register(instr->result()), operand);
+    } else if (id == kFloat32x4LoadXY) {
+      __ movq(ToSIMD128Register(instr->result()), operand);
+    } else if (id == kFloat32x4LoadXYZ) {
+      XMMRegister result(ToSIMD128Register(instr->result()));
+      XMMRegister xmm_scratch = double_scratch0();
+      __ movq(result, operand);
+      Operand operand2(BuildFastArrayOperand(
+          instr->elements(),
+          key,
+          instr->hydrogen()->key()->representation(),
+          elements_kind,
+          instr->base_offset() + 8));
+      __ movss(xmm_scratch, operand2);
+      __ movlhps(result, xmm_scratch);
     } else {
       XMMRegister result(ToDoubleRegister(instr->result()));
       __ movss(result, operand);
@@ -4209,7 +4225,13 @@ void LCodeGen::DoStoreNamedGeneric(LStoreNamedGeneric* instr) {
 void LCodeGen::DoBoundsCheck(LBoundsCheck* instr) {
   Condition cc = instr->hydrogen()->allow_equality() ? above : above_equal;
   if (instr->hydrogen()->op() == kFloat32x4Load ||
-    instr->hydrogen()->op() == kFloat32x4Store) {
+      instr->hydrogen()->op() == kFloat32x4LoadX ||
+      instr->hydrogen()->op() == kFloat32x4LoadXY ||
+      instr->hydrogen()->op() == kFloat32x4LoadXYZ ||
+      instr->hydrogen()->op() == kFloat32x4Store ||
+      instr->hydrogen()->op() == kFloat32x4StoreX ||
+      instr->hydrogen()->op() == kFloat32x4StoreXY ||
+      instr->hydrogen()->op() == kFloat32x4StoreXYZ) {
     cc = above;
     Register index_in_bytes = ToRegister(instr->temp0());
     Register length_in_bytes = ToRegister(instr->temp1());
@@ -4225,7 +4247,20 @@ void LCodeGen::DoBoundsCheck(LBoundsCheck* instr) {
     }
     DCHECK(index_shift_size > 0);
     __ shl(index_in_bytes, index_shift_size);
-    __ add(index_in_bytes, Immediate(16));
+    if (instr->hydrogen()->op() == kFloat32x4Load ||
+        instr->hydrogen()->op() == kFloat32x4Store)
+      __ add(index_in_bytes, Immediate(16));
+    else if (instr->hydrogen()->op() == kFloat32x4LoadX ||
+        instr->hydrogen()->op() == kFloat32x4StoreX)
+      __ add(index_in_bytes, Immediate(4));
+    else if (instr->hydrogen()->op() == kFloat32x4LoadXY ||
+        instr->hydrogen()->op() == kFloat32x4StoreXY)
+      __ add(index_in_bytes, Immediate(8));
+    else if (instr->hydrogen()->op() == kFloat32x4LoadXYZ ||
+        instr->hydrogen()->op() == kFloat32x4StoreXYZ)
+      __ add(index_in_bytes, Immediate(12));
+    else
+      UNREACHABLE();
     if (instr->length()->IsConstantOperand())
       __ mov(length_in_bytes, ToImmediate(LConstantOperand::cast(instr->length()),
       instr->hydrogen()->length()->representation()));
@@ -4284,7 +4319,23 @@ void LCodeGen::DoStoreKeyedExternalArray(LStoreKeyed* instr) {
       elements_kind == FLOAT32_ELEMENTS) {
     BuiltinFunctionId id = instr->hydrogen()->op();
     if (id == kFloat32x4Store) {
-     __ movups(operand, ToSIMD128Register(instr->value()));
+      __ movups(operand, ToSIMD128Register(instr->value()));
+    } else if (id == kFloat32x4StoreX) {
+      __ movss(operand, ToSIMD128Register(instr->value()));
+    } else if (id == kFloat32x4StoreXY) {
+      __ movq(operand, ToSIMD128Register(instr->value()));
+    } else if (id == kFloat32x4StoreXYZ) {
+      XMMRegister value(ToSIMD128Register(instr->value()));
+      XMMRegister xmm_scratch = double_scratch0();
+      __ movq(operand, value);
+      Operand operand2(BuildFastArrayOperand(
+          instr->elements(),
+          key,
+          instr->hydrogen()->key()->representation(),
+          elements_kind,
+          instr->base_offset() + 8));
+      __ movhlps(xmm_scratch, value);
+      __ movss(operand2, xmm_scratch);
     } else {
       XMMRegister xmm_scratch = double_scratch0();
       __ cvtsd2ss(xmm_scratch, ToDoubleRegister(instr->value()));
