@@ -153,6 +153,7 @@ function test_wrapper() {
   for (var i = 0; i < 0xDECAF; i++) fast_double_array[i] = i / 2;
   assertKind(elements_kind.fast_double, fast_double_array);
 
+/*
   assertKind(elements_kind.fixed_int8,    new Int8Array(007));
   assertKind(elements_kind.fixed_uint8,   new Uint8Array(007));
   assertKind(elements_kind.fixed_int16,   new Int16Array(666));
@@ -162,6 +163,7 @@ function test_wrapper() {
   assertKind(elements_kind.fixed_float32, new Float32Array(7));
   assertKind(elements_kind.fixed_float64, new Float64Array(0));
   assertKind(elements_kind.fixed_uint8_clamped, new Uint8ClampedArray(512));
+*/
 
   var ab = new ArrayBuffer(128);
   assertKind(elements_kind.external_int8,    new Int8Array(ab));
