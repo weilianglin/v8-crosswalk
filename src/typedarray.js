@@ -77,8 +77,12 @@ function NAMEConstructByLength(obj, length) {
     throw MakeRangeError("invalid_typed_array_length");
   }
   var byteLength = l * ELEMENT_SIZE;
-  var buffer = new $ArrayBuffer(byteLength);
-  %_TypedArrayInitialize(obj, ARRAY_ID, buffer, 0, byteLength);
+  if (byteLength > %_TypedArrayMaxSizeInHeap()) {
+    var buffer = new $ArrayBuffer(byteLength);
+    %_TypedArrayInitialize(obj, ARRAY_ID, buffer, 0, byteLength);
+  } else {
+    %_TypedArrayInitialize(obj, ARRAY_ID, null, 0, byteLength);
+  }
 }
 
 function NAMEConstructByArrayLike(obj, arrayLike) {
