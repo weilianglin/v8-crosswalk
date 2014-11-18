@@ -8920,7 +8920,7 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
             id);
         map_checker.Else();
         Handle<Map> fixed_f32_array_map(
-            isolate()->native_context()->float32x4_array_external_map());
+            isolate()->native_context()->float32_array_fun()->initial_map());
         map_checker.If<HCompareMap>(tarray, fixed_f32_array_map);
         map_checker.Then();
         instr = BuildUncheckedMonomorphicElementAccess(
@@ -8961,7 +8961,7 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
             id);
         map_checker.Else();
         Handle<Map> fixed_f32_array_map(
-            isolate()->native_context()->float32x4_array_external_map());
+            isolate()->native_context()->float32_array_fun()->initial_map());
         map_checker.If<HCompareMap>(tarray, fixed_f32_array_map);
         map_checker.Then();
         BuildUncheckedMonomorphicElementAccess(
