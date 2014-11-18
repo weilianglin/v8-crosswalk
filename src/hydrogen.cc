@@ -8919,14 +8919,14 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
             STANDARD_STORE,
             id);
         map_checker.Else();
-        Handle<Map> int8_array_map = TypedArrayMap(
-          isolate(), kExternalInt8Array, EXTERNAL_INT8_ELEMENTS);
-        map_checker.If<HCompareMap>(tarray, int8_array_map);
+        Handle<Map> fixed_f32_array_map = TypedArrayMap(
+          isolate(), kExternalFloat32Array, FLOAT32_ELEMENTS);
+        map_checker.If<HCompareMap>(tarray, fixed_f32_array_map);
         map_checker.Then();
         instr = BuildUncheckedMonomorphicElementAccess(
             tarray, key, NULL,
             false,
-            EXTERNAL_INT8_ELEMENTS,
+            FLOAT32_ELEMENTS,
             LOAD,  // is_store.
             NEVER_RETURN_HOLE,  // load_mode.
             STANDARD_STORE,
@@ -8946,18 +8946,34 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         HValue* key = Pop();
         HValue* tarray = Pop();
         Drop(2);  // Drop receiver and function.
+        IfBuilder map_checker(this);
         Handle<Map> float32_array_map = TypedArrayMap(
           isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-        Add<HCheckMaps>(tarray, float32_array_map);
-        KeyedAccessStoreMode store_mode = STANDARD_STORE;
+        map_checker.If<HCompareMap>(tarray, float32_array_map);
+        map_checker.Then();
         BuildUncheckedMonomorphicElementAccess(
           tarray, key, value,
             false,
             EXTERNAL_FLOAT32_ELEMENTS,
             STORE,  // is_store.
             NEVER_RETURN_HOLE,  // load_mode.
-            store_mode,
+            STANDARD_STORE,
             id);
+        map_checker.Else();
+        Handle<Map> fixed_f32_array_map = TypedArrayMap(
+          isolate(), kExternalFloat32Array, FLOAT32_ELEMENTS);
+        map_checker.If<HCompareMap>(tarray, fixed_f32_array_map);
+        map_checker.Then();
+        BuildUncheckedMonomorphicElementAccess(
+          tarray, key, value,
+            false,
+            FLOAT32_ELEMENTS,
+            STORE,  // is_store.
+            NEVER_RETURN_HOLE,  // load_mode.
+            STANDARD_STORE,
+            id);
+        map_checker.ElseDeopt("typed array unhandled in float32x4 store");
+        map_checker.End();
         Push(value);
         Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
         ast_context()->ReturnValue(Pop());
