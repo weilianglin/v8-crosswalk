@@ -6823,6 +6823,18 @@ class Script: public Struct {
   V(SIMD.float32x4, storeXY, Float32x4StoreXY)                                 \
   V(SIMD.float32x4, loadXYZ, Float32x4LoadXYZ)                                 \
   V(SIMD.float32x4, storeXYZ, Float32x4StoreXYZ)                               \
+  V(SIMD.float64x2, load, Float64x2Load)                                       \
+  V(SIMD.float64x2, store, Float64x2Store)                                     \
+  V(SIMD.float64x2, loadX, Float64x2LoadX)                                     \
+  V(SIMD.float64x2, storeX, Float64x2StoreX)                                   \
+  V(SIMD.int32x4, load, Int32x4Load)                                           \
+  V(SIMD.int32x4, store, Int32x4Store)                                         \
+  V(SIMD.int32x4, loadX, Int32x4LoadX)                                         \
+  V(SIMD.int32x4, storeX, Int32x4StoreX)                                       \
+  V(SIMD.int32x4, loadXY, Int32x4LoadXY)                                       \
+  V(SIMD.int32x4, storeXY, Int32x4StoreXY)                                     \
+  V(SIMD.int32x4, loadXYZ, Int32x4LoadXYZ)                                     \
+  V(SIMD.int32x4, storeXYZ, Int32x4StoreXYZ)                                   \
   V(Float32x4Array.prototype, getAt, Float32x4ArrayGetAt)                      \
   V(Float32x4Array.prototype, setAt, Float32x4ArraySetAt)                      \
   V(Float64x2Array.prototype, getAt, Float64x2ArrayGetAt)                      \

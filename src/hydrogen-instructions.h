@@ -6749,6 +6749,11 @@ class HLoadKeyed FINAL
       if (op_ == kFloat32x4Load || op_ == kFloat32x4LoadX ||
           op_ == kFloat32x4LoadXY || op_ == kFloat32x4LoadXYZ)
         set_representation(Representation::Float32x4());
+      else if (op_ == kInt32x4Load || op_ == kInt32x4LoadX ||
+          op_ == kInt32x4LoadXY || op_ == kInt32x4LoadXYZ)
+        set_representation(Representation::Int32x4());
+      else if (op_ == kFloat64x2Load || op_ == kFloat64x2LoadX)
+        set_representation(Representation::Float64x2());
       else if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
           elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
           elements_kind == FLOAT32_ELEMENTS ||
@@ -7089,6 +7094,13 @@ class HStoreKeyed FINAL
         op() == kFloat32x4StoreXY || op() == kFloat32x4StoreXYZ) {
       return Representation::Float32x4();
     }
+    if (op() == kInt32x4Store || op() == kInt32x4StoreX ||
+        op() == kInt32x4StoreXY || op() == kInt32x4StoreXYZ) {
+      return Representation::Int32x4();
+    }
+    if (op() == kFloat64x2Store || op() == kFloat64x2StoreX) {
+      return Representation::Float64x2();
+    }
     return RequiredValueRepresentation(elements_kind_, store_mode_);
   }
 
@@ -7146,6 +7158,13 @@ class HStoreKeyed FINAL
     if (op() == kFloat32x4Store || op() == kFloat32x4StoreX ||
         op() == kFloat32x4StoreXY || op() == kFloat32x4StoreXYZ) {
       return Representation::Float32x4();
+    }
+    if (op() == kInt32x4Store || op() == kInt32x4StoreX ||
+        op() == kInt32x4StoreXY || op() == kInt32x4StoreXYZ) {
+      return Representation::Int32x4();
+    }
+    if (op() == kFloat64x2Store || op() == kFloat64x2StoreX) {
+      return Representation::Float64x2();
     }
     Representation r = RequiredValueRepresentation(elements_kind_, store_mode_);
     // For fast object elements kinds, don't assume anything.

@@ -8900,17 +8900,33 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
     case kFloat32x4LoadX:
     case kFloat32x4LoadXY:
     case kFloat32x4LoadXYZ:
+    case kFloat64x2Load:
+    case kFloat64x2LoadX:
+    case kInt32x4Load:
+    case kInt32x4LoadX:
+    case kInt32x4LoadXY:
+    case kInt32x4LoadXYZ:
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
         HValue* key = Pop();
         HValue* tarray = Pop();
         Drop(2);  // Drop receiver and function.
-        Handle<Map> float32_array_map = TypedArrayMap(
-          isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-        Add<HCheckMaps>(tarray, float32_array_map);
+        ExternalArrayType array_type = kExternalFloat32Array;
+        ElementsKind kind = EXTERNAL_FLOAT32_ELEMENTS;
+        if (id == kInt32x4Load || id == kInt32x4LoadX ||
+            id == kInt32x4LoadXY || id == kInt32x4LoadXYZ) {
+          array_type = kExternalInt32Array;
+          kind = EXTERNAL_INT32_ELEMENTS;
+        } else if (id == kFloat64x2Load || id == kFloat64x2LoadX) {
+          array_type = kExternalFloat64Array;
+          kind = EXTERNAL_FLOAT64_ELEMENTS;
+        }
+        Handle<Map> tarray_map = TypedArrayMap(
+          isolate(), array_type, kind);
+        Add<HCheckMaps>(tarray, tarray_map);
         HInstruction* instr = BuildUncheckedMonomorphicElementAccess(
             tarray, key, NULL,
             false,
-            EXTERNAL_FLOAT32_ELEMENTS,
+            kind,
             LOAD,  // is_store.
             NEVER_RETURN_HOLE,  // load_mode.
             STANDARD_STORE,
@@ -8923,19 +8939,35 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
     case kFloat32x4StoreX:
     case kFloat32x4StoreXY:
     case kFloat32x4StoreXYZ:
+    case kFloat64x2Store:
+    case kFloat64x2StoreX:
+    case kInt32x4Store:
+    case kInt32x4StoreX:
+    case kInt32x4StoreXY:
+    case kInt32x4StoreXYZ:
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 4) {
         HValue* value = Pop();
         HValue* key = Pop();
         HValue* tarray = Pop();
         Drop(2);  // Drop receiver and function.
+        ExternalArrayType array_type = kExternalFloat32Array;
+        ElementsKind kind = EXTERNAL_FLOAT32_ELEMENTS;
+        if (id == kInt32x4Store || id == kInt32x4StoreX ||
+            id == kInt32x4StoreXY || id == kInt32x4StoreXYZ) {
+          array_type = kExternalInt32Array;
+          kind = EXTERNAL_INT32_ELEMENTS;
+        } else if (id == kFloat64x2Store || id == kFloat64x2StoreX) {
+          array_type = kExternalFloat64Array;
+          kind = EXTERNAL_FLOAT64_ELEMENTS;
+        }
         Handle<Map> float32_array_map = TypedArrayMap(
-          isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
+          isolate(), array_type, kind);
         Add<HCheckMaps>(tarray, float32_array_map);
         KeyedAccessStoreMode store_mode = STANDARD_STORE;
         BuildUncheckedMonomorphicElementAccess(
           tarray, key, value,
             false,
-            EXTERNAL_FLOAT32_ELEMENTS,
+            kind,
             STORE,  // is_store.
             NEVER_RETURN_HOLE,  // load_mode.
             store_mode,

@@ -140,10 +140,10 @@ function testFloat32x4LoadXYZAndStoreXYZ() {
     assertEquals(12.0 - i, f32_array[i]);
 }
 
-testFloat32x4LoadXYAndStoreXY();
-testFloat32x4LoadXYAndStoreXY();
-%OptimizeFunctionOnNextCall(testFloat32x4LoadXYAndStoreXY);
-testFloat32x4LoadXYAndStoreXY();
+testFloat32x4LoadXYZAndStoreXYZ();
+testFloat32x4LoadXYZAndStoreXYZ();
+%OptimizeFunctionOnNextCall(testFloat32x4LoadXYZAndStoreXYZ);
+testFloat32x4LoadXYZAndStoreXYZ();
 
 function testFloat64x2LoadAndStore() {
   var f64_array = new Float64Array(6);
@@ -175,6 +175,42 @@ testFloat64x2LoadAndStore();
 testFloat64x2LoadAndStore();
 %OptimizeFunctionOnNextCall(testFloat64x2LoadAndStore);
 testFloat64x2LoadAndStore();
+
+function testFloat64x2LoadXAndStoreX() {
+  var f64_array = new Float64Array(4);
+  for (var i = 0; i < 4; ++i)
+    f64_array[i] = 1.0 + i;
+
+  var v1 = SIMD.float64x2.loadX(f64_array, 0);
+  var v2 = SIMD.float64x2.loadX(f64_array, 1);
+  var v3 = SIMD.float64x2.loadX(f64_array, 2);
+  var v4 = SIMD.float64x2.loadX(f64_array, 3);
+
+  assertEquals(1.0, v1.x);
+  assertEquals(0.0, v1.y);
+
+  assertEquals(2.0, v2.x);
+  assertEquals(0.0, v2.y);
+
+  assertEquals(3.0, v3.x);
+  assertEquals(0.0, v3.y);
+
+  assertEquals(4.0, v4.x);
+  assertEquals(0.0, v4.y);
+
+  SIMD.float64x2.storeX(f64_array, 0, SIMD.float64x2(4.0, 0.0));
+  SIMD.float64x2.storeX(f64_array, 1, SIMD.float64x2(3.0, 0.0));
+  SIMD.float64x2.storeX(f64_array, 2, SIMD.float64x2(2.0, 0.0));
+  SIMD.float64x2.storeX(f64_array, 3, SIMD.float64x2(1.0, 0.0));
+
+  for (var i = 0; i < 4; ++i)
+    assertEquals(4.0 - i, f64_array[i]);
+}
+
+testFloat64x2LoadXAndStoreX();
+testFloat64x2LoadXAndStoreX();
+%OptimizeFunctionOnNextCall(testFloat64x2LoadXAndStoreX);
+testFloat64x2LoadXAndStoreX();
 
 function testInt32x4LoadAndStore() {
   var i32_array = new Int32Array(12);
@@ -212,3 +248,84 @@ testInt32x4LoadAndStore();
 testInt32x4LoadAndStore();
 %OptimizeFunctionOnNextCall(testInt32x4LoadAndStore);
 testInt32x4LoadAndStore();
+
+function testInt32x4LoadXAndStoreX() {
+  var f32_array = new Float32Array(12);
+  for (var i = 0; i < 12; ++i)
+    f32_array[i] = 1 + i;
+
+  for (var i = 0; i < 12; ++i) {
+    var v = SIMD.float32x4.loadX(f32_array, i);
+
+    assertEquals(1 + i, v.x);
+    assertEquals(0, v.y);
+    assertEquals(0, v.z);
+    assertEquals(0, v.w);
+  }
+
+  for (var i = 0; i < 12; ++i) {
+    SIMD.float32x4.storeX(f32_array, i, SIMD.float32x4(12 - i, 0, 0, 0));
+  }
+
+  for (var i = 0; i < 12; ++i)
+    assertEquals(12 - i, f32_array[i]);
+}
+
+testInt32x4LoadXAndStoreX();
+testInt32x4LoadXAndStoreX();
+%OptimizeFunctionOnNextCall(testInt32x4LoadXAndStoreX);
+testInt32x4LoadXAndStoreX();
+
+function testInt32x4LoadXYAndStoreXY() {
+  var f32_array = new Float32Array(12);
+  for (var i = 0; i < 12; ++i)
+    f32_array[i] = 1 + i;
+
+  for (var i = 0; i < 12; i += 2) {
+    var v = SIMD.float32x4.loadXY(f32_array, i);
+
+    assertEquals(1 + i, v.x);
+    assertEquals(2 + i, v.y);
+    assertEquals(0, v.z);
+    assertEquals(0, v.w);
+  }
+
+  for (var i = 0; i < 12; i += 2) {
+    SIMD.float32x4.storeXY(f32_array, i, SIMD.float32x4(12 - i, 11 - i, 0, 0));
+  }
+
+  for (var i = 0; i < 12; ++i)
+    assertEquals(12 - i, f32_array[i]);
+}
+
+testInt32x4LoadXYAndStoreXY();
+testInt32x4LoadXYAndStoreXY();
+%OptimizeFunctionOnNextCall(testInt32x4LoadXYAndStoreXY);
+testInt32x4LoadXYAndStoreXY();
+
+function testInt32x4LoadXYZAndStoreXYZ() {
+  var f32_array = new Float32Array(12);
+  for (var i = 0; i < 12; ++i)
+    f32_array[i] = 1 + i;
+
+  for (var i = 0; i < 12; i += 3) {
+    var v = SIMD.float32x4.loadXYZ(f32_array, i);
+
+    assertEquals(1 + i, v.x);
+    assertEquals(2 + i, v.y);
+    assertEquals(3 + i, v.z);
+    assertEquals(0, v.w);
+  }
+
+  for (var i = 0; i < 12; i += 3) {
+    SIMD.float32x4.storeXYZ(f32_array, i, SIMD.float32x4(12 - i, 11 - i, 10 - i, 0));
+  }
+
+  for (var i = 0; i < 12; ++i)
+    assertEquals(12 - i, f32_array[i]);
+}
+
+testInt32x4LoadXYZAndStoreXYZ();
+testInt32x4LoadXYZAndStoreXYZ();
+%OptimizeFunctionOnNextCall(testInt32x4LoadXYZAndStoreXYZ);
+testInt32x4LoadXYZAndStoreXYZ();
