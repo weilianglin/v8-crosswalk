@@ -8904,36 +8904,44 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         HValue* key = Pop();
         HValue* tarray = Pop();
         Drop(2);  // Drop receiver and function.
-        HInstruction* instr;
-        IfBuilder map_checker(this);
-        Handle<Map> float32_array_map = TypedArrayMap(
-          isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-        map_checker.If<HCompareMap>(tarray, float32_array_map);
-        map_checker.Then();
-        instr = BuildUncheckedMonomorphicElementAccess(
-            tarray, key, NULL,
-            false,
-            EXTERNAL_FLOAT32_ELEMENTS,
-            LOAD,  // is_store.
-            NEVER_RETURN_HOLE,  // load_mode.
-            STANDARD_STORE,
-            id);
-        map_checker.Else();
-        Handle<Map> fixed_f32_array_map(
-            isolate()->native_context()->float32_array_fun()->initial_map());
-        map_checker.If<HCompareMap>(tarray, fixed_f32_array_map);
-        map_checker.Then();
-        instr = BuildUncheckedMonomorphicElementAccess(
-            tarray, key, NULL,
-            false,
-            FLOAT32_ELEMENTS,
-            LOAD,  // is_store.
-            NEVER_RETURN_HOLE,  // load_mode.
-            STANDARD_STORE,
-            id);
-        map_checker.ElseDeopt("typed array unhandled in float32x4 load");
-        map_checker.End();
-        ast_context()->ReturnValue(instr);
+        HValue* result;
+        {
+          NoObservableSideEffectsScope scope(this);
+          IfBuilder map_checker(this);
+          Handle<Map> float32_array_map = TypedArrayMap(
+            isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
+          map_checker.If<HCompareMap>(tarray, float32_array_map);
+          map_checker.Then();
+          result = BuildUncheckedMonomorphicElementAccess(
+              tarray, key, NULL,
+              false,
+              EXTERNAL_FLOAT32_ELEMENTS,
+              LOAD,  // is_store.
+              NEVER_RETURN_HOLE,  // load_mode.
+              STANDARD_STORE,
+              id);
+          if (!ast_context()->IsEffect()) Push(result);
+          map_checker.Else();
+          Handle<Map> fixed_f32_array_map(
+              isolate()->native_context()->float32_array_fun()->initial_map());
+          map_checker.If<HCompareMap>(tarray, fixed_f32_array_map);
+          map_checker.Then();
+          result = BuildUncheckedMonomorphicElementAccess(
+              tarray, key, NULL,
+              false,
+              FLOAT32_ELEMENTS,
+              LOAD,  // is_store.
+              NEVER_RETURN_HOLE,  // load_mode.
+              STANDARD_STORE,
+              id);
+          if (!ast_context()->IsEffect()) Push(result);
+          map_checker.ElseDeopt("typed array unhandled in float32x4 load");
+          map_checker.End();
+        }
+        result = ast_context()->IsEffect() ? graph()->GetConstant0() : Top();
+        Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
+        if (!ast_context()->IsEffect()) Drop(1);
+        ast_context()->ReturnValue(result);
         return true;
       }
       break;
@@ -8946,34 +8954,37 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         HValue* key = Pop();
         HValue* tarray = Pop();
         Drop(2);  // Drop receiver and function.
-        IfBuilder map_checker(this);
-        Handle<Map> float32_array_map = TypedArrayMap(
-          isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-        map_checker.If<HCompareMap>(tarray, float32_array_map);
-        map_checker.Then();
-        BuildUncheckedMonomorphicElementAccess(
-          tarray, key, value,
-            false,
-            EXTERNAL_FLOAT32_ELEMENTS,
-            STORE,  // is_store.
-            NEVER_RETURN_HOLE,  // load_mode.
-            STANDARD_STORE,
-            id);
-        map_checker.Else();
-        Handle<Map> fixed_f32_array_map(
-            isolate()->native_context()->float32_array_fun()->initial_map());
-        map_checker.If<HCompareMap>(tarray, fixed_f32_array_map);
-        map_checker.Then();
-        BuildUncheckedMonomorphicElementAccess(
-          tarray, key, value,
-            false,
-            FLOAT32_ELEMENTS,
-            STORE,  // is_store.
-            NEVER_RETURN_HOLE,  // load_mode.
-            STANDARD_STORE,
-            id);
-        map_checker.ElseDeopt("typed array unhandled in float32x4 store");
-        map_checker.End();
+        {
+          NoObservableSideEffectsScope scope(this);
+          IfBuilder map_checker(this);
+          Handle<Map> float32_array_map = TypedArrayMap(
+            isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
+          map_checker.If<HCompareMap>(tarray, float32_array_map);
+          map_checker.Then();
+          BuildUncheckedMonomorphicElementAccess(
+              tarray, key, value,
+              false,
+              EXTERNAL_FLOAT32_ELEMENTS,
+              STORE,  // is_store.
+              NEVER_RETURN_HOLE,  // load_mode.
+              STANDARD_STORE,
+              id);
+          map_checker.Else();
+          Handle<Map> fixed_f32_array_map(
+              isolate()->native_context()->float32_array_fun()->initial_map());
+          map_checker.If<HCompareMap>(tarray, fixed_f32_array_map);
+          map_checker.Then();
+          BuildUncheckedMonomorphicElementAccess(
+              tarray, key, value,
+              false,
+              FLOAT32_ELEMENTS,
+              STORE,  // is_store.
+              NEVER_RETURN_HOLE,  // load_mode.
+              STANDARD_STORE,
+              id);
+          map_checker.ElseDeopt("typed array unhandled in float32x4 store");
+          map_checker.End();
+        }
         Push(value);
         Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
         ast_context()->ReturnValue(Pop());
