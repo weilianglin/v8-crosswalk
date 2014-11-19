@@ -357,60 +357,26 @@ function isTypedArray(o) {
          (%_ClassOf(o) === 'Float32x4Array');
 }
 
-macro DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(TYPE, LANES, NBYTES)
+macro DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(TYPE, LANES)
 function TYPELoadLANESJS(tarray, index) {
-  if (%_ArgumentsLength() < 2) {
-    throw MakeTypeError('invalid_argument');
-  }
-  if (!isTypedArray(tarray)) {
-    throw MakeTypeError('The 1st argument must be a typed array.');
-  }
-  if (!IS_NUMBER(index)) {
-    throw MakeTypeError('The 2nd argument must be a Number.');
-  }
-  var offset = TO_INTEGER(index) * tarray.BYTES_PER_ELEMENT;
-  if (offset < 0 || (offset + NBYTES) > tarray.byteLength)
-    throw MakeRangeError('The value of index is invalid.');
-  var arraybuffer = tarray.buffer;
-  return %TYPELoadLANES(arraybuffer, offset);
+  return tarray._getTYPELANES(index);
 }
 
 function TYPEStoreLANESJS(tarray, index, value) {
-  if (%_ArgumentsLength() < 3) {
-    throw MakeTypeError('invalid_argument');
-  }
-  if (!isTypedArray(tarray)) {
-    throw MakeTypeError('The 1st argument must be a typed array.');
-  }
-  if (!IS_NUMBER(index)) {
-    throw MakeTypeError('The 2nd argument must be a Number.');
-  }
-  CheckTYPE(value);
-  var offset = TO_INTEGER(index) * tarray.BYTES_PER_ELEMENT;
-  if (offset < 0 || (offset + NBYTES) > tarray.byteLength)
-    throw MakeRangeError('The value of index is invalid.');
-  var arraybuffer = tarray.buffer;
-  %TYPEStoreLANES(arraybuffer, offset, value);
+  return tarray._setTYPELANES(index, value);
 }
 endmacro
 
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZ, 12)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XY, 8)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, X, 4)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, XY, 16)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, X, 8)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZW, 16)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZ, 12)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XY, 8)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, X, 4)
-
-function Float32x4LoadXYZWJS(tarray, index) {
-  return tarray._getFloat32x4(index);
-}
-
-function Float32x4StoreXYZWJS(tarray, index, value) {
-  return tarray._getFloat32x4(index, value);
-}
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZW)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZ)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XY)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, X)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, XY)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, X)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZW)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZ)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XY)
+DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, X)
 
 function Float32x4SplatJS(f) {
   f = TO_NUMBER_INLINE(f);
@@ -925,6 +891,24 @@ function SetUpSIMD() {
 
   %SetInlineBuiltinFlag(Float32x4LoadXYZWJS);
   %SetInlineBuiltinFlag(Float32x4StoreXYZWJS);
+  %SetInlineBuiltinFlag(Float32x4LoadXYZJS);
+  %SetInlineBuiltinFlag(Float32x4StoreXYZJS);
+  %SetInlineBuiltinFlag(Float32x4LoadXYJS);
+  %SetInlineBuiltinFlag(Float32x4StoreXYJS);
+  %SetInlineBuiltinFlag(Float32x4LoadXJS);
+  %SetInlineBuiltinFlag(Float32x4StoreXJS);
+  %SetInlineBuiltinFlag(Float64x2LoadXYJS);
+  %SetInlineBuiltinFlag(Float64x2StoreXYJS);
+  %SetInlineBuiltinFlag(Float64x2LoadXJS);
+  %SetInlineBuiltinFlag(Float64x2StoreXJS);
+  %SetInlineBuiltinFlag(Int32x4LoadXYZWJS);
+  %SetInlineBuiltinFlag(Int32x4StoreXYZWJS);
+  %SetInlineBuiltinFlag(Int32x4LoadXYZJS);
+  %SetInlineBuiltinFlag(Int32x4StoreXYZJS);
+  %SetInlineBuiltinFlag(Int32x4LoadXYJS);
+  %SetInlineBuiltinFlag(Int32x4StoreXYJS);
+  %SetInlineBuiltinFlag(Int32x4LoadXJS);
+  %SetInlineBuiltinFlag(Int32x4StoreXJS);
 }
 
 SetUpSIMD();
@@ -1154,60 +1138,103 @@ SetUpFloat32x4Array();
 SetUpFloat64x2Array();
 SetUpInt32x4Array();
 
-// --------------------------- Typed Array -----------------------------
-
+// --------------------SIMD128 Load/Store in Typed Array -----------------
+var $Uint8Array = global.Uint8Array;
+var $Int8Array = global.Int8Array;
+var $Uint16Array = global.Uint16Array;
+var $Int16Array = global.Int16Array;
+var $Uint32Array = global.Uint32Array;
+var $Int32Array = global.Int32Array;
 var $Float32Array = global.Float32Array;
+var $Float64Array = global.Float64Array;
 
-function Float32ArrayGetFloat32x4JS(offset) {
-  if (!(%_ClassOf(this) === 'Float32Array')) {
-    throw MakeTypeError('incompatible_method_receiver',
-                        ["Float32Array.getFloat32x4", this]);
-  }
+macro DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(TYPE, LANES, NBYTES)
+function TypedArrayLoadTYPELANESJS(index) {
+  var tarray = this;
   if (%_ArgumentsLength() < 1) {
     throw MakeTypeError('invalid_argument');
   }
-  var intOffset = IS_UNDEFINED(offset) ? 0 : TO_INTEGER(offset);
-  if (intOffset < 0) {
-    throw MakeTypeError("typed_array_negative_offset");
+  if (!isTypedArray(tarray)) {
+    throw MakeTypeError('The 1st argument must be a typed array.');
   }
-
-  if (intOffset > %_MaxSmi()) {
-    throw MakeRangeError("typed_array_too_large_offset");
+  if (!IS_NUMBER(index)) {
+    throw MakeTypeError('The 2nd argument must be a Number.');
   }
-  var byte_offset = intOffset << 2;
-  return %Float32ArrayGetFloat32x4(this, byte_offset);
+  var offset = TO_INTEGER(index) * tarray.BYTES_PER_ELEMENT;
+  if (offset < 0 || (offset + NBYTES) > tarray.byteLength)
+    throw MakeRangeError('The value of index is invalid.');
+  var arraybuffer = tarray.buffer;
+  return %TYPELoadLANES(arraybuffer, offset);
 }
 
-
-function Float32ArraySetFloat32x4JS(offset, value) {
-  if (!(%_ClassOf(this) === 'Float32Array')) {
-    throw MakeTypeError('incompatible_method_receiver',
-                        ["Float32Array.setFloat32x4", this]);
-  } 
+function TypedArrayStoreTYPELANESJS(index, value) {
+  var tarray = this;
   if (%_ArgumentsLength() < 2) {
     throw MakeTypeError('invalid_argument');
   }
-  var intOffset = IS_UNDEFINED(offset) ? 0 : TO_INTEGER(offset);
-  if (intOffset < 0) {
-    throw MakeTypeError("typed_array_negative_offset");
+  if (!isTypedArray(tarray)) {
+    throw MakeTypeError('The 1st argument must be a typed array.');
   }
-
-  if (intOffset > %_MaxSmi()) {
-    throw MakeRangeError("typed_array_too_large_offset");
+  if (!IS_NUMBER(index)) {
+    throw MakeTypeError('The 2nd argument must be a Number.');
   }
-  var byte_offset = intOffset << 2;
-  CheckFloat32x4(value);
-  return %Float32ArraySetFloat32x4(this, byte_offset, value);
+  CheckTYPE(value);
+  var offset = TO_INTEGER(index) * tarray.BYTES_PER_ELEMENT;
+  if (offset < 0 || (offset + NBYTES) > tarray.byteLength)
+    throw MakeRangeError('The value of index is invalid.');
+  var arraybuffer = tarray.buffer;
+  %TYPEStoreLANES(arraybuffer, offset, value);
 }
+endmacro
+
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZW, 12)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZ, 12)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XY, 8)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, X, 4)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, XY, 16)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, X, 8)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZW, 16)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZ, 12)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XY, 8)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, X, 4)
 
 
-function SetupFloat32ArrayGetFloat32x4() {
+function SetupTypedArraysSimdLoadStore() {
   %CheckIsBootstrapping();
 
-  InstallFunctions($Float32Array.prototype, DONT_ENUM, $Array(
-      "_getFloat32x4", Float32ArrayGetFloat32x4JS,
-      "_setFloat32x4", Float32ArraySetFloat32x4JS
+macro DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(VIEW)
+  InstallFunctions($VIEW.prototype, DONT_ENUM, $Array(
+      "_getFloat32x4X", TypedArrayLoadFloat32x4XJS,
+      "_setFloat32x4X", TypedArrayStoreFloat32x4XJS,
+      "_getFloat32x4XY", TypedArrayLoadFloat32x4XYJS,
+      "_setFloat32x4XY", TypedArrayStoreFloat32x4XYJS,
+      "_getFloat32x4XYZ", TypedArrayLoadFloat32x4XYZJS,
+      "_setFloat32x4XYZ", TypedArrayStoreFloat32x4XYZJS,
+      "_getFloat32x4XYZW", TypedArrayLoadFloat32x4XYZWJS,
+      "_setFloat32x4XYZW", TypedArrayStoreFloat32x4XYZWJS,
+      "_getFloat64x2X", TypedArrayLoadFloat64x2XJS,
+      "_setFloat64x2X", TypedArrayStoreFloat64x2XJS,
+      "_getFloat64x2XY", TypedArrayLoadFloat64x2XYJS,
+      "_setFloat64x2XY", TypedArrayStoreFloat64x2XYJS,
+      "_getInt32x4X", TypedArrayLoadInt32x4XJS,
+      "_setInt32x4X", TypedArrayStoreInt32x4XJS,
+      "_getInt32x4XY", TypedArrayLoadInt32x4XYJS,
+      "_setInt32x4XY", TypedArrayStoreInt32x4XYJS,
+      "_getInt32x4XYZ", TypedArrayLoadInt32x4XYZJS,
+      "_setInt32x4XYZ", TypedArrayStoreInt32x4XYZJS,
+      "_getInt32x4XYZW", TypedArrayLoadInt32x4XYZWJS,
+      "_setInt32x4XYZW", TypedArrayStoreInt32x4XYZWJS
   ));
+endmacro
+
+DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(Uint8Array)
+DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(Int8Array)
+DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(Uint16Array)
+DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(Int16Array)
+DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(Uint32Array)
+DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(Int32Array)
+DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(Float32Array)
+DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(Float64Array)
 }
 
-SetupFloat32ArrayGetFloat32x4();
+SetupTypedArraysSimdLoadStore();
