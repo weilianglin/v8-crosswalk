@@ -394,7 +394,6 @@ function TYPEStoreLANESJS(tarray, index, value) {
 }
 endmacro
 
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZW, 16)
 DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZ, 12)
 DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XY, 8)
 DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, X, 4)
@@ -404,6 +403,14 @@ DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZW, 16)
 DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZ, 12)
 DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XY, 8)
 DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, X, 4)
+
+function Float32x4LoadXYZWJS(tarray, index) {
+  return tarray._getFloat32x4(index);
+}
+
+function Float32x4StoreXYZWJS(tarray, index, value) {
+  return tarray._getFloat32x4(index, value);
+}
 
 function Float32x4SplatJS(f) {
   f = TO_NUMBER_INLINE(f);
@@ -915,6 +922,9 @@ function SetUpSIMD() {
     // Ternary
     "select", Int32x4SelectJS
   ));
+
+  %SetInlineBuiltinFlag(Float32x4LoadXYZWJS);
+  %SetInlineBuiltinFlag(Float32x4StoreXYZWJS);
 }
 
 SetUpSIMD();
@@ -1143,3 +1153,61 @@ DECLARE_TYPED_ARRAY_FUNCTION(Int32x4)
 SetUpFloat32x4Array();
 SetUpFloat64x2Array();
 SetUpInt32x4Array();
+
+// --------------------------- Typed Array -----------------------------
+
+var $Float32Array = global.Float32Array;
+
+function Float32ArrayGetFloat32x4JS(offset) {
+  if (!(%_ClassOf(this) === 'Float32Array')) {
+    throw MakeTypeError('incompatible_method_receiver',
+                        ["Float32Array.getFloat32x4", this]);
+  }
+  if (%_ArgumentsLength() < 1) {
+    throw MakeTypeError('invalid_argument');
+  }
+  var intOffset = IS_UNDEFINED(offset) ? 0 : TO_INTEGER(offset);
+  if (intOffset < 0) {
+    throw MakeTypeError("typed_array_negative_offset");
+  }
+
+  if (intOffset > %_MaxSmi()) {
+    throw MakeRangeError("typed_array_too_large_offset");
+  }
+  var byte_offset = intOffset << 2;
+  return %Float32ArrayGetFloat32x4(this, byte_offset);
+}
+
+
+function Float32ArraySetFloat32x4JS(offset, value) {
+  if (!(%_ClassOf(this) === 'Float32Array')) {
+    throw MakeTypeError('incompatible_method_receiver',
+                        ["Float32Array.setFloat32x4", this]);
+  } 
+  if (%_ArgumentsLength() < 2) {
+    throw MakeTypeError('invalid_argument');
+  }
+  var intOffset = IS_UNDEFINED(offset) ? 0 : TO_INTEGER(offset);
+  if (intOffset < 0) {
+    throw MakeTypeError("typed_array_negative_offset");
+  }
+
+  if (intOffset > %_MaxSmi()) {
+    throw MakeRangeError("typed_array_too_large_offset");
+  }
+  var byte_offset = intOffset << 2;
+  CheckFloat32x4(value);
+  return %Float32ArraySetFloat32x4(this, byte_offset, value);
+}
+
+
+function SetupFloat32ArrayGetFloat32x4() {
+  %CheckIsBootstrapping();
+
+  InstallFunctions($Float32Array.prototype, DONT_ENUM, $Array(
+      "_getFloat32x4", Float32ArrayGetFloat32x4JS,
+      "_setFloat32x4", Float32ArraySetFloat32x4JS
+  ));
+}
+
+SetupFloat32ArrayGetFloat32x4();
