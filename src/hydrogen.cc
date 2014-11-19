@@ -8896,7 +8896,26 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         }
       }
       break;
-    case kFloat32x4Load:
+    case kFloat32ArrayLoadFloat32x4:
+    case kFloat32ArrayLoadFloat32x4X:
+    case kFloat32ArrayLoadFloat32x4XY:
+    case kFloat32ArrayLoadFloat32x4XYZ:
+    case kFloat64ArrayLoadFloat64x2:
+    case kFloat64ArrayLoadFloat64x2X:
+    case kInt32ArrayLoadInt32x4:
+    case kInt32ArrayLoadInt32x4X:
+    case kInt32ArrayLoadInt32x4XY:
+    case kInt32ArrayLoadInt32x4XYZ:
+    case kInt8ArrayLoadFloat32x4:
+    case kInt8ArrayLoadFloat32x4X:
+    case kInt8ArrayLoadFloat32x4XY:
+    case kInt8ArrayLoadFloat32x4XYZ:
+    case kInt8ArrayLoadFloat64x2:
+    case kInt8ArrayLoadFloat64x2X:
+    case kInt8ArrayLoadInt32x4:
+    case kInt8ArrayLoadInt32x4X:
+    case kInt8ArrayLoadInt32x4XY:
+    case kInt8ArrayLoadInt32x4XYZ:
       if (receiver_map.is_null()) return false;
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 2) {
         HValue* key = Pop();
@@ -8915,7 +8934,26 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         return true;
       }
       break;
-    case kFloat32x4Store:
+    case kFloat32ArrayStoreFloat32x4:
+    case kFloat32ArrayStoreFloat32x4X:
+    case kFloat32ArrayStoreFloat32x4XY:
+    case kFloat32ArrayStoreFloat32x4XYZ:
+    case kFloat64ArrayStoreFloat64x2:
+    case kFloat64ArrayStoreFloat64x2X:
+    case kInt32ArrayStoreInt32x4:
+    case kInt32ArrayStoreInt32x4X:
+    case kInt32ArrayStoreInt32x4XY:
+    case kInt32ArrayStoreInt32x4XYZ:
+    case kInt8ArrayStoreFloat32x4:
+    case kInt8ArrayStoreFloat32x4X:
+    case kInt8ArrayStoreFloat32x4XY:
+    case kInt8ArrayStoreFloat32x4XYZ:
+    case kInt8ArrayStoreFloat64x2:
+    case kInt8ArrayStoreFloat64x2X:
+    case kInt8ArrayStoreInt32x4:
+    case kInt8ArrayStoreInt32x4X:
+    case kInt8ArrayStoreInt32x4XY:
+    case kInt8ArrayStoreInt32x4XYZ:
       if (receiver_map.is_null()) return false;
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
         HValue* value = Pop();

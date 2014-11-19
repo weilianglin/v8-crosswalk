@@ -6815,8 +6815,46 @@ class Script: public Struct {
   V(SIMD.int32x4, bool, Int32x4Bool, Int32x4, Tagged, Tagged, Tagged, Tagged)
 
 #define SIMD_ARRAY_OPERATIONS(V)                                               \
-  V(Float32Array.prototype, _getFloat32x4XYZW, Float32x4Load)                  \
-  V(Float32Array.prototype, _setFloat32x4XYZW, Float32x4Store)                 \
+  V(Float32Array.prototype, _getFloat32x4XYZW, Float32ArrayLoadFloat32x4)      \
+  V(Float32Array.prototype, _setFloat32x4XYZW, Float32ArrayStoreFloat32x4)     \
+  V(Float32Array.prototype, _getFloat32x4XYZ, Float32ArrayLoadFloat32x4XYZ)    \
+  V(Float32Array.prototype, _setFloat32x4XYZ, Float32ArrayStoreFloat32x4XYZ)   \
+  V(Float32Array.prototype, _getFloat32x4XY, Float32ArrayLoadFloat32x4XY)      \
+  V(Float32Array.prototype, _setFloat32x4XY, Float32ArrayStoreFloat32x4XY)     \
+  V(Float32Array.prototype, _getFloat32x4X, Float32ArrayLoadFloat32x4X)        \
+  V(Float32Array.prototype, _setFloat32x4X, Float32ArrayStoreFloat32x4X)       \
+  V(Float64Array.prototype, _getFloat64x2XY, Float64ArrayLoadFloat64x2)        \
+  V(Float64Array.prototype, _setFloat64x2XY, Float64ArrayStoreFloat64x2)       \
+  V(Float64Array.prototype, _getFloat64x2X, Float64ArrayLoadFloat64x2X)        \
+  V(Float64Array.prototype, _setFloat64x2X, Float64ArrayStoreFloat64x2X)       \
+  V(Int32Array.prototype, _getInt32x4XYZW, Int32ArrayLoadInt32x4)              \
+  V(Int32Array.prototype, _setInt32x4XYZW, Int32ArrayStoreInt32x4)             \
+  V(Int32Array.prototype, _getInt32x4XYZ, Int32ArrayLoadInt32x4XYZ)            \
+  V(Int32Array.prototype, _setInt32x4XYZ, Int32ArrayStoreInt32x4XYZ)           \
+  V(Int32Array.prototype, _getInt32x4XY, Int32ArrayLoadInt32x4XY)              \
+  V(Int32Array.prototype, _setInt32x4XY, Int32ArrayStoreInt32x4XY)             \
+  V(Int32Array.prototype, _getInt32x4X, Int32ArrayLoadInt32x4X)                \
+  V(Int32Array.prototype, _setInt32x4X, Int32ArrayStoreInt32x4X)               \
+  V(Int8Array.prototype, _getFloat32x4XYZW, Int8ArrayLoadFloat32x4)            \
+  V(Int8Array.prototype, _setFloat32x4XYZW, Int8ArrayStoreFloat32x4)           \
+  V(Int8Array.prototype, _getFloat32x4XYZ, Int8ArrayLoadFloat32x4XYZ)          \
+  V(Int8Array.prototype, _setFloat32x4XYZ, Int8ArrayStoreFloat32x4XYZ)         \
+  V(Int8Array.prototype, _getFloat32x4XY, Int8ArrayLoadFloat32x4XY)            \
+  V(Int8Array.prototype, _setFloat32x4XY, Int8ArrayStoreFloat32x4XY)           \
+  V(Int8Array.prototype, _getFloat32x4X, Int8ArrayLoadFloat32x4X)              \
+  V(Int8Array.prototype, _setFloat32x4X, Int8ArrayStoreFloat32x4X)             \
+  V(Int8Array.prototype, _getFloat64x2XY, Int8ArrayLoadFloat64x2)              \
+  V(Int8Array.prototype, _setFloat64x2XY, Int8ArrayStoreFloat64x2)             \
+  V(Int8Array.prototype, _getFloat64x2X, Int8ArrayLoadFloat64x2X)              \
+  V(Int8Array.prototype, _setFloat64x2X, Int8ArrayStoreFloat64x2X)             \
+  V(Int8Array.prototype, _getInt32x4XYZW, Int8ArrayLoadInt32x4)                \
+  V(Int8Array.prototype, _setInt32x4XYZW, Int8ArrayStoreInt32x4)               \
+  V(Int8Array.prototype, _getInt32x4XYZ, Int8ArrayLoadInt32x4XYZ)              \
+  V(Int8Array.prototype, _setInt32x4XYZ, Int8ArrayStoreInt32x4XYZ)             \
+  V(Int8Array.prototype, _getInt32x4XY, Int8ArrayLoadInt32x4XY)                \
+  V(Int8Array.prototype, _setInt32x4XY, Int8ArrayStoreInt32x4XY)               \
+  V(Int8Array.prototype, _getInt32x4X, Int8ArrayLoadInt32x4X)                  \
+  V(Int8Array.prototype, _setInt32x4X, Int8ArrayStoreInt32x4X)                 \
   V(Float32x4Array.prototype, getAt, Float32x4ArrayGetAt)                      \
   V(Float32x4Array.prototype, setAt, Float32x4ArraySetAt)                      \
   V(Float64x2Array.prototype, getAt, Float64x2ArrayGetAt)                      \
