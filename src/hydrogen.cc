@@ -8897,17 +8897,15 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
       }
       break;
     case kFloat32x4Load:
-      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 2) {
         HValue* key = Pop();
         HValue* tarray = Pop();
-        Drop(2);  // Drop receiver and function.
-        Handle<Map> float32_array_map = TypedArrayMap(
-          isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-        Add<HCheckMaps>(tarray, float32_array_map);
+        DCHECK(tarray == receiver);
+        Drop(1);  // Drop function.
         HInstruction* instr = BuildUncheckedMonomorphicElementAccess(
             tarray, key, NULL,
-            false,
-            EXTERNAL_FLOAT32_ELEMENTS,
+            receiver_map->instance_type() == JS_ARRAY_TYPE,
+            receiver_map->elements_kind(),
             LOAD,  // is_store.
             NEVER_RETURN_HOLE,  // load_mode.
             STANDARD_STORE,
@@ -8917,22 +8915,19 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
       }
       break;
     case kFloat32x4Store:
-      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 4) {
+      if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
         HValue* value = Pop();
         HValue* key = Pop();
         HValue* tarray = Pop();
-        Drop(2);  // Drop receiver and function.
-        Handle<Map> float32_array_map = TypedArrayMap(
-          isolate(), kExternalFloat32Array, EXTERNAL_FLOAT32_ELEMENTS);
-        Add<HCheckMaps>(tarray, float32_array_map);
-        KeyedAccessStoreMode store_mode = STANDARD_STORE;
+        Drop(1);  // Drop function.
+        DCHECK(tarray == receiver);
         BuildUncheckedMonomorphicElementAccess(
-          tarray, key, value,
-            false,
-            EXTERNAL_FLOAT32_ELEMENTS,
+            tarray, key, value,
+            receiver_map->instance_type() == JS_ARRAY_TYPE,
+            receiver_map->elements_kind(),
             STORE,  // is_store.
             NEVER_RETURN_HOLE,  // load_mode.
-            store_mode,
+            STANDARD_STORE,
             id);
         Push(value);
         Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
