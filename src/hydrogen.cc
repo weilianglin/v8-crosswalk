@@ -7816,7 +7816,14 @@ void HOptimizedGraphBuilder::HandlePolymorphicCallNamed(
              name->ToCString().get(),
              caller_name.get());
     }
-    if (try_inline && TryInlineCall(expr)) {
+    if (try_inline && TryInlineBuiltinMethodCall(expr, receiver, map)) {
+      if (FLAG_trace_inlining) {
+        PrintF("Inlining builtin %s\n", name->ToCString().get());
+      }
+      // Trying to inline will signal that we should bailout from the
+      // entire compilation by setting stack overflow on the visitor.
+      if (HasStackOverflow()) return;
+    } else if (try_inline && TryInlineCall(expr)) {
       // Trying to inline will signal that we should bailout from the
       // entire compilation by setting stack overflow on the visitor.
       if (HasStackOverflow()) return;
