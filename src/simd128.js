@@ -1148,8 +1148,8 @@ var $Int32Array = global.Int32Array;
 var $Float32Array = global.Float32Array;
 var $Float64Array = global.Float64Array;
 
-macro DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(TYPE, LANES, NBYTES)
-function TypedArrayLoadTYPELANESJS(index) {
+macro DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, TYPE, LANES, NBYTES)
+function VIEWLoadTYPELANESJS(index) {
   var tarray = this;
   if (%_ArgumentsLength() < 1) {
     throw MakeTypeError('invalid_argument');
@@ -1167,7 +1167,7 @@ function TypedArrayLoadTYPELANESJS(index) {
   return %TYPELoadLANES(arraybuffer, offset);
 }
 
-function TypedArrayStoreTYPELANESJS(index, value) {
+function VIEWStoreTYPELANESJS(index, value) {
   var tarray = this;
   if (%_ArgumentsLength() < 2) {
     throw MakeTypeError('invalid_argument');
@@ -1187,43 +1187,53 @@ function TypedArrayStoreTYPELANESJS(index, value) {
 }
 endmacro
 
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZW, 12)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZ, 12)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XY, 8)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, X, 4)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, XY, 16)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, X, 8)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZW, 16)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZ, 12)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XY, 8)
-DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, X, 4)
+macro DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(VIEW)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Float32x4, XYZW, 12)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Float32x4, XYZ, 12)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Float32x4, XY, 8)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Float32x4, X, 4)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Float64x2, XY, 16)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Float64x2, X, 8)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Int32x4, XYZW, 16)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Int32x4, XYZ, 12)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Int32x4, XY, 8)
+DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, Int32x4, X, 4)
+endmacro
 
+DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(Uint8Array)
+DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(Int8Array)
+DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(Uint16Array)
+DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(Int16Array)
+DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(Uint32Array)
+DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(Int32Array)
+DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(Float32Array)
+DECLARE_VIEW_SIMD_LOAD_AND_STORE_FUNCTION(Float64Array)
 
 function SetupTypedArraysSimdLoadStore() {
   %CheckIsBootstrapping();
 
 macro DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(VIEW)
   InstallFunctions($VIEW.prototype, DONT_ENUM, $Array(
-      "_getFloat32x4X", TypedArrayLoadFloat32x4XJS,
-      "_setFloat32x4X", TypedArrayStoreFloat32x4XJS,
-      "_getFloat32x4XY", TypedArrayLoadFloat32x4XYJS,
-      "_setFloat32x4XY", TypedArrayStoreFloat32x4XYJS,
-      "_getFloat32x4XYZ", TypedArrayLoadFloat32x4XYZJS,
-      "_setFloat32x4XYZ", TypedArrayStoreFloat32x4XYZJS,
-      "_getFloat32x4XYZW", TypedArrayLoadFloat32x4XYZWJS,
-      "_setFloat32x4XYZW", TypedArrayStoreFloat32x4XYZWJS,
-      "_getFloat64x2X", TypedArrayLoadFloat64x2XJS,
-      "_setFloat64x2X", TypedArrayStoreFloat64x2XJS,
-      "_getFloat64x2XY", TypedArrayLoadFloat64x2XYJS,
-      "_setFloat64x2XY", TypedArrayStoreFloat64x2XYJS,
-      "_getInt32x4X", TypedArrayLoadInt32x4XJS,
-      "_setInt32x4X", TypedArrayStoreInt32x4XJS,
-      "_getInt32x4XY", TypedArrayLoadInt32x4XYJS,
-      "_setInt32x4XY", TypedArrayStoreInt32x4XYJS,
-      "_getInt32x4XYZ", TypedArrayLoadInt32x4XYZJS,
-      "_setInt32x4XYZ", TypedArrayStoreInt32x4XYZJS,
-      "_getInt32x4XYZW", TypedArrayLoadInt32x4XYZWJS,
-      "_setInt32x4XYZW", TypedArrayStoreInt32x4XYZWJS
+      "_getFloat32x4X", VIEWLoadFloat32x4XJS,
+      "_setFloat32x4X", VIEWStoreFloat32x4XJS,
+      "_getFloat32x4XY", VIEWLoadFloat32x4XYJS,
+      "_setFloat32x4XY", VIEWStoreFloat32x4XYJS,
+      "_getFloat32x4XYZ", VIEWLoadFloat32x4XYZJS,
+      "_setFloat32x4XYZ", VIEWStoreFloat32x4XYZJS,
+      "_getFloat32x4XYZW", VIEWLoadFloat32x4XYZWJS,
+      "_setFloat32x4XYZW", VIEWStoreFloat32x4XYZWJS,
+      "_getFloat64x2X", VIEWLoadFloat64x2XJS,
+      "_setFloat64x2X", VIEWStoreFloat64x2XJS,
+      "_getFloat64x2XY", VIEWLoadFloat64x2XYJS,
+      "_setFloat64x2XY", VIEWStoreFloat64x2XYJS,
+      "_getInt32x4X", VIEWLoadInt32x4XJS,
+      "_setInt32x4X", VIEWStoreInt32x4XJS,
+      "_getInt32x4XY", VIEWLoadInt32x4XYJS,
+      "_setInt32x4XY", VIEWStoreInt32x4XYJS,
+      "_getInt32x4XYZ", VIEWLoadInt32x4XYZJS,
+      "_setInt32x4XYZ", VIEWStoreInt32x4XYZJS,
+      "_getInt32x4XYZW", VIEWLoadInt32x4XYZWJS,
+      "_setInt32x4XYZW", VIEWStoreInt32x4XYZWJS
   ));
 endmacro
 
