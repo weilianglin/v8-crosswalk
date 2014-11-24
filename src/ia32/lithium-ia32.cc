@@ -2303,15 +2303,26 @@ LInstruction* LChunkBuilder::DoLoadKeyedGeneric(HLoadKeyedGeneric* instr) {
 
 LOperand* LChunkBuilder::GetStoreKeyedValueOperand(HStoreKeyed* instr) {
   ElementsKind elements_kind = instr->elements_kind();
+  BuiltinFunctionId op = instr->op();
 
   // Determine if we need a byte register in this case for the value.
   bool val_is_fixed_register =
-      elements_kind == EXTERNAL_INT8_ELEMENTS ||
+      (elements_kind == EXTERNAL_INT8_ELEMENTS ||
       elements_kind == EXTERNAL_UINT8_ELEMENTS ||
       elements_kind == EXTERNAL_UINT8_CLAMPED_ELEMENTS ||
       elements_kind == UINT8_ELEMENTS ||
       elements_kind == INT8_ELEMENTS ||
-      elements_kind == UINT8_CLAMPED_ELEMENTS;
+      elements_kind == UINT8_CLAMPED_ELEMENTS) &&
+      (op != kInt8ArrayStoreFloat32x4 &&
+      op != kInt8ArrayStoreFloat32x4X &&
+      op != kInt8ArrayStoreFloat32x4XY &&
+      op != kInt8ArrayStoreFloat32x4XYZ &&
+      op != kInt8ArrayStoreInt32x4 &&
+      op != kInt8ArrayStoreInt32x4X &&
+      op != kInt8ArrayStoreInt32x4XY &&
+      op != kInt8ArrayStoreInt32x4XYZ &&
+      op != kInt8ArrayStoreFloat64x2 &&
+      op != kInt8ArrayStoreFloat64x2X);
   if (val_is_fixed_register) {
     return UseFixed(instr->value(), eax);
   }
