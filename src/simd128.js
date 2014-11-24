@@ -1150,6 +1150,10 @@ var $Float64Array = global.Float64Array;
 
 macro DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, TYPE, LANES, NBYTES)
 function VIEWLoadTYPELANESJS(index) {
+  if (!(%_ClassOf(this) === 'VIEW')) {
+    throw MakeTypeError('incompatible_method_receiver',
+                        ["VIEW._getTYPELANES", this]);
+  }
   var tarray = this;
   if (%_ArgumentsLength() < 1) {
     throw MakeTypeError('invalid_argument');
@@ -1168,6 +1172,10 @@ function VIEWLoadTYPELANESJS(index) {
 }
 
 function VIEWStoreTYPELANESJS(index, value) {
+  if (!(%_ClassOf(this) === 'VIEW')) {
+    throw MakeTypeError('incompatible_method_receiver',
+                        ["VIEW._setTYPELANES", this]);
+  }
   var tarray = this;
   if (%_ArgumentsLength() < 2) {
     throw MakeTypeError('invalid_argument');
