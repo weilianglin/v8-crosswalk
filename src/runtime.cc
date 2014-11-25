@@ -15529,7 +15529,7 @@ RUNTIME_FUNCTION(Runtime_##Type##Load##Lanes) {                        \
   } else {                                                             \
     THROW_NEW_ERROR_RETURN_FAILURE(                                    \
         isolate, NewRangeError("invalid_offset",                       \
-	    HandleVector<Object>(NULL, 0)));                               \
+        HandleVector<Object>(NULL, 0)));                               \
   }                                                                    \
 }
 
@@ -15558,8 +15558,8 @@ RUNTIME_FUNCTION(Runtime_##Type##Store##Lanes) {                            \
     return isolate->heap()->undefined_value();                              \
   } else {                                                                  \
     THROW_NEW_ERROR_RETURN_FAILURE(                                         \
-	    isolate, NewRangeError("invalid_offset",                            \
-	    HandleVector<Object>(NULL, 0)));                                    \
+      isolate, NewRangeError("invalid_offset",                              \
+      HandleVector<Object>(NULL, 0)));                                      \
   }                                                                         \
 }
 

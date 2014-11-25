@@ -4060,7 +4060,8 @@ class HBoundsCheckBaseIndexInformation;
 class HBoundsCheck FINAL : public HTemplateInstruction<2> {
  public:
   DECLARE_INSTRUCTION_FACTORY_P2(HBoundsCheck, HValue*, HValue*);
-  DECLARE_INSTRUCTION_FACTORY_P4(HBoundsCheck, HValue*, HValue*, BuiltinFunctionId, ElementsKind);
+  DECLARE_INSTRUCTION_FACTORY_P4(HBoundsCheck, HValue*, HValue*,
+                                 BuiltinFunctionId, ElementsKind);
 
   bool skip_check() const { return skip_check_; }
   void set_skip_check() { skip_check_ = true; }
@@ -6746,20 +6747,30 @@ class HLoadKeyed FINAL
         SetDependsOnFlag(kDoubleArrayElements);
       }
     } else {
-      if (op_ == kFloat32ArrayGetFloat32x4XYZW || op_ == kFloat32ArrayGetFloat32x4X ||
-          op_ == kFloat32ArrayGetFloat32x4XY || op_ == kFloat32ArrayGetFloat32x4XYZ ||
-          op_ == kInt8ArrayGetFloat32x4XYZW || op_ == kInt8ArrayGetFloat32x4X ||
-          op_ == kInt8ArrayGetFloat32x4XY || op_ == kInt8ArrayGetFloat32x4XYZ)
+      if (op_ == kFloat32ArrayGetFloat32x4XYZW ||
+          op_ == kFloat32ArrayGetFloat32x4X ||
+          op_ == kFloat32ArrayGetFloat32x4XY ||
+          op_ == kFloat32ArrayGetFloat32x4XYZ ||
+          op_ == kInt8ArrayGetFloat32x4XYZW ||
+          op_ == kInt8ArrayGetFloat32x4X ||
+          op_ == kInt8ArrayGetFloat32x4XY ||
+          op_ == kInt8ArrayGetFloat32x4XYZ) {
         set_representation(Representation::Float32x4());
-      else if (op_ == kFloat64ArrayGetFloat64x2XY || op_ == kFloat64ArrayGetFloat64x2X ||
-          op_ == kInt8ArrayGetFloat64x2XY || op_ == kInt8ArrayGetFloat64x2X)
+      } else if (op_ == kFloat64ArrayGetFloat64x2XY ||
+          op_ == kFloat64ArrayGetFloat64x2X ||
+          op_ == kInt8ArrayGetFloat64x2XY ||
+          op_ == kInt8ArrayGetFloat64x2X) {
         set_representation(Representation::Float64x2());
-      else if (op_ == kInt32ArrayGetInt32x4XYZW || op_ == kInt32ArrayGetInt32x4X ||
-          op_ == kInt32ArrayGetInt32x4XY || op_ == kInt32ArrayGetInt32x4XYZ ||
-          op_ == kInt8ArrayGetInt32x4XYZW || op_ == kInt8ArrayGetInt32x4X ||
-          op_ == kInt8ArrayGetInt32x4XY || op_ == kInt8ArrayGetInt32x4XYZ)
+      } else if (op_ == kInt32ArrayGetInt32x4XYZW ||
+          op_ == kInt32ArrayGetInt32x4X ||
+          op_ == kInt32ArrayGetInt32x4XY ||
+          op_ == kInt32ArrayGetInt32x4XYZ ||
+          op_ == kInt8ArrayGetInt32x4XYZW ||
+          op_ == kInt8ArrayGetInt32x4X ||
+          op_ == kInt8ArrayGetInt32x4XY ||
+          op_ == kInt8ArrayGetInt32x4XYZ) {
         set_representation(Representation::Int32x4());
-      else if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
+      } else if (elements_kind == EXTERNAL_FLOAT32_ELEMENTS ||
           elements_kind == EXTERNAL_FLOAT64_ELEMENTS ||
           elements_kind == FLOAT32_ELEMENTS ||
           elements_kind == FLOAT64_ELEMENTS) {
@@ -7095,18 +7106,28 @@ class HStoreKeyed FINAL
     }
 
     DCHECK_EQ(index, 2);
-    if (op_ == kFloat32ArraySetFloat32x4XYZW || op_ == kFloat32ArraySetFloat32x4X ||
-        op_ == kFloat32ArraySetFloat32x4XY || op_ == kFloat32ArraySetFloat32x4XYZ ||
-        op_ == kInt8ArraySetFloat32x4XYZW || op_ == kInt8ArraySetFloat32x4X ||
-        op_ == kInt8ArraySetFloat32x4XY || op_ == kInt8ArraySetFloat32x4XYZ) {
+    if (op_ == kFloat32ArraySetFloat32x4XYZW ||
+        op_ == kFloat32ArraySetFloat32x4X ||
+        op_ == kFloat32ArraySetFloat32x4XY ||
+        op_ == kFloat32ArraySetFloat32x4XYZ ||
+        op_ == kInt8ArraySetFloat32x4XYZW ||
+        op_ == kInt8ArraySetFloat32x4X ||
+        op_ == kInt8ArraySetFloat32x4XY ||
+        op_ == kInt8ArraySetFloat32x4XYZ) {
       return Representation::Float32x4();
-    } else if (op_ == kFloat64ArraySetFloat64x2XY || op_ == kFloat64ArraySetFloat64x2X ||
-        op_ == kInt8ArraySetFloat64x2XY || op_ == kInt8ArraySetFloat64x2X) {
+    } else if (op_ == kFloat64ArraySetFloat64x2XY ||
+        op_ == kFloat64ArraySetFloat64x2X ||
+        op_ == kInt8ArraySetFloat64x2XY ||
+        op_ == kInt8ArraySetFloat64x2X) {
       return Representation::Float64x2();
-    } else if (op_ == kInt32ArraySetInt32x4XYZW || op_ == kInt32ArraySetInt32x4X ||
-        op_ == kInt32ArraySetInt32x4XY || op_ == kInt32ArraySetInt32x4XYZ ||
-        op_ == kInt8ArraySetInt32x4XYZW || op_ == kInt8ArraySetInt32x4X ||
-        op_ == kInt8ArraySetInt32x4XY || op_ == kInt8ArraySetInt32x4XYZ) {
+    } else if (op_ == kInt32ArraySetInt32x4XYZW ||
+        op_ == kInt32ArraySetInt32x4X ||
+        op_ == kInt32ArraySetInt32x4XY ||
+        op_ == kInt32ArraySetInt32x4XYZ ||
+        op_ == kInt8ArraySetInt32x4XYZW ||
+        op_ == kInt8ArraySetInt32x4X ||
+        op_ == kInt8ArraySetInt32x4XY ||
+        op_ == kInt8ArraySetInt32x4XYZ) {
       return Representation::Int32x4();
     }
     return RequiredValueRepresentation(elements_kind_, store_mode_);
@@ -7163,18 +7184,28 @@ class HStoreKeyed FINAL
     if (IsUninitialized()) {
       return Representation::None();
     }
-    if (op_ == kFloat32ArraySetFloat32x4XYZW || op_ == kFloat32ArraySetFloat32x4X ||
-        op_ == kFloat32ArraySetFloat32x4XY || op_ == kFloat32ArraySetFloat32x4XYZ ||
-        op_ == kInt8ArraySetFloat32x4XYZW || op_ == kInt8ArraySetFloat32x4X ||
-        op_ == kInt8ArraySetFloat32x4XY || op_ == kInt8ArraySetFloat32x4XYZ) {
+    if (op_ == kFloat32ArraySetFloat32x4XYZW ||
+        op_ == kFloat32ArraySetFloat32x4X ||
+        op_ == kFloat32ArraySetFloat32x4XY ||
+        op_ == kFloat32ArraySetFloat32x4XYZ ||
+        op_ == kInt8ArraySetFloat32x4XYZW ||
+        op_ == kInt8ArraySetFloat32x4X ||
+        op_ == kInt8ArraySetFloat32x4XY ||
+        op_ == kInt8ArraySetFloat32x4XYZ) {
       return Representation::Float32x4();
-    } else if (op_ == kFloat64ArraySetFloat64x2XY || op_ == kFloat64ArraySetFloat64x2X ||
-        op_ == kInt8ArraySetFloat64x2XY || op_ == kInt8ArraySetFloat64x2X) {
+    } else if (op_ == kFloat64ArraySetFloat64x2XY ||
+        op_ == kFloat64ArraySetFloat64x2X ||
+        op_ == kInt8ArraySetFloat64x2XY ||
+        op_ == kInt8ArraySetFloat64x2X) {
       return Representation::Float64x2();
-    } else if (op_ == kInt32ArraySetInt32x4XYZW || op_ == kInt32ArraySetInt32x4X ||
-        op_ == kInt32ArraySetInt32x4XY || op_ == kInt32ArraySetInt32x4XYZ ||
-        op_ == kInt8ArraySetInt32x4XYZW || op_ == kInt8ArraySetInt32x4X ||
-        op_ == kInt8ArraySetInt32x4XY || op_ == kInt8ArraySetInt32x4XYZ) {
+    } else if (op_ == kInt32ArraySetInt32x4XYZW ||
+        op_ == kInt32ArraySetInt32x4X ||
+        op_ == kInt32ArraySetInt32x4XY ||
+        op_ == kInt32ArraySetInt32x4XYZ ||
+        op_ == kInt8ArraySetInt32x4XYZW ||
+        op_ == kInt8ArraySetInt32x4X ||
+        op_ == kInt8ArraySetInt32x4XY ||
+        op_ == kInt8ArraySetInt32x4XYZ) {
       return Representation::Int32x4();
     }
     Representation r = RequiredValueRepresentation(elements_kind_, store_mode_);
@@ -7249,7 +7280,7 @@ class HStoreKeyed FINAL
       is_uninitialized_(false),
       store_mode_(store_mode),
       dominator_(NULL),
-      op_(op){
+      op_(op) {
     SetOperandAt(0, obj);
     SetOperandAt(1, key);
     SetOperandAt(2, val);

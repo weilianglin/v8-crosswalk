@@ -516,7 +516,7 @@ bool ParserTraits::BuildSIMD128LoadStoreExpression(
                   op_literal->raw_value()->AsString();
               AstValueFactory* ast_factory = parser_->ast_value_factory();
               if (op_raw_string->IsOneByteEqualTo("load")) {
-                const AstRawString* op_str = 
+                const AstRawString* op_str =
                     ast_factory->GetOneByteString("_getFloat32x4XYZW");
                 tarray_op_literal =
                     factory->NewStringLiteral(op_str, RelocInfo::kNoPosition);
