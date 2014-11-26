@@ -2646,7 +2646,8 @@ class HOptimizedGraphBuilder : public HGraphBuilder, public AstVisitor {
                                          SmallMapList* maps,
                                          PropertyAccessType access_type,
                                          KeyedAccessStoreMode store_mode,
-                                         bool* has_side_effects);
+                                         bool* has_side_effects,
+                                         BuiltinFunctionId op = kNumberOfBuiltinFunction);
 
   HValue* HandleKeyedElementAccess(HValue* obj, HValue* key, HValue* val,
                                    Expression* expr, BailoutId ast_id,

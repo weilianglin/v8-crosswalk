@@ -359,11 +359,11 @@ function isTypedArray(o) {
 
 macro DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(TYPE, LANES)
 function TYPELoadLANESJS(tarray, index) {
-  return tarray._getTYPELANES(index);
+  throw MakeTypeError("Not implemented.");
 }
 
 function TYPEStoreLANESJS(tarray, index, value) {
-  return tarray._setTYPELANES(index, value);
+  throw MakeTypeError("Not implemented.");
 }
 endmacro
 

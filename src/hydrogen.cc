@@ -7139,7 +7139,8 @@ HValue* HOptimizedGraphBuilder::HandlePolymorphicElementAccess(
     SmallMapList* maps,
     PropertyAccessType access_type,
     KeyedAccessStoreMode store_mode,
-    bool* has_side_effects) {
+    bool* has_side_effects,
+    BuiltinFunctionId op) {
   *has_side_effects = false;
   BuildCheckHeapObject(object);
 
@@ -7241,7 +7242,7 @@ HValue* HOptimizedGraphBuilder::HandlePolymorphicElementAccess(
           map->instance_type() == JS_ARRAY_TYPE,
           elements_kind, access_type,
           load_mode,
-          store_mode);
+          store_mode, op);
     }
     *has_side_effects |= access->HasObservableSideEffects();
     // The caller will use has_side_effects and add a correct Simulate.
@@ -8923,21 +8924,39 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
     case kInt8ArrayLoadInt32x4X:
     case kInt8ArrayLoadInt32x4XY:
     case kInt8ArrayLoadInt32x4XYZ:
-      if (receiver_map.is_null()) return false;
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 2) {
         HValue* key = Pop();
         HValue* tarray = Pop();
         DCHECK(tarray == receiver);
         Drop(1);  // Drop function.
-        HInstruction* instr = BuildUncheckedMonomorphicElementAccess(
-            tarray, key, NULL,
-            receiver_map->instance_type() == JS_ARRAY_TYPE,
-            receiver_map->elements_kind(),
-            LOAD,  // is_store.
-            NEVER_RETURN_HOLE,  // load_mode.
-            STANDARD_STORE,
-            id);
-        ast_context()->ReturnValue(instr);
+        HValue* load = NULL;
+        SmallMapList* types;
+        bool has_side_effect = false;
+        bool monomorphic = ComputeReceiverTypes(expr, receiver, &types, zone());
+
+        if (monomorphic) {
+          load = BuildUncheckedMonomorphicElementAccess(
+              tarray, key, NULL,
+              receiver_map->instance_type() == JS_ARRAY_TYPE,
+              receiver_map->elements_kind(),
+              LOAD,  // is_store.
+              NEVER_RETURN_HOLE,  // load_mode.
+              STANDARD_STORE,
+              id);
+          has_side_effect = load->HasObservableSideEffects();
+        } else {
+          load = HandlePolymorphicElementAccess(expr, tarray, key, NULL, types, LOAD, STANDARD_STORE, &has_side_effect, id);
+        }
+        if (has_side_effect) {
+          if (ast_context()->IsEffect()) {
+            Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
+          } else {
+            Push(load);
+            Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
+            Drop(1);
+          }
+        }
+        ast_context()->ReturnValue(load);
         return true;
       }
       break;
@@ -8961,14 +8980,19 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
     case kInt8ArrayStoreInt32x4X:
     case kInt8ArrayStoreInt32x4XY:
     case kInt8ArrayStoreInt32x4XYZ:
-      if (receiver_map.is_null()) return false;
+      if (receiver_map.is_null())
+        return false;
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
         HValue* value = Pop();
         HValue* key = Pop();
         HValue* tarray = Pop();
         Drop(1);  // Drop function.
         DCHECK(tarray == receiver);
-        BuildUncheckedMonomorphicElementAccess(
+        SmallMapList* types;
+        bool has_side_effect = false;
+        bool monomorphic = ComputeReceiverTypes(expr, receiver, &types, zone());
+        if (monomorphic) {
+          HInstruction* instr = BuildUncheckedMonomorphicElementAccess(
             tarray, key, value,
             receiver_map->instance_type() == JS_ARRAY_TYPE,
             receiver_map->elements_kind(),
@@ -8976,9 +9000,16 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
             NEVER_RETURN_HOLE,  // load_mode.
             STANDARD_STORE,
             id);
-        Push(value);
-        Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
-        ast_context()->ReturnValue(Pop());
+          has_side_effect = instr->HasObservableSideEffects();
+        } else {
+          HandlePolymorphicElementAccess(expr, tarray, key, value, types, STORE, STANDARD_STORE, &has_side_effect, id);
+        }
+        if (has_side_effect) {
+          if (!ast_context()->IsEffect()) Push(value);
+          Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
+          if (!ast_context()->IsEffect()) Drop(1);
+        }
+        ast_context()->ReturnValue(value);
         return true;
       }
       break;
