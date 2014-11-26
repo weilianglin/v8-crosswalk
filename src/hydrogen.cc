@@ -8877,26 +8877,10 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         }
       }
       break;
-    case kFloat32ArrayGetFloat32x4XYZW:
-    case kFloat32ArrayGetFloat32x4X:
-    case kFloat32ArrayGetFloat32x4XY:
-    case kFloat32ArrayGetFloat32x4XYZ:
-    case kFloat64ArrayGetFloat64x2XY:
-    case kFloat64ArrayGetFloat64x2X:
-    case kInt32ArrayGetInt32x4XYZW:
-    case kInt32ArrayGetInt32x4X:
-    case kInt32ArrayGetInt32x4XY:
-    case kInt32ArrayGetInt32x4XYZ:
-    case kInt8ArrayGetFloat32x4XYZW:
-    case kInt8ArrayGetFloat32x4X:
-    case kInt8ArrayGetFloat32x4XY:
-    case kInt8ArrayGetFloat32x4XYZ:
-    case kInt8ArrayGetFloat64x2XY:
-    case kInt8ArrayGetFloat64x2X:
-    case kInt8ArrayGetInt32x4XYZW:
-    case kInt8ArrayGetInt32x4X:
-    case kInt8ArrayGetInt32x4XY:
-    case kInt8ArrayGetInt32x4XYZ:
+#define TYPED_ARRAY_SIMD_LOAD_OPERATION_CASE_ITEM(p1, p2, name) \
+    case k##name:
+TYPED_ARRAYS_SIMD_LOAD_OPERATIONS(TYPED_ARRAY_SIMD_LOAD_OPERATION_CASE_ITEM)
+#undef TYPED_ARRAY_SIMD_LOAD_OPERATION_CASE_ITEM
       if (receiver_map.is_null()) return false;
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 2) {
 #if V8_TARGET_ARCH_X64
@@ -8920,26 +8904,10 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
 #endif
       }
       break;
-    case kFloat32ArraySetFloat32x4XYZW:
-    case kFloat32ArraySetFloat32x4X:
-    case kFloat32ArraySetFloat32x4XY:
-    case kFloat32ArraySetFloat32x4XYZ:
-    case kFloat64ArraySetFloat64x2XY:
-    case kFloat64ArraySetFloat64x2X:
-    case kInt32ArraySetInt32x4XYZW:
-    case kInt32ArraySetInt32x4X:
-    case kInt32ArraySetInt32x4XY:
-    case kInt32ArraySetInt32x4XYZ:
-    case kInt8ArraySetFloat32x4XYZW:
-    case kInt8ArraySetFloat32x4X:
-    case kInt8ArraySetFloat32x4XY:
-    case kInt8ArraySetFloat32x4XYZ:
-    case kInt8ArraySetFloat64x2XY:
-    case kInt8ArraySetFloat64x2X:
-    case kInt8ArraySetInt32x4XYZW:
-    case kInt8ArraySetInt32x4X:
-    case kInt8ArraySetInt32x4XY:
-    case kInt8ArraySetInt32x4XYZ:
+#define TYPED_ARRAY_SIMD_STORE_OPERATION_CASE_ITEM(p1, p2, name) \
+    case k##name:
+TYPED_ARRAYS_SIMD_STORE_OPERATIONS(TYPED_ARRAY_SIMD_STORE_OPERATION_CASE_ITEM)
+#undef TYPED_ARRAY_SIMD_STORE_OPERATION_CASE_ITEM
       if (receiver_map.is_null()) return false;
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
 #if V8_TARGET_ARCH_X64
