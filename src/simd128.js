@@ -357,26 +357,9 @@ function isTypedArray(o) {
          (%_ClassOf(o) === 'Float32x4Array');
 }
 
-macro DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(TYPE, LANES)
-function TYPELoadLANESJS(tarray, index) {
-  return tarray._getTYPELANES(index);
+function NotImplementedJS() {
+  throw MakeTypeError("Not implemented.");
 }
-
-function TYPEStoreLANESJS(tarray, index, value) {
-  return tarray._setTYPELANES(index, value);
-}
-endmacro
-
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZW)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XYZ)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, XY)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float32x4, X)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, XY)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Float64x2, X)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZW)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XYZ)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, XY)
-DECLARE_SIMD_LOAD_AND_STORE_FUNCTION(Int32x4, X)
 
 function Float32x4SplatJS(f) {
   f = TO_NUMBER_INLINE(f);
@@ -770,14 +753,14 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD float32x4 object.
   InstallFunctions($SIMD.float32x4, DONT_ENUM, $Array(
     // Float32x4 operations
-    "load", Float32x4LoadXYZWJS,
-    "loadX", Float32x4LoadXJS,
-    "loadXY", Float32x4LoadXYJS,
-    "loadXYZ", Float32x4LoadXYZJS,
-    "store", Float32x4StoreXYZWJS,
-    "storeX", Float32x4StoreXJS,
-    "storeXY", Float32x4StoreXYJS,
-    "storeXYZ", Float32x4StoreXYZJS,
+    "load", NotImplementedJS,
+    "loadX", NotImplementedJS,
+    "loadXY", NotImplementedJS,
+    "loadXYZ", NotImplementedJS,
+    "store", NotImplementedJS,
+    "storeX", NotImplementedJS,
+    "storeXY", NotImplementedJS,
+    "storeXYZ", NotImplementedJS,
     "splat", Float32x4SplatJS,
     "zero", Float32x4ZeroJS,
     // Unary
@@ -820,10 +803,10 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD float64x2 object.
   InstallFunctions($SIMD.float64x2, DONT_ENUM, $Array(
     // Float64x2 operations
-    "load", Float64x2LoadXYJS,
-    "loadX", Float64x2LoadXJS,
-    "store", Float64x2StoreXYJS,
-    "storeX", Float64x2StoreXJS,
+    "load", NotImplementedJS,
+    "loadX", NotImplementedJS,
+    "store", NotImplementedJS,
+    "storeX", NotImplementedJS,
     "splat", Float64x2SplatJS,
     "zero", Float64x2ZeroJS,
     // Unary
@@ -847,14 +830,14 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD int32x4 object.
   InstallFunctions($SIMD.int32x4, DONT_ENUM, $Array(
     // Int32x4 operations
-    "load", Int32x4LoadXYZWJS,
-    "loadX", Int32x4LoadXJS,
-    "loadXY", Int32x4LoadXYJS,
-    "loadXYZ", Int32x4LoadXYZJS,
-    "store", Int32x4StoreXYZWJS,
-    "storeX", Int32x4StoreXJS,
-    "storeXY", Int32x4StoreXYJS,
-    "storeXYZ", Int32x4StoreXYZJS,
+    "load", NotImplementedJS,
+    "loadX", NotImplementedJS,
+    "loadXY", NotImplementedJS,
+    "loadXYZ", NotImplementedJS,
+    "store", NotImplementedJS,
+    "storeX", NotImplementedJS,
+    "storeXY", NotImplementedJS,
+    "storeXYZ", NotImplementedJS,
     "zero", Int32x4ZeroJS,
     "splat", Int32x4SplatJS,
     "bool", Int32x4BoolJS,
@@ -888,27 +871,6 @@ function SetUpSIMD() {
     // Ternary
     "select", Int32x4SelectJS
   ));
-
-  %SetInlineBuiltinFlag(Float32x4LoadXYZWJS);
-  %SetInlineBuiltinFlag(Float32x4StoreXYZWJS);
-  %SetInlineBuiltinFlag(Float32x4LoadXYZJS);
-  %SetInlineBuiltinFlag(Float32x4StoreXYZJS);
-  %SetInlineBuiltinFlag(Float32x4LoadXYJS);
-  %SetInlineBuiltinFlag(Float32x4StoreXYJS);
-  %SetInlineBuiltinFlag(Float32x4LoadXJS);
-  %SetInlineBuiltinFlag(Float32x4StoreXJS);
-  %SetInlineBuiltinFlag(Float64x2LoadXYJS);
-  %SetInlineBuiltinFlag(Float64x2StoreXYJS);
-  %SetInlineBuiltinFlag(Float64x2LoadXJS);
-  %SetInlineBuiltinFlag(Float64x2StoreXJS);
-  %SetInlineBuiltinFlag(Int32x4LoadXYZWJS);
-  %SetInlineBuiltinFlag(Int32x4StoreXYZWJS);
-  %SetInlineBuiltinFlag(Int32x4LoadXYZJS);
-  %SetInlineBuiltinFlag(Int32x4StoreXYZJS);
-  %SetInlineBuiltinFlag(Int32x4LoadXYJS);
-  %SetInlineBuiltinFlag(Int32x4StoreXYJS);
-  %SetInlineBuiltinFlag(Int32x4LoadXJS);
-  %SetInlineBuiltinFlag(Int32x4StoreXJS);
 }
 
 SetUpSIMD();
@@ -1138,7 +1100,7 @@ SetUpFloat32x4Array();
 SetUpFloat64x2Array();
 SetUpInt32x4Array();
 
-// --------------------SIMD128 Load/Store in Typed Array -----------------
+// --------------------SIMD128 Access in Typed Array -----------------
 var $Uint8Array = global.Uint8Array;
 var $Int8Array = global.Int8Array;
 var $Uint16Array = global.Uint16Array;
