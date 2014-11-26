@@ -64,6 +64,126 @@ testFloat32x4LoadAndStore();
 %OptimizeFunctionOnNextCall(testFloat32x4LoadAndStore);
 testFloat32x4LoadAndStore();
 
+function testFloat32x4LoadXAndStoreX() {
+  var f32_array = new Float32Array(12);
+  for (var i = 0; i < 12; ++i)
+    f32_array[i] = 1.0 + i;
+
+  for (var i = 0; i < 12; ++i) {
+    var v = SIMD.float32x4.loadX(f32_array, i);
+
+    assertEquals(1.0 + i, v.x);
+    assertEquals(0.0, v.y);
+    assertEquals(0.0, v.z);
+    assertEquals(0.0, v.w);
+  }
+
+  for (var i = 0; i < 12; ++i) {
+    SIMD.float32x4.storeX(f32_array, i, SIMD.float32x4(12.0 - i, 0.0, 0.0, 0.0));
+  }
+
+  for (var i = 0; i < 12; ++i)
+    assertEquals(12.0 - i, f32_array[i]);
+}
+
+testFloat32x4LoadXAndStoreX();
+testFloat32x4LoadXAndStoreX();
+%OptimizeFunctionOnNextCall(testFloat32x4LoadXAndStoreX);
+testFloat32x4LoadXAndStoreX();
+
+function testFloat32x4LoadXYAndStoreXY() {
+  var f32_array = new Float32Array(12);
+  for (var i = 0; i < 12; ++i)
+    f32_array[i] = 1.0 + i;
+
+  for (var i = 0; i < 12; i += 2) {
+    var v = SIMD.float32x4.loadXY(f32_array, i);
+
+    assertEquals(1.0 + i, v.x);
+    assertEquals(2.0 + i, v.y);
+    assertEquals(0.0, v.z);
+    assertEquals(0.0, v.w);
+  }
+
+  for (var i = 0; i < 12; i += 2) {
+    SIMD.float32x4.storeXY(f32_array, i, SIMD.float32x4(12.0 - i, 11.0 - i, 0.0, 0.0));
+  }
+
+  for (var i = 0; i < 12; ++i)
+    assertEquals(12.0 - i, f32_array[i]);
+}
+
+testFloat32x4LoadXYAndStoreXY();
+testFloat32x4LoadXYAndStoreXY();
+%OptimizeFunctionOnNextCall(testFloat32x4LoadXYAndStoreXY);
+testFloat32x4LoadXYAndStoreXY();
+
+function testFloat32x4LoadXYZAndStoreXYZ() {
+  var f32_array = new Float32Array(12);
+  for (var i = 0; i < 12; ++i)
+    f32_array[i] = 1.0 + i;
+
+  for (var i = 0; i < 12; i += 3) {
+    var v = SIMD.float32x4.loadXYZ(f32_array, i);
+
+    assertEquals(1.0 + i, v.x);
+    assertEquals(2.0 + i, v.y);
+    assertEquals(3.0 + i, v.z);
+    assertEquals(0.0, v.w);
+  }
+
+  for (var i = 0; i < 12; i += 3) {
+    SIMD.float32x4.storeXYZ(f32_array, i, SIMD.float32x4(12.0 - i, 11.0 - i, 10.0 - i, 0.0));
+  }
+
+  for (var i = 0; i < 12; ++i)
+    assertEquals(12.0 - i, f32_array[i]);
+}
+
+testFloat32x4LoadXYZAndStoreXYZ();
+testFloat32x4LoadXYZAndStoreXYZ();
+%OptimizeFunctionOnNextCall(testFloat32x4LoadXYZAndStoreXYZ);
+testFloat32x4LoadXYZAndStoreXYZ();
+
+function testFloat32x4LoadAndStoreFromInt8Array() {
+  var f32_array = new Float32Array(12);
+  for (var i = 0; i < 12; ++i)
+    f32_array[i] = 1.0 + i;
+
+  var i8_array = new Int8Array(f32_array.buffer);
+
+  var v1 = SIMD.float32x4.load(i8_array, 0);
+  var v2 = SIMD.float32x4.load(i8_array, 16);
+  var v3 = SIMD.float32x4.load(i8_array, 32);
+
+  assertEquals(1.0, v1.x);
+  assertEquals(2.0, v1.y);
+  assertEquals(3.0, v1.z);
+  assertEquals(4.0, v1.w);
+
+  assertEquals(5.0, v2.x);
+  assertEquals(6.0, v2.y);
+  assertEquals(7.0, v2.z);
+  assertEquals(8.0, v2.w);
+
+  assertEquals(9.0, v3.x);
+  assertEquals(10.0, v3.y);
+  assertEquals(11.0, v3.z);
+  assertEquals(12.0, v3.w);
+
+  SIMD.float32x4.store(i8_array, 0, SIMD.float32x4(12.0, 11.0, 10.0, 9.0));
+  SIMD.float32x4.store(i8_array, 16, SIMD.float32x4(8.0, 7.0, 6.0, 5.0));
+  SIMD.float32x4.store(i8_array, 32, SIMD.float32x4(4.0, 3.0, 2.0, 1.0));
+
+  for (var i = 0; i < 12; ++i)
+    assertEquals(12.0 - i, f32_array[i]);
+}
+
+testFloat32x4LoadAndStoreFromInt8Array();
+testFloat32x4LoadAndStoreFromInt8Array();
+%OptimizeFunctionOnNextCall(testFloat32x4LoadAndStoreFromInt8Array);
+testFloat32x4LoadAndStoreFromInt8Array();
+
 function testFloat64x2LoadAndStore() {
   var f64_array = new Float64Array(6);
   for (var i = 0; i < 6; ++i)
