@@ -8415,25 +8415,6 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
 }
 
 
-static Handle<Map> TypedArrayMap(Isolate* isolate,
-  ExternalArrayType array_type,
-  ElementsKind target_kind) {
-  Handle<Context> native_context = isolate->native_context();
-  Handle<JSFunction> fun;
-  switch (array_type) {
-#define TYPED_ARRAY_CASE(Type, type, TYPE, ctype, size)                       \
-    case kExternal##Type##Array:                                              \
-      fun = Handle<JSFunction>(native_context->type##_array_fun());           \
-      break;
-
-    TYPED_ARRAYS(TYPED_ARRAY_CASE)
-#undef TYPED_ARRAY_CASE
-  }
-  Handle<Map> map(fun->initial_map());
-  return Map::AsElementsKind(map, target_kind);
-}
-
-
 bool HOptimizedGraphBuilder::TryInlineBuiltinMethodCall(
     Call* expr,
     HValue* receiver,
@@ -9980,6 +9961,25 @@ void HOptimizedGraphBuilder::GenerateDataViewInitialize(
     BuildArrayBufferViewInitialization<JSDataView>(
         obj, buffer, byte_offset, byte_length);
   }
+}
+
+
+static Handle<Map> TypedArrayMap(Isolate* isolate,
+                                 ExternalArrayType array_type,
+                                 ElementsKind target_kind) {
+  Handle<Context> native_context = isolate->native_context();
+  Handle<JSFunction> fun;
+  switch (array_type) {
+#define TYPED_ARRAY_CASE(Type, type, TYPE, ctype, size)                       \
+    case kExternal##Type##Array:                                              \
+      fun = Handle<JSFunction>(native_context->type##_array_fun());           \
+      break;
+
+    TYPED_ARRAYS(TYPED_ARRAY_CASE)
+#undef TYPED_ARRAY_CASE
+  }
+  Handle<Map> map(fun->initial_map());
+  return Map::AsElementsKind(map, target_kind);
 }
 
 
