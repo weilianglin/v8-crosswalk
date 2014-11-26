@@ -251,3 +251,4 @@ testInt32x4LoadAndStore();
 testInt32x4LoadAndStore();
 %OptimizeFunctionOnNextCall(testInt32x4LoadAndStore);
 testInt32x4LoadAndStore();
+
