@@ -20,93 +20,93 @@ namespace v8 {
 namespace internal {
 
 inline bool IsSIMD128LoadStoreOp(BuiltinFunctionId op) {
-  return (op == kFloat32ArrayLoadFloat32x4 ||
-      op == kFloat32ArrayLoadFloat32x4X ||
-      op == kFloat32ArrayLoadFloat32x4XY ||
-      op == kFloat32ArrayLoadFloat32x4XYZ ||
-      op == kFloat64ArrayLoadFloat64x2 ||
-      op == kFloat64ArrayLoadFloat64x2X ||
-      op == kInt32ArrayLoadInt32x4 ||
-      op == kInt32ArrayLoadInt32x4X ||
-      op == kInt32ArrayLoadInt32x4XY ||
-      op == kInt32ArrayLoadInt32x4XYZ ||
-      op == kInt8ArrayLoadFloat32x4 ||
-      op == kInt8ArrayLoadFloat32x4X ||
-      op == kInt8ArrayLoadFloat32x4XY ||
-      op == kInt8ArrayLoadFloat32x4XYZ ||
-      op == kInt8ArrayLoadFloat64x2 ||
-      op == kInt8ArrayLoadFloat64x2X ||
-      op == kInt8ArrayLoadInt32x4 ||
-      op == kInt8ArrayLoadInt32x4X ||
-      op == kInt8ArrayLoadInt32x4XY ||
-      op == kInt8ArrayLoadInt32x4XYZ ||
-      op == kFloat32ArrayStoreFloat32x4 ||
-      op == kFloat32ArrayStoreFloat32x4X ||
-      op == kFloat32ArrayStoreFloat32x4XY ||
-      op == kFloat32ArrayStoreFloat32x4XYZ ||
-      op == kFloat64ArrayStoreFloat64x2 ||
-      op == kFloat64ArrayStoreFloat64x2X ||
-      op == kInt32ArrayStoreInt32x4 ||
-      op == kInt32ArrayStoreInt32x4X ||
-      op == kInt32ArrayStoreInt32x4XY ||
-      op == kInt32ArrayStoreInt32x4XYZ ||
-      op == kInt8ArrayStoreFloat32x4 ||
-      op == kInt8ArrayStoreFloat32x4X ||
-      op == kInt8ArrayStoreFloat32x4XY ||
-      op == kInt8ArrayStoreFloat32x4XYZ ||
-      op == kInt8ArrayStoreFloat64x2 ||
-      op == kInt8ArrayStoreFloat64x2X ||
-      op == kInt8ArrayStoreInt32x4 ||
-      op == kInt8ArrayStoreInt32x4X ||
-      op == kInt8ArrayStoreInt32x4XY ||
-      op == kInt8ArrayStoreInt32x4XYZ);
+  return (op == kFloat32ArrayGetFloat32x4XYZW ||
+      op == kFloat32ArrayGetFloat32x4X ||
+      op == kFloat32ArrayGetFloat32x4XY ||
+      op == kFloat32ArrayGetFloat32x4XYZ ||
+      op == kFloat64ArrayGetFloat64x2XY ||
+      op == kFloat64ArrayGetFloat64x2X ||
+      op == kInt32ArrayGetInt32x4XYZW ||
+      op == kInt32ArrayGetInt32x4X ||
+      op == kInt32ArrayGetInt32x4XY ||
+      op == kInt32ArrayGetInt32x4XYZ ||
+      op == kInt8ArrayGetFloat32x4XYZW ||
+      op == kInt8ArrayGetFloat32x4X ||
+      op == kInt8ArrayGetFloat32x4XY ||
+      op == kInt8ArrayGetFloat32x4XYZ ||
+      op == kInt8ArrayGetFloat64x2XY ||
+      op == kInt8ArrayGetFloat64x2X ||
+      op == kInt8ArrayGetInt32x4XYZW ||
+      op == kInt8ArrayGetInt32x4X ||
+      op == kInt8ArrayGetInt32x4XY ||
+      op == kInt8ArrayGetInt32x4XYZ ||
+      op == kFloat32ArraySetFloat32x4XYZW ||
+      op == kFloat32ArraySetFloat32x4X ||
+      op == kFloat32ArraySetFloat32x4XY ||
+      op == kFloat32ArraySetFloat32x4XYZ ||
+      op == kFloat64ArraySetFloat64x2XY ||
+      op == kFloat64ArraySetFloat64x2X ||
+      op == kInt32ArraySetInt32x4XYZW ||
+      op == kInt32ArraySetInt32x4X ||
+      op == kInt32ArraySetInt32x4XY ||
+      op == kInt32ArraySetInt32x4XYZ ||
+      op == kInt8ArraySetFloat32x4XYZW ||
+      op == kInt8ArraySetFloat32x4X ||
+      op == kInt8ArraySetFloat32x4XY ||
+      op == kInt8ArraySetFloat32x4XYZ ||
+      op == kInt8ArraySetFloat64x2XY ||
+      op == kInt8ArraySetFloat64x2X ||
+      op == kInt8ArraySetInt32x4XYZW ||
+      op == kInt8ArraySetInt32x4X ||
+      op == kInt8ArraySetInt32x4XY ||
+      op == kInt8ArraySetInt32x4XYZ);
 }
 
 
 int GetSIMD128LoadStoreBytes(BuiltinFunctionId op) {
-  if (op == kFloat32ArrayLoadFloat32x4 ||
-      op == kFloat64ArrayLoadFloat64x2 ||
-      op == kInt32ArrayLoadInt32x4 ||
-      op == kInt8ArrayLoadFloat32x4 ||
-      op == kInt8ArrayLoadFloat64x2 ||
-      op == kInt8ArrayLoadInt32x4 ||
-      op == kFloat32ArrayStoreFloat32x4 ||
-      op == kFloat64ArrayStoreFloat64x2 ||
-      op == kInt32ArrayStoreInt32x4 ||
-      op == kInt8ArrayStoreFloat32x4 ||
-      op == kInt8ArrayStoreFloat64x2 ||
-      op == kInt8ArrayStoreInt32x4) {
+  if (op == kFloat32ArrayGetFloat32x4XYZW ||
+      op == kFloat64ArrayGetFloat64x2XY ||
+      op == kInt32ArrayGetInt32x4XYZW ||
+      op == kInt8ArrayGetFloat32x4XYZW ||
+      op == kInt8ArrayGetFloat64x2XY ||
+      op == kInt8ArrayGetInt32x4XYZW ||
+      op == kFloat32ArraySetFloat32x4XYZW ||
+      op == kFloat64ArraySetFloat64x2XY ||
+      op == kInt32ArraySetInt32x4XYZW ||
+      op == kInt8ArraySetFloat32x4XYZW ||
+      op == kInt8ArraySetFloat64x2XY ||
+      op == kInt8ArraySetInt32x4XYZW) {
     return 16;
-  } else if (op == kFloat32ArrayLoadFloat32x4X ||
-      op == kInt32ArrayLoadInt32x4X ||
-      op == kInt8ArrayLoadFloat32x4X ||
-      op == kInt8ArrayLoadInt32x4X ||
-      op == kFloat32ArrayStoreFloat32x4X ||
-      op == kInt32ArrayStoreInt32x4X ||
-      op == kInt8ArrayStoreFloat32x4X ||
-       op == kInt8ArrayStoreInt32x4X) {
+  } else if (op == kFloat32ArrayGetFloat32x4X ||
+      op == kInt32ArrayGetInt32x4X ||
+      op == kInt8ArrayGetFloat32x4X ||
+      op == kInt8ArrayGetInt32x4X ||
+      op == kFloat32ArraySetFloat32x4X ||
+      op == kInt32ArraySetInt32x4X ||
+      op == kInt8ArraySetFloat32x4X ||
+       op == kInt8ArraySetInt32x4X) {
     return 4;
-  } else if (op == kFloat32ArrayLoadFloat32x4XY ||
-      op == kFloat64ArrayLoadFloat64x2X ||
-      op == kInt32ArrayLoadInt32x4XY ||
-      op == kInt8ArrayLoadFloat32x4XY ||
-      op == kInt8ArrayLoadFloat64x2X ||
-      op == kInt8ArrayLoadInt32x4XY ||
-      op == kFloat32ArrayStoreFloat32x4XY ||
-      op == kFloat64ArrayStoreFloat64x2X ||
-      op == kInt32ArrayStoreInt32x4XY ||
-      op == kInt8ArrayStoreFloat32x4XY ||
-      op == kInt8ArrayStoreFloat64x2X ||
-      op == kInt8ArrayStoreInt32x4XY) {
+  } else if (op == kFloat32ArrayGetFloat32x4XY ||
+      op == kFloat64ArrayGetFloat64x2X ||
+      op == kInt32ArrayGetInt32x4XY ||
+      op == kInt8ArrayGetFloat32x4XY ||
+      op == kInt8ArrayGetFloat64x2X ||
+      op == kInt8ArrayGetInt32x4XY ||
+      op == kFloat32ArraySetFloat32x4XY ||
+      op == kFloat64ArraySetFloat64x2X ||
+      op == kInt32ArraySetInt32x4XY ||
+      op == kInt8ArraySetFloat32x4XY ||
+      op == kInt8ArraySetFloat64x2X ||
+      op == kInt8ArraySetInt32x4XY) {
     return 8;
-  } else if (op == kFloat32ArrayLoadFloat32x4XYZ ||
-      op == kInt32ArrayLoadInt32x4XYZ ||
-      op == kInt8ArrayLoadFloat32x4XYZ ||
-      op == kInt8ArrayLoadInt32x4XYZ ||
-      op == kFloat32ArrayStoreFloat32x4XYZ ||
-      op == kInt32ArrayStoreInt32x4XYZ ||
-      op == kInt8ArrayStoreFloat32x4XYZ ||
-      op == kInt8ArrayStoreInt32x4XYZ) {
+  } else if (op == kFloat32ArrayGetFloat32x4XYZ ||
+      op == kInt32ArrayGetInt32x4XYZ ||
+      op == kInt8ArrayGetFloat32x4XYZ ||
+      op == kInt8ArrayGetInt32x4XYZ ||
+      op == kFloat32ArraySetFloat32x4XYZ ||
+      op == kInt32ArraySetInt32x4XYZ ||
+      op == kInt8ArraySetFloat32x4XYZ ||
+      op == kInt8ArraySetInt32x4XYZ) {
     return 12;
   } else {
     UNREACHABLE();

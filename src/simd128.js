@@ -1111,7 +1111,7 @@ var $Float32Array = global.Float32Array;
 var $Float64Array = global.Float64Array;
 
 macro DECLARE_TYPED_ARRAY_SIMD_LOAD_AND_STORE_FUNCTION(VIEW, TYPE, LANES, NBYTES)
-function VIEWLoadTYPELANESJS(index) {
+function VIEWGetTYPELANESJS(index) {
   if (!(%_ClassOf(this) === 'VIEW')) {
     throw MakeTypeError('incompatible_method_receiver',
                         ["VIEW._getTYPELANES", this]);
@@ -1133,7 +1133,7 @@ function VIEWLoadTYPELANESJS(index) {
   return %TYPELoadLANES(arraybuffer, offset);
 }
 
-function VIEWStoreTYPELANESJS(index, value) {
+function VIEWSetTYPELANESJS(index, value) {
   if (!(%_ClassOf(this) === 'VIEW')) {
     throw MakeTypeError('incompatible_method_receiver',
                         ["VIEW._setTYPELANES", this]);
@@ -1184,26 +1184,26 @@ function SetupTypedArraysSimdLoadStore() {
 
 macro DECLARE_INSTALL_SIMD_LOAD_AND_STORE_FUNCTION(VIEW)
   InstallFunctions($VIEW.prototype, DONT_ENUM, $Array(
-      "_getFloat32x4X", VIEWLoadFloat32x4XJS,
-      "_setFloat32x4X", VIEWStoreFloat32x4XJS,
-      "_getFloat32x4XY", VIEWLoadFloat32x4XYJS,
-      "_setFloat32x4XY", VIEWStoreFloat32x4XYJS,
-      "_getFloat32x4XYZ", VIEWLoadFloat32x4XYZJS,
-      "_setFloat32x4XYZ", VIEWStoreFloat32x4XYZJS,
-      "_getFloat32x4XYZW", VIEWLoadFloat32x4XYZWJS,
-      "_setFloat32x4XYZW", VIEWStoreFloat32x4XYZWJS,
-      "_getFloat64x2X", VIEWLoadFloat64x2XJS,
-      "_setFloat64x2X", VIEWStoreFloat64x2XJS,
-      "_getFloat64x2XY", VIEWLoadFloat64x2XYJS,
-      "_setFloat64x2XY", VIEWStoreFloat64x2XYJS,
-      "_getInt32x4X", VIEWLoadInt32x4XJS,
-      "_setInt32x4X", VIEWStoreInt32x4XJS,
-      "_getInt32x4XY", VIEWLoadInt32x4XYJS,
-      "_setInt32x4XY", VIEWStoreInt32x4XYJS,
-      "_getInt32x4XYZ", VIEWLoadInt32x4XYZJS,
-      "_setInt32x4XYZ", VIEWStoreInt32x4XYZJS,
-      "_getInt32x4XYZW", VIEWLoadInt32x4XYZWJS,
-      "_setInt32x4XYZW", VIEWStoreInt32x4XYZWJS
+      "_getFloat32x4X", VIEWGetFloat32x4XJS,
+      "_setFloat32x4X", VIEWSetFloat32x4XJS,
+      "_getFloat32x4XY", VIEWGetFloat32x4XYJS,
+      "_setFloat32x4XY", VIEWSetFloat32x4XYJS,
+      "_getFloat32x4XYZ", VIEWGetFloat32x4XYZJS,
+      "_setFloat32x4XYZ", VIEWSetFloat32x4XYZJS,
+      "_getFloat32x4XYZW", VIEWGetFloat32x4XYZWJS,
+      "_setFloat32x4XYZW", VIEWSetFloat32x4XYZWJS,
+      "_getFloat64x2X", VIEWGetFloat64x2XJS,
+      "_setFloat64x2X", VIEWSetFloat64x2XJS,
+      "_getFloat64x2XY", VIEWGetFloat64x2XYJS,
+      "_setFloat64x2XY", VIEWSetFloat64x2XYJS,
+      "_getInt32x4X", VIEWGetInt32x4XJS,
+      "_setInt32x4X", VIEWSetInt32x4XJS,
+      "_getInt32x4XY", VIEWGetInt32x4XYJS,
+      "_setInt32x4XY", VIEWSetInt32x4XYJS,
+      "_getInt32x4XYZ", VIEWGetInt32x4XYZJS,
+      "_setInt32x4XYZ", VIEWSetInt32x4XYZJS,
+      "_getInt32x4XYZW", VIEWGetInt32x4XYZWJS,
+      "_setInt32x4XYZW", VIEWSetInt32x4XYZWJS
   ));
 endmacro
 

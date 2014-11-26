@@ -2313,16 +2313,16 @@ LOperand* LChunkBuilder::GetStoreKeyedValueOperand(HStoreKeyed* instr) {
       elements_kind == UINT8_ELEMENTS ||
       elements_kind == INT8_ELEMENTS ||
       elements_kind == UINT8_CLAMPED_ELEMENTS) &&
-      (op != kInt8ArrayStoreFloat32x4 &&
-      op != kInt8ArrayStoreFloat32x4X &&
-      op != kInt8ArrayStoreFloat32x4XY &&
-      op != kInt8ArrayStoreFloat32x4XYZ &&
-      op != kInt8ArrayStoreInt32x4 &&
-      op != kInt8ArrayStoreInt32x4X &&
-      op != kInt8ArrayStoreInt32x4XY &&
-      op != kInt8ArrayStoreInt32x4XYZ &&
-      op != kInt8ArrayStoreFloat64x2 &&
-      op != kInt8ArrayStoreFloat64x2X);
+      (op != kInt8ArraySetFloat32x4XYZW &&
+      op != kInt8ArraySetFloat32x4X &&
+      op != kInt8ArraySetFloat32x4XY &&
+      op != kInt8ArraySetFloat32x4XYZ &&
+      op != kInt8ArraySetInt32x4XYZW &&
+      op != kInt8ArraySetInt32x4X &&
+      op != kInt8ArraySetInt32x4XY &&
+      op != kInt8ArraySetInt32x4XYZ &&
+      op != kInt8ArraySetFloat64x2XY &&
+      op != kInt8ArraySetFloat64x2X);
   if (val_is_fixed_register) {
     return UseFixed(instr->value(), eax);
   }
