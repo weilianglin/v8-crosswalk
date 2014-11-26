@@ -343,20 +343,6 @@ FLOAT64x2_BINARY_FUNCTIONS_WITH_FLOAT64_PARAMETER(DECLARE_FLOAT64x2_BINARY_FUNCT
 INT32x4_BINARY_FUNCTIONS_WITH_INT32_PARAMETER(DECLARE_INT32x4_BINARY_FUNCTION_WITH_INT32_PARAMETER)
 INT32x4_BINARY_FUNCTIONS_WITH_BOOLEAN_PARAMETER(DECLARE_INT32x4_BINARY_FUNCTION_WITH_BOOLEAN_PARAMETER)
 
-function isTypedArray(o) {
-  return (%_ClassOf(o) === 'Int8Array') ||
-         (%_ClassOf(o) === 'Uint8Array') ||
-         (%_ClassOf(o) === 'Uint8ClampedArray') ||
-         (%_ClassOf(o) === 'Int16Array') ||
-         (%_ClassOf(o) === 'Uint16Array') ||
-         (%_ClassOf(o) === 'Int32Array') ||
-         (%_ClassOf(o) === 'Uint32Array') ||
-         (%_ClassOf(o) === 'Float32Array') ||
-         (%_ClassOf(o) === 'Float64Array') ||
-         (%_ClassOf(o) === 'Int32x4Array') ||
-         (%_ClassOf(o) === 'Float32x4Array');
-}
-
 function NotImplementedJS() {
   throw MakeTypeError("Not implemented.");
 }
@@ -1120,9 +1106,6 @@ function VIEWGetTYPELANESJS(index) {
   if (%_ArgumentsLength() < 1) {
     throw MakeTypeError('invalid_argument');
   }
-  if (!isTypedArray(tarray)) {
-    throw MakeTypeError('The 1st argument must be a typed array.');
-  }
   if (!IS_NUMBER(index)) {
     throw MakeTypeError('The 2nd argument must be a Number.');
   }
@@ -1141,9 +1124,6 @@ function VIEWSetTYPELANESJS(index, value) {
   var tarray = this;
   if (%_ArgumentsLength() < 2) {
     throw MakeTypeError('invalid_argument');
-  }
-  if (!isTypedArray(tarray)) {
-    throw MakeTypeError('The 1st argument must be a typed array.');
   }
   if (!IS_NUMBER(index)) {
     throw MakeTypeError('The 2nd argument must be a Number.');
