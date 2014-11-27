@@ -8906,6 +8906,10 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
     case kInt8ArrayGetInt32x4XYZ:
       if (receiver_map.is_null()) return false;
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 2) {
+#if V8_TARGET_ARCH_X64
+        // TODO(nhu): support x64.
+        return false;
+#else
         HValue* key = Pop();
         HValue* tarray = Pop();
         DCHECK(tarray == receiver);
@@ -8920,6 +8924,7 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
             id);
         ast_context()->ReturnValue(instr);
         return true;
+#endif
       }
       break;
     case kFloat32ArraySetFloat32x4XYZW:
@@ -8944,6 +8949,10 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
     case kInt8ArraySetInt32x4XYZ:
       if (receiver_map.is_null()) return false;
       if (CpuFeatures::SupportsSIMD128InCrankshaft() && argument_count == 3) {
+#if V8_TARGET_ARCH_X64
+        // TODO(nhu): support x64.
+        return false;
+#else
         HValue* value = Pop();
         HValue* key = Pop();
         HValue* tarray = Pop();
@@ -8961,6 +8970,7 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
         Add<HSimulate>(expr->id(), REMOVABLE_SIMULATE);
         ast_context()->ReturnValue(Pop());
         return true;
+#endif
       }
       break;
     case kFloat32x4ArrayGetAt:
