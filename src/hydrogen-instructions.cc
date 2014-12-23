@@ -4840,6 +4840,20 @@ HInstruction* HQuarternarySIMDOperation::New(
 }
 
 
+HInstruction* HQuinarySIMDOperation::New(
+    Zone* zone, HValue* context, HValue* a0, HValue* a1, HValue* a2, HValue* a3,
+    HValue * a4, BuiltinFunctionId op) {
+  return new(zone) HQuinarySIMDOperation(context, a0, a1, a2, a3, a4, op);
+}
+
+
+HInstruction* HSenarySIMDOperation::New(
+    Zone* zone, HValue* context, HValue* a0, HValue* a1, HValue* a2, HValue* a3,
+    HValue* a4, HValue* a5, BuiltinFunctionId op) {
+  return new(zone) HSenarySIMDOperation(context, a0, a1, a2, a3, a4, a5, op);
+}
+
+
 const char* HNullarySIMDOperation::OpName() const {
   switch (op()) {
 #define SIMD_NULLARY_OPERATION_CASE_ITEM(module, function, name, p4)           \
@@ -4938,6 +4952,49 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
 OStream& HQuarternarySIMDOperation::PrintDataTo(OStream& os) const {
   return os << OpName() << " " << NameOf(x()) << " " << NameOf(y()) << " "
             << NameOf(z()) << " " << NameOf(w());
+}
+
+
+const char* HQuinarySIMDOperation::OpName() const {
+  switch (op()) {
+#define SIMD_QUINARY_OPERATION_CASE_ITEM(module, function, name, p4, p5,   \
+                                         p6, p7, p8, p9)                   \
+    case k##name:                                                          \
+      return #module "." #function;
+SIMD_QUINARY_OPERATIONS(SIMD_QUINARY_OPERATION_CASE_ITEM)
+#undef SIMD_QUINARY_OPERATION_CASE_ITEM
+    default:
+      UNREACHABLE();
+      return NULL;
+  }
+}
+
+
+OStream& HQuinarySIMDOperation::PrintDataTo(OStream& os) const {
+  return os << OpName() << " " << NameOf(a0()) << " " << NameOf(a1()) << " "
+            << NameOf(a2()) << " " << NameOf(a3()) << " " << NameOf(a4());
+}
+
+
+const char* HSenarySIMDOperation::OpName() const {
+  switch (op()) {
+#define SIMD_SENARY_OPERATION_CASE_ITEM(module, function, name, p4, p5,   \
+                                         p6, p7, p8, p9, p10)             \
+    case k##name:                                                         \
+      return #module "." #function;
+SIMD_SENARY_OPERATIONS(SIMD_SENARY_OPERATION_CASE_ITEM)
+#undef SIMD_SENARY_OPERATION_CASE_ITEM
+    default:
+      UNREACHABLE();
+      return NULL;
+  }
+}
+
+
+OStream& HSenarySIMDOperation::PrintDataTo(OStream& os) const {
+  return os << OpName() << " " << NameOf(a0()) << " " << NameOf(a1()) << " "
+            << NameOf(a2()) << " " << NameOf(a3()) << " " << NameOf(a4())
+            << " " << NameOf(a5());
 }
 
 
