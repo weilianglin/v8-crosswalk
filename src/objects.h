@@ -6899,7 +6899,17 @@ class Script: public Struct {
   V(Int8Array.prototype, _getInt32x4XYZW, Int8ArrayGetInt32x4XYZW)             \
   V(Int8Array.prototype, _getInt32x4XYZ, Int8ArrayGetInt32x4XYZ)               \
   V(Int8Array.prototype, _getInt32x4XY, Int8ArrayGetInt32x4XY)                 \
-  V(Int8Array.prototype, _getInt32x4X, Int8ArrayGetInt32x4X)
+  V(Int8Array.prototype, _getInt32x4X, Int8ArrayGetInt32x4X)                   \
+  V(Uint8Array.prototype, _getFloat32x4XYZW, Uint8ArrayGetFloat32x4XYZW)       \
+  V(Uint8Array.prototype, _getFloat32x4XYZ, Uint8ArrayGetFloat32x4XYZ)         \
+  V(Uint8Array.prototype, _getFloat32x4XY, Uint8ArrayGetFloat32x4XY)           \
+  V(Uint8Array.prototype, _getFloat32x4X, Uint8ArrayGetFloat32x4X)             \
+  V(Uint8Array.prototype, _getFloat64x2XY, Uint8ArrayGetFloat64x2XY)           \
+  V(Uint8Array.prototype, _getFloat64x2X, Uint8ArrayGetFloat64x2X)             \
+  V(Uint8Array.prototype, _getInt32x4XYZW, Uint8ArrayGetInt32x4XYZW)           \
+  V(Uint8Array.prototype, _getInt32x4XYZ, Uint8ArrayGetInt32x4XYZ)             \
+  V(Uint8Array.prototype, _getInt32x4XY, Uint8ArrayGetInt32x4XY)               \
+  V(Uint8Array.prototype, _getInt32x4X, Uint8ArrayGetInt32x4X)
 
 #define TYPED_ARRAYS_SIMD_STORE_OPERATIONS(V)                                  \
   V(Float32Array.prototype, _setFloat32x4XYZW, Float32ArraySetFloat32x4XYZW)   \
@@ -6921,7 +6931,17 @@ class Script: public Struct {
   V(Int8Array.prototype, _setInt32x4XYZW, Int8ArraySetInt32x4XYZW)             \
   V(Int8Array.prototype, _setInt32x4XYZ, Int8ArraySetInt32x4XYZ)               \
   V(Int8Array.prototype, _setInt32x4XY, Int8ArraySetInt32x4XY)                 \
-  V(Int8Array.prototype, _setInt32x4X, Int8ArraySetInt32x4X)
+  V(Int8Array.prototype, _setInt32x4X, Int8ArraySetInt32x4X)                   \
+  V(Uint8Array.prototype, _setFloat32x4XYZW, Uint8ArraySetFloat32x4XYZW)       \
+  V(Uint8Array.prototype, _setFloat32x4XYZ, Uint8ArraySetFloat32x4XYZ)         \
+  V(Uint8Array.prototype, _setFloat32x4XY, Uint8ArraySetFloat32x4XY)           \
+  V(Uint8Array.prototype, _setFloat32x4X, Uint8ArraySetFloat32x4X)             \
+  V(Uint8Array.prototype, _setFloat64x2XY, Uint8ArraySetFloat64x2XY)           \
+  V(Uint8Array.prototype, _setFloat64x2X, Uint8ArraySetFloat64x2X)             \
+  V(Uint8Array.prototype, _setInt32x4XYZW, Uint8ArraySetInt32x4XYZW)           \
+  V(Uint8Array.prototype, _setInt32x4XYZ, Uint8ArraySetInt32x4XYZ)             \
+  V(Uint8Array.prototype, _setInt32x4XY, Uint8ArraySetInt32x4XY)               \
+  V(Uint8Array.prototype, _setInt32x4X, Uint8ArraySetInt32x4X)
 
 // Do not need to install them in InstallExperimentalSIMDBuiltinFunctionIds.
 #define SIMD_FAKE_ID_LISTS(V)                                                  \
