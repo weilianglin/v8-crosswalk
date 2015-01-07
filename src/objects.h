@@ -6871,6 +6871,30 @@ class Script: public Struct {
   V(SIMD.int32x4, shuffle, Int32x4Shuffle, Int32x4, Int32x4, Int32x4,          \
     Integer32, Integer32, Integer32, Integer32)
 
+#define SIMD_LOAD_OPERATIONS(V)                                                \
+  V(SIMD.float32x4, load, GetFloat32x4XYZW)                                    \
+  V(SIMD.float32x4, loadX, GetFloat32x4X)                                      \
+  V(SIMD.float32x4, loadXY, GetFloat32x4XY)                                    \
+  V(SIMD.float32x4, loadXYZ, GetFloat32x4XYZ)                                  \
+  V(SIMD.float64x2, load, GetFloat64x2XY)                                      \
+  V(SIMD.float64x2, loadX, GetFloat64x2X)                                      \
+  V(SIMD.int32x4, load, GetInt32x4XYZW)                                        \
+  V(SIMD.int32x4, loadX, GetInt32x4X)                                          \
+  V(SIMD.int32x4, loadXY, GetInt32x4XY)                                        \
+  V(SIMD.int32x4, loadXYZ, GetInt32x4XYZ)
+
+#define SIMD_STORE_OPERATIONS(V)                                               \
+  V(SIMD.float32x4, store, SetFloat32x4XYZW)                                   \
+  V(SIMD.float32x4, storeX, SetFloat32x4X)                                     \
+  V(SIMD.float32x4, storeXY, SetFloat32x4XY)                                   \
+  V(SIMD.float32x4, storeXYZ, SetFloat32x4XYZ)                                 \
+  V(SIMD.float64x2, store, SetFloat64x2XY)                                     \
+  V(SIMD.float64x2, storeX, SetFloat64x2X)                                     \
+  V(SIMD.int32x4, store, SetInt32x4XYZW)                                       \
+  V(SIMD.int32x4, storeX, SetInt32x4X)                                         \
+  V(SIMD.int32x4, storeXY, SetInt32x4XY)                                       \
+  V(SIMD.int32x4, storeXYZ, SetInt32x4XYZ)
+
 #define SIMD_ARRAY_OPERATIONS(V)                                               \
   V(Float32x4Array.prototype, getAt, Float32x4ArrayGetAt)                      \
   V(Float32x4Array.prototype, setAt, Float32x4ArraySetAt)                      \
@@ -6960,6 +6984,8 @@ enum BuiltinFunctionId {
   SIMD_ARRAY_OPERATIONS(DECLARE_FUNCTION_ID)
   TYPED_ARRAYS_SIMD_LOAD_OPERATIONS(DECLARE_FUNCTION_ID)
   TYPED_ARRAYS_SIMD_STORE_OPERATIONS(DECLARE_FUNCTION_ID)
+  SIMD_LOAD_OPERATIONS(DECLARE_FUNCTION_ID)
+  SIMD_STORE_OPERATIONS(DECLARE_FUNCTION_ID)
 #undef DECLARE_FUNCTION_ID
 #define DECLARE_SIMD_NULLARY_FUNCTION_ID(i1, i2, name, i3)                     \
   k##name,
