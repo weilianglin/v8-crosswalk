@@ -3378,6 +3378,15 @@ class HPhi FINAL : public HValue {
   int double_non_phi_uses() const {
     return non_phi_uses_[Representation::kDouble];
   }
+  int float32x4_non_phi_uses() const {
+    return non_phi_uses_[Representation::kFloat32x4];
+  }
+  int int32x4_non_phi_uses() const {
+    return non_phi_uses_[Representation::kInt32x4];
+  }
+  int float64x2_non_phi_uses() const {
+    return non_phi_uses_[Representation::kFloat64x2];
+  }
   int tagged_indirect_uses() const {
     return indirect_uses_[Representation::kTagged];
   }
@@ -3389,6 +3398,15 @@ class HPhi FINAL : public HValue {
   }
   int double_indirect_uses() const {
     return indirect_uses_[Representation::kDouble];
+  }
+  int float32x4_indirect_uses() const {
+    return indirect_uses_[Representation::kFloat32x4];
+  }
+  int int32x4_indirect_uses() const {
+    return indirect_uses_[Representation::kInt32x4];
+  }
+  int float64x2_indirect_uses() const {
+    return indirect_uses_[Representation::kFloat64x2];
   }
   int phi_id() { return phi_id_; }
 
@@ -8383,6 +8401,9 @@ SIMD_BINARY_OPERATIONS(SIMD_BINARY_OPERATION_CASE_ITEM)
     }
   }
 
+  Representation observed_input_representation(int index) OVERRIDE {
+    return RequiredInputRepresentation(index);
+  }
   BuiltinFunctionId op() const { return op_; }
   const char* OpName() const;
 

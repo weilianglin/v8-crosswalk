@@ -2494,6 +2494,9 @@ std::ostream& HPhi::PrintTo(std::ostream& os) const {  // NOLINT
             << smi_non_phi_uses() + smi_indirect_uses() << "s_"
             << int32_non_phi_uses() + int32_indirect_uses() << "i_"
             << double_non_phi_uses() + double_indirect_uses() << "d_"
+            << float32x4_non_phi_uses() + float32x4_indirect_uses() << "f32x4_"
+            << int32x4_non_phi_uses() + int32x4_indirect_uses() << "i32x4_"
+            << float64x2_non_phi_uses() + float64x2_indirect_uses() << "f64x2_"
             << tagged_non_phi_uses() + tagged_indirect_uses() << "t"
             << TypeOf(this) << "]";
 }
@@ -2573,12 +2576,16 @@ void HPhi::InitRealUses(int phi_id) {
 
 void HPhi::AddNonPhiUsesFrom(HPhi* other) {
   if (FLAG_trace_representation) {
-    PrintF("adding to #%d Phi uses of #%d Phi: s%d i%d d%d t%d\n",
-           id(), other->id(),
-           other->non_phi_uses_[Representation::kSmi],
-           other->non_phi_uses_[Representation::kInteger32],
-           other->non_phi_uses_[Representation::kDouble],
-           other->non_phi_uses_[Representation::kTagged]);
+    PrintF(
+        "adding to #%d Phi uses of #%d Phi: s%d i%d d%d f32x4%d i32x4%d "
+        "f64x2%d t%d\n",
+        id(), other->id(), other->non_phi_uses_[Representation::kSmi],
+        other->non_phi_uses_[Representation::kInteger32],
+        other->non_phi_uses_[Representation::kDouble],
+        other->non_phi_uses_[Representation::kFloat32x4],
+        other->non_phi_uses_[Representation::kInt32x4],
+        other->non_phi_uses_[Representation::kFloat64x2],
+        other->non_phi_uses_[Representation::kTagged]);
   }
 
   for (int i = 0; i < Representation::kNumRepresentations; i++) {
@@ -4538,7 +4545,10 @@ void HPhi::InferRepresentation(HInferRepresentationPhase* h_infer) {
 
 Representation HPhi::RepresentationFromInputs() {
   bool has_type_feedback =
-      smi_non_phi_uses() + int32_non_phi_uses() + double_non_phi_uses() > 0;
+      smi_non_phi_uses() + int32_non_phi_uses() + double_non_phi_uses() +
+          float32x4_non_phi_uses() + int32x4_non_phi_uses() +
+          float64x2_non_phi_uses() >
+      0;
   Representation r = representation();
   for (int i = 0; i < OperandCount(); ++i) {
     // Ignore conservative Tagged assumption of parameters if we have
