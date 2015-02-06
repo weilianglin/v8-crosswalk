@@ -2801,11 +2801,11 @@ AllocationResult Heap::Allocate##TYPE(type##_value_t value,           \
   STATIC_ASSERT(TYPE::kSize <= Page::kMaxRegularHeapObjectSize);      \
                                                                       \
   AllocationSpace space =                                             \
-      SelectSpace(TYPE::kSize, OLD_DATA_SPACE, pretenure);            \
+      SelectSpace(TYPE::kSize, OLD_POINTER_SPACE, pretenure);         \
                                                                       \
   HeapObject* result;                                                 \
   { AllocationResult allocation =                                     \
-        AllocateRaw(TYPE::kSize, space, OLD_DATA_SPACE);              \
+        AllocateRaw(TYPE::kSize, space, OLD_POINTER_SPACE);           \
     if (!allocation.To(&result)) return allocation;                   \
   }                                                                   \
                                                                       \
