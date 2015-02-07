@@ -272,6 +272,18 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
   } while (0)
 
 
+#define ASSEMBLE_SIMD_BINOP(asm_instr)                                 \
+  do {                                                                 \
+    if (instr->InputAt(1)->IsDoubleRegister()) {                       \
+      __ asm_instr(i.OutputDoubleRegister(), i.InputDoubleRegister(0), \
+                   i.InputDoubleRegister(1));                          \
+    } else {                                                           \
+      __ asm_instr(i.OutputDoubleRegister(), i.InputDoubleRegister(0), \
+                   i.InputOperand(1));                                 \
+    }                                                                  \
+  } while (0)
+
+
 #define ASSEMBLE_CHECKED_LOAD_FLOAT(asm_instr)                               \
   do {                                                                       \
     auto result = i.OutputDoubleRegister();                                  \
@@ -795,6 +807,27 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     case kAVXFloat64Div:
       ASSEMBLE_AVX_DOUBLE_BINOP(vdivsd);
       break;
+    case kFloat32x4Add:
+      ASSEMBLE_SIMD_BINOP(Addps);
+      break;
+    case kFloat32x4Sub:
+      ASSEMBLE_SIMD_BINOP(Subps);
+      break;
+    case kFloat32x4Mul:
+      ASSEMBLE_SIMD_BINOP(Mulps);
+      break;
+    case kFloat32x4Div:
+      ASSEMBLE_SIMD_BINOP(Divps);
+      break;
+    case kFloat32x4Constructor:
+      __ leaq(rsp, Operand(rsp, -kFloat32x4Size));
+      __ movss(Operand(rsp, 0 * kFloatSize), i.InputDoubleRegister(0));
+      __ movss(Operand(rsp, 1 * kFloatSize), i.InputDoubleRegister(1));
+      __ movss(Operand(rsp, 2 * kFloatSize), i.InputDoubleRegister(2));
+      __ movss(Operand(rsp, 3 * kFloatSize), i.InputDoubleRegister(3));
+      __ movups(i.OutputDoubleRegister(), Operand(rsp, 0 * kFloatSize));
+      __ leaq(rsp, Operand(rsp, kFloat32x4Size));
+      break;
     case kX64Movsxbl:
       if (instr->addressing_mode() != kMode_None) {
         __ movsxbl(i.OutputRegister(), i.MemoryOperand());
@@ -901,6 +934,15 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
         int index = 0;
         Operand operand = i.MemoryOperand(&index);
         __ movsd(operand, i.InputDoubleRegister(index));
+      }
+      break;
+    case kX64Movups:
+      if (instr->HasOutput()) {
+        __ movups(i.OutputDoubleRegister(), i.MemoryOperand());
+      } else {
+        int index = 0;
+        Operand operand = i.MemoryOperand(&index);
+        __ movups(operand, i.InputDoubleRegister(index));
       }
       break;
     case kX64Lea32: {

@@ -177,6 +177,13 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   bool HasFloat64RoundTruncate() { return flags_ & kFloat64RoundTruncate; }
   bool HasFloat64RoundTiesAway() { return flags_ & kFloat64RoundTiesAway; }
 
+  // SIMD operators
+  const Operator* Float32x4Add();
+  const Operator* Float32x4Sub();
+  const Operator* Float32x4Mul();
+  const Operator* Float32x4Div();
+  const Operator* Float32x4Constructor();
+
   // load [base + index]
   const Operator* Load(LoadRepresentation rep);
 

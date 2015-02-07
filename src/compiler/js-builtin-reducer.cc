@@ -211,6 +211,64 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
 }
 
 
+Reduction JSBuiltinReducer::ReduceFloat32x4Add(Node* node) {
+  JSCallReduction r(node);
+  // SIMD.float32x4.add(a:float32x4, b:float32x4) -> Float32x4Add(a, b)
+  Node* value =
+      graph()->NewNode(machine()->Float32x4Add(), r.left(), r.right());
+  return Replace(value);
+}
+
+
+Reduction JSBuiltinReducer::ReduceFloat32x4Sub(Node* node) {
+  JSCallReduction r(node);
+  // SIMD.float32x4.sub(a:float32x4, b:float32x4) -> Float32x4Sub(a, b)
+  Node* value =
+      graph()->NewNode(machine()->Float32x4Sub(), r.left(), r.right());
+  return Replace(value);
+}
+
+
+Reduction JSBuiltinReducer::ReduceFloat32x4Mul(Node* node) {
+  JSCallReduction r(node);
+  // SIMD.float32x4.mul(a:float32x4, b:float32x4) -> Float32x4Mul(a, b)
+  Node* value =
+      graph()->NewNode(machine()->Float32x4Mul(), r.left(), r.right());
+  return Replace(value);
+}
+
+
+Reduction JSBuiltinReducer::ReduceFloat32x4Div(Node* node) {
+  JSCallReduction r(node);
+  // SIMD.float32x4.div(a:float32x4, b:float32x4) -> Float32x4Div(a, b)
+  Node* value =
+      graph()->NewNode(machine()->Float32x4Div(), r.left(), r.right());
+  return Replace(value);
+}
+
+
+Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
+  // SIMD.float32x4(x, y, z, w) ->
+  // Float32x4(x:float32, y:float32, z:float32, w:float32)
+  JSCallReduction r(node);
+  if (r.InputsMatchZero()) {
+    // SIMD.float32x4() -> SIMD.float32x4(0, 0, 0, 0);
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Constructor(),
+                         jsgraph()->ZeroConstant(), jsgraph()->ZeroConstant(),
+                         jsgraph()->ZeroConstant(), jsgraph()->ZeroConstant());
+    return Replace(value);
+  } else if (r.GetJSCallArity() == 4 && r.InputsMatchAll(Type::Number())) {
+    Node* value = graph()->NewNode(machine()->Float32x4Constructor(),
+                                   r.GetJSCallInput(0), r.GetJSCallInput(1),
+                                   r.GetJSCallInput(2), r.GetJSCallInput(3));
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
 Reduction JSBuiltinReducer::Reduce(Node* node) {
   JSCallReduction r(node);
 
@@ -231,6 +289,16 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceMathFloor(node));
     case kMathCeil:
       return ReplaceWithPureReduction(node, ReduceMathCeil(node));
+    case kFloat32x4Add:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Add(node));
+    case kFloat32x4Sub:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Sub(node));
+    case kFloat32x4Mul:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Mul(node));
+    case kFloat32x4Div:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Div(node));
+    case kFloat32x4Constructor:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Constructor(node));
     default:
       break;
   }

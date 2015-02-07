@@ -111,6 +111,13 @@ Callable CodeFactory::AllocateHeapNumber(Isolate* isolate) {
 
 
 // static
+Callable CodeFactory::AllocateFloat32x4(Isolate* isolate) {
+  AllocateFloat32x4Stub stub(isolate);
+  return Callable(stub.GetCode(), stub.GetCallInterfaceDescriptor());
+}
+
+
+// static
 Callable CodeFactory::CallFunction(Isolate* isolate, int argc,
                                    CallFunctionFlags flags) {
   CallFunctionStub stub(isolate, argc, flags);

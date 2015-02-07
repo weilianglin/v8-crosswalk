@@ -733,6 +733,12 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kLoadStackPointer:
     case IrOpcode::kCheckedLoad:
     case IrOpcode::kCheckedStore:
+    case IrOpcode::kFloat32x4Add:
+    case IrOpcode::kFloat32x4Sub:
+    case IrOpcode::kFloat32x4Mul:
+    case IrOpcode::kFloat32x4Div:
+    case IrOpcode::kFloat32x4Constructor:
+    case IrOpcode::kChangeFloat32x4ToTagged:
       // TODO(rossberg): Check.
       break;
   }

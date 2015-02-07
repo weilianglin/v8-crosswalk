@@ -904,6 +904,40 @@ Handle<Code> AllocateHeapNumberStub::GenerateCode() {
 }
 
 
+template <>
+HValue* CodeStubGraphBuilder<AllocateFloat32x4Stub>::BuildCodeStub() {
+  HValue* result =
+      Add<HAllocate>(Add<HConstant>(Float32x4::kSize), HType::Float32x4(),
+                     NOT_TENURED, FLOAT32x4_TYPE);
+  HInstruction* float32x4_fun =
+      Add<HConstant>(handle(isolate()->native_context()->float32x4_function()));
+  HObjectAccess map_access = HObjectAccess::ForPrototypeOrInitialMap();
+  HInstruction* float32x4_map = Add<HLoadNamedField>(
+      float32x4_fun, static_cast<HValue*>(NULL), map_access);
+  Add<HStoreNamedField>(result, HObjectAccess::ForMap(), float32x4_map);
+  HInstruction* empty_fixed_array =
+      Add<HConstant>(isolate()->factory()->empty_fixed_array());
+  Add<HStoreNamedField>(result, HObjectAccess::ForPropertiesPointer(),
+                        empty_fixed_array);
+  Add<HStoreNamedField>(result, HObjectAccess::ForElementsPointer(),
+                        empty_fixed_array);
+
+  HValue* value = Add<HAllocate>(
+      Add<HConstant>(FixedTypedArrayBase::kDataOffset + kFloat32x4Size),
+      HType::HeapObject(), NOT_TENURED, FIXED_FLOAT32x4_ARRAY_TYPE);
+  Add<HStoreNamedField>(result, HObjectAccess::ForSIMD128Value(), value);
+  AddStoreMapConstant(value, isolate()->factory()->fixed_float32x4_array_map());
+  Add<HStoreNamedField>(value, HObjectAccess::ForFixedArrayLength(),
+                        Add<HConstant>(1));
+  return result;
+}
+
+
+Handle<Code> AllocateFloat32x4Stub::GenerateCode() {
+  return DoGenerateCode(this);
+}
+
+
 HValue* CodeStubGraphBuilderBase::BuildArrayConstructor(
     ElementsKind kind,
     AllocationSiteOverrideMode override_mode,

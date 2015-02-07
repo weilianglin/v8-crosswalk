@@ -33,6 +33,11 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceMathFround(Node* node);
   Reduction ReduceMathFloor(Node* node);
   Reduction ReduceMathCeil(Node* node);
+  Reduction ReduceFloat32x4Add(Node* node);
+  Reduction ReduceFloat32x4Sub(Node* node);
+  Reduction ReduceFloat32x4Mul(Node* node);
+  Reduction ReduceFloat32x4Div(Node* node);
+  Reduction ReduceFloat32x4Constructor(Node* node);
 
   JSGraph* jsgraph() const { return jsgraph_; }
   Graph* graph() const;

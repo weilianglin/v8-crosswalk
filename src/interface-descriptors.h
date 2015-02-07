@@ -34,6 +34,7 @@ class PlatformInterfaceDescriptor;
   V(RegExpConstructResult)                    \
   V(TransitionElementsKind)                   \
   V(AllocateHeapNumber)                       \
+  V(AllocateFloat32x4)                        \
   V(ArrayConstructorConstantArgCount)         \
   V(ArrayConstructor)                         \
   V(InternalArrayConstructorConstantArgCount) \
@@ -350,6 +351,12 @@ class TransitionElementsKindDescriptor : public CallInterfaceDescriptor {
 class AllocateHeapNumberDescriptor : public CallInterfaceDescriptor {
  public:
   DECLARE_DESCRIPTOR(AllocateHeapNumberDescriptor, CallInterfaceDescriptor)
+};
+
+
+class AllocateFloat32x4Descriptor : public CallInterfaceDescriptor {
+ public:
+  DECLARE_DESCRIPTOR(AllocateFloat32x4Descriptor, CallInterfaceDescriptor)
 };
 
 

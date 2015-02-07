@@ -57,6 +57,8 @@ class CodeFactory FINAL {
 
   static Callable AllocateHeapNumber(Isolate* isolate);
 
+  static Callable AllocateFloat32x4(Isolate* isolate);
+
   static Callable CallFunction(Isolate* isolate, int argc,
                                CallFunctionFlags flags);
 };

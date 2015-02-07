@@ -27,6 +27,8 @@ Reduction ChangeLowering::Reduce(Node* node) {
       return ChangeBoolToBit(node->InputAt(0));
     case IrOpcode::kChangeFloat64ToTagged:
       return ChangeFloat64ToTagged(node->InputAt(0), control);
+    case IrOpcode::kChangeFloat32x4ToTagged:
+      return ChangeFloat32x4ToTagged(node->InputAt(0), control);
     case IrOpcode::kChangeInt32ToTagged:
       return ChangeInt32ToTagged(node->InputAt(0), control);
     case IrOpcode::kChangeTaggedToFloat64:
@@ -50,6 +52,14 @@ Node* ChangeLowering::HeapNumberValueIndexConstant() {
   const int heap_number_value_offset =
       ((HeapNumber::kValueOffset / kPointerSize) * (machine()->Is64() ? 8 : 4));
   return jsgraph()->IntPtrConstant(heap_number_value_offset - kHeapObjectTag);
+}
+
+
+Node* ChangeLowering::Float32x4ValueIndexConstant() {
+  STATIC_ASSERT(Float32x4::kValueOffset % kPointerSize == 0);
+  const int value_offset =
+      ((Float32x4::kValueOffset / kPointerSize) * (machine()->Is64() ? 8 : 4));
+  return jsgraph()->IntPtrConstant(value_offset - kHeapObjectTag);
 }
 
 
@@ -83,6 +93,26 @@ Node* ChangeLowering::AllocateHeapNumberWithValue(Node* value, Node* control) {
       machine()->Store(StoreRepresentation(kMachFloat64, kNoWriteBarrier)),
       heap_number, HeapNumberValueIndexConstant(), value, heap_number, control);
   return graph()->NewNode(common()->Finish(1), heap_number, store);
+}
+
+
+Node* ChangeLowering::AllocateFloat32x4WithValue(Node* value, Node* control) {
+  Callable callable = CodeFactory::AllocateFloat32x4(isolate());
+  CallDescriptor* descriptor = linkage()->GetStubCallDescriptor(
+      callable.descriptor(), 0, CallDescriptor::kNoFlags);
+  Node* target = jsgraph()->HeapConstant(callable.code());
+  Node* context = jsgraph()->NoContextConstant();
+  Node* effect = graph()->NewNode(common()->ValueEffect(1), value);
+  Node* float32x4_obj = graph()->NewNode(common()->Call(descriptor), target,
+                                         context, effect, control);
+  Node* val_obj =
+      graph()->NewNode(machine()->Load(kRepTagged), float32x4_obj,
+                       Float32x4ValueIndexConstant(), float32x4_obj, control);
+  Node* store = graph()->NewNode(
+      machine()->Store(StoreRepresentation(kMachFloat32x4, kNoWriteBarrier)),
+      val_obj, jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
+      value, val_obj, control);
+  return graph()->NewNode(common()->Finish(1), float32x4_obj, store);
 }
 
 
@@ -154,6 +184,11 @@ Reduction ChangeLowering::ChangeBoolToBit(Node* val) {
 
 Reduction ChangeLowering::ChangeFloat64ToTagged(Node* val, Node* control) {
   return Replace(AllocateHeapNumberWithValue(val, control));
+}
+
+
+Reduction ChangeLowering::ChangeFloat32x4ToTagged(Node* val, Node* control) {
+  return Replace(AllocateFloat32x4WithValue(val, control));
 }
 
 

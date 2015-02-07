@@ -634,6 +634,12 @@ MachineType InstructionSelector::GetMachineType(Node* node) {
     case IrOpcode::kFloat64LessThan:
     case IrOpcode::kFloat64LessThanOrEqual:
       return kMachBool;
+    case IrOpcode::kFloat32x4Add:
+    case IrOpcode::kFloat32x4Sub:
+    case IrOpcode::kFloat32x4Mul:
+    case IrOpcode::kFloat32x4Div:
+    case IrOpcode::kFloat32x4Constructor:
+      return kMachFloat32x4;
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());
@@ -837,6 +843,16 @@ void InstructionSelector::VisitNode(Node* node) {
     }
     case IrOpcode::kCheckedStore:
       return VisitCheckedStore(node);
+    case IrOpcode::kFloat32x4Add:
+      return MarkAsDouble(node), VisitFloat32x4Add(node);
+    case IrOpcode::kFloat32x4Sub:
+      return MarkAsDouble(node), VisitFloat32x4Sub(node);
+    case IrOpcode::kFloat32x4Mul:
+      return MarkAsDouble(node), VisitFloat32x4Mul(node);
+    case IrOpcode::kFloat32x4Div:
+      return MarkAsDouble(node), VisitFloat32x4Div(node);
+    case IrOpcode::kFloat32x4Constructor:
+      return MarkAsDouble(node), VisitFloat32x4Constructor(node);
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());

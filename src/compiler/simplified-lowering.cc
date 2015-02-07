@@ -83,6 +83,12 @@ class RepresentationSelector {
     safe_int_additive_range_ =
         Type::Range(f->NewNumber(-std::pow(2.0, 52.0)),
                     f->NewNumber(std::pow(2.0, 52.0)), zone);
+    float32x4_ = Type::Class(handle(zone->isolate()
+                                        ->native_context()
+                                        ->float32x4_function()
+                                        ->initial_map(),
+                                    zone->isolate()),
+                             zone);
   }
 
   void Run(SimplifiedLowering* lowering) {
@@ -329,6 +335,8 @@ class RepresentationSelector {
     } else if (upper->Is(Type::Number())) {
       // multiple uses => pick kRepFloat64.
       return kRepFloat64;
+    } else if (upper->Is(float32x4_)) {
+      return kRepFloat32x4;
     }
     return kRepTagged;
   }
@@ -1016,6 +1024,23 @@ class RepresentationSelector {
         }
         SetOutput(node, kMachAnyTagged);
         break;
+      case IrOpcode::kFloat32x4Add:
+      case IrOpcode::kFloat32x4Sub:
+      case IrOpcode::kFloat32x4Mul:
+      case IrOpcode::kFloat32x4Div:
+        DCHECK_EQ(2, node->InputCount());
+        ProcessInput(node, 0, kMachFloat32x4);
+        ProcessInput(node, 1, kMachFloat32x4);
+        SetOutput(node, kMachFloat32x4);
+        break;
+      case IrOpcode::kFloat32x4Constructor:
+        DCHECK_EQ(4, node->InputCount());
+        ProcessInput(node, 0, kMachFloat32);
+        ProcessInput(node, 1, kMachFloat32);
+        ProcessInput(node, 2, kMachFloat32);
+        ProcessInput(node, 3, kMachFloat32);
+        SetOutput(node, kMachFloat32x4);
+        break;
       default:
         VisitInputs(node);
         break;
@@ -1066,6 +1091,7 @@ class RepresentationSelector {
   ZoneQueue<Node*> queue_;          // queue for traversing the graph
   Type* safe_bit_range_;
   Type* safe_int_additive_range_;
+  Type* float32x4_;
 
   NodeInfo* GetInfo(Node* node) {
     DCHECK(node->id() >= 0);

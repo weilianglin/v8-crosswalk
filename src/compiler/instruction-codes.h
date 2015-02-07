@@ -51,6 +51,11 @@ namespace compiler {
   V(CheckedStoreWord32)     \
   V(CheckedStoreFloat32)    \
   V(CheckedStoreFloat64)    \
+  V(Float32x4Add)           \
+  V(Float32x4Mul)           \
+  V(Float32x4Sub)           \
+  V(Float32x4Div)           \
+  V(Float32x4Constructor)   \
   TARGET_ARCH_OPCODE_LIST(V)
 
 enum ArchOpcode {

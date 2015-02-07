@@ -26,16 +26,18 @@ enum MachineType {
   kRepWord64 = 1 << 4,
   kRepFloat32 = 1 << 5,
   kRepFloat64 = 1 << 6,
-  kRepTagged = 1 << 7,
+  kRepFloat32x4 = 1 << 7,
+  kRepTagged = 1 << 8,
 
   // Types.
-  kTypeBool = 1 << 8,
-  kTypeInt32 = 1 << 9,
-  kTypeUint32 = 1 << 10,
-  kTypeInt64 = 1 << 11,
-  kTypeUint64 = 1 << 12,
-  kTypeNumber = 1 << 13,
-  kTypeAny = 1 << 14,
+  kTypeBool = 1 << 9,
+  kTypeInt32 = 1 << 10,
+  kTypeUint32 = 1 << 11,
+  kTypeInt64 = 1 << 12,
+  kTypeUint64 = 1 << 13,
+  kTypeNumber = 1 << 14,
+  kTypeVector = 1 << 15,
+  kTypeAny = 1 << 16,
 
   // Machine types.
   kMachNone = 0,
@@ -50,6 +52,7 @@ enum MachineType {
   kMachUint32 = kRepWord32 | kTypeUint32,
   kMachInt64 = kRepWord64 | kTypeInt64,
   kMachUint64 = kRepWord64 | kTypeUint64,
+  kMachFloat32x4 = kRepFloat32x4 | kTypeVector,
   kMachIntPtr = (kPointerSize == 4) ? kMachInt32 : kMachInt64,
   kMachUintPtr = (kPointerSize == 4) ? kMachUint32 : kMachUint64,
   kMachPtr = (kPointerSize == 4) ? kRepWord32 : kRepWord64,
@@ -58,15 +61,15 @@ enum MachineType {
 
 std::ostream& operator<<(std::ostream& os, const MachineType& type);
 
-typedef uint16_t MachineTypeUnion;
+typedef uint32_t MachineTypeUnion;
 
 // Globally useful machine types and constants.
 const MachineTypeUnion kRepMask = kRepBit | kRepWord8 | kRepWord16 |
                                   kRepWord32 | kRepWord64 | kRepFloat32 |
-                                  kRepFloat64 | kRepTagged;
+                                  kRepFloat64 | kRepFloat32x4 | kRepTagged;
 const MachineTypeUnion kTypeMask = kTypeBool | kTypeInt32 | kTypeUint32 |
                                    kTypeInt64 | kTypeUint64 | kTypeNumber |
-                                   kTypeAny;
+                                   kTypeVector | kTypeAny;
 
 // Gets only the type of the given type.
 inline MachineType TypeOf(MachineType machine_type) {

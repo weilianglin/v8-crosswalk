@@ -53,6 +53,7 @@ namespace internal {
   V(ToNumber)                               \
   /* HydrogenCodeStubs */                   \
   V(AllocateHeapNumber)                     \
+  V(AllocateFloat32x4)                      \
   V(ArrayNArgumentsConstructor)             \
   V(ArrayNoArgumentConstructor)             \
   V(ArraySingleArgumentConstructor)         \
@@ -2146,6 +2147,17 @@ class AllocateHeapNumberStub FINAL : public HydrogenCodeStub {
  private:
   DEFINE_CALL_INTERFACE_DESCRIPTOR(AllocateHeapNumber);
   DEFINE_HYDROGEN_CODE_STUB(AllocateHeapNumber, HydrogenCodeStub);
+};
+
+
+class AllocateFloat32x4Stub FINAL : public HydrogenCodeStub {
+ public:
+  explicit AllocateFloat32x4Stub(Isolate* isolate)
+      : HydrogenCodeStub(isolate) {}
+
+ private:
+  DEFINE_CALL_INTERFACE_DESCRIPTOR(AllocateFloat32x4);
+  DEFINE_HYDROGEN_CODE_STUB(AllocateFloat32x4, HydrogenCodeStub);
 };
 
 

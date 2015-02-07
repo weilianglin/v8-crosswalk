@@ -156,6 +156,7 @@
   V(ChangeInt32ToTagged)      \
   V(ChangeUint32ToTagged)     \
   V(ChangeFloat64ToTagged)    \
+  V(ChangeFloat32x4ToTagged)  \
   V(ChangeBoolToBit)          \
   V(ChangeBitToBool)          \
   V(LoadField)                \
@@ -237,7 +238,12 @@
   V(Float64RoundTiesAway)     \
   V(LoadStackPointer)         \
   V(CheckedLoad)              \
-  V(CheckedStore)
+  V(CheckedStore)             \
+  V(Float32x4Add)             \
+  V(Float32x4Mul)             \
+  V(Float32x4Sub)             \
+  V(Float32x4Div)             \
+  V(Float32x4Constructor)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \

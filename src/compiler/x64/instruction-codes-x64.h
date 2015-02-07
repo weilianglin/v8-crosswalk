@@ -77,6 +77,7 @@ namespace compiler {
   V(X64Movq)                       \
   V(X64Movsd)                      \
   V(X64Movss)                      \
+  V(X64Movups)                     \
   V(X64Lea32)                      \
   V(X64Lea)                        \
   V(X64Dec32)                      \

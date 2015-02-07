@@ -1362,6 +1362,33 @@ class Assembler : public AssemblerBase {
   }
   void vsd(byte op, XMMRegister dst, XMMRegister src1, XMMRegister src2);
   void vsd(byte op, XMMRegister dst, XMMRegister src1, const Operand& src2);
+  void vaddps(XMMRegister dst, XMMRegister src1, XMMRegister src2) {
+    v128ps(0x58, dst, src1, src2);
+  }
+  void vaddps(XMMRegister dst, XMMRegister src1, const Operand& src2) {
+    v128ps(0x58, dst, src1, src2);
+  }
+  void vsubps(XMMRegister dst, XMMRegister src1, XMMRegister src2) {
+    v128ps(0x5c, dst, src1, src2);
+  }
+  void vsubps(XMMRegister dst, XMMRegister src1, const Operand& src2) {
+    v128ps(0x5c, dst, src1, src2);
+  }
+  void vmulps(XMMRegister dst, XMMRegister src1, XMMRegister src2) {
+    v128ps(0x59, dst, src1, src2);
+  }
+  void vmulps(XMMRegister dst, XMMRegister src1, const Operand& src2) {
+    v128ps(0x59, dst, src1, src2);
+  }
+  void vdivps(XMMRegister dst, XMMRegister src1, XMMRegister src2) {
+    v128ps(0x5e, dst, src1, src2);
+  }
+  void vdivps(XMMRegister dst, XMMRegister src1, const Operand& src2) {
+    v128ps(0x5e, dst, src1, src2);
+  }
+
+  void v128ps(byte op, XMMRegister dst, XMMRegister src1, XMMRegister src2);
+  void v128ps(byte op, XMMRegister dst, XMMRegister src1, const Operand& src2);
   void cmpps(XMMRegister dst, XMMRegister src, int8_t cmp);
   void cmpeqps(XMMRegister dst, XMMRegister src);
   void cmpltps(XMMRegister dst, XMMRegister src);

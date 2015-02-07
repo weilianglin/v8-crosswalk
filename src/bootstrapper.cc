@@ -1407,8 +1407,8 @@ void Genesis::InitializeExperimentalGlobal() {
                         isolate()->initial_object_prototype(),
                         Builtins::kIllegal);
     Handle<String> float32x4 = factory()->InternalizeUtf8String("float32x4");
-    JSObject::SetOwnPropertyIgnoreAttributes(
-        simd_object, float32x4, float32x4_fun, attributes).Check();
+    JSObject::SetOwnPropertyIgnoreAttributes(simd_object, float32x4,
+                                             float32x4_fun, attributes).Check();
     native_context()->set_float32x4_function(*float32x4_fun);
 
     // --- f l o a t 6 4 x 2 ---

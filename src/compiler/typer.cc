@@ -1601,6 +1601,14 @@ Bounds Typer::Visitor::TypeChangeFloat64ToTagged(Node* node) {
 }
 
 
+Bounds Typer::Visitor::TypeChangeFloat32x4ToTagged(Node* node) {
+  Bounds arg = Operand(node, 0);
+  // TODO(neis): CHECK(arg.upper->Is(Type::Number()));
+  return Bounds(ChangeRepresentation(arg.lower, Type::Tagged(), zone()),
+                ChangeRepresentation(arg.upper, Type::Tagged(), zone()));
+}
+
+
 Bounds Typer::Visitor::TypeChangeBoolToBit(Node* node) {
   Bounds arg = Operand(node, 0);
   // TODO(neis): DCHECK(arg.upper->Is(Type::Boolean()));
@@ -2030,6 +2038,46 @@ Bounds Typer::Visitor::TypeCheckedLoad(Node* node) {
 Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   UNREACHABLE();
   return Bounds();
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4Add(Node* node) {
+  Handle<Map> float32x4_map =
+      handle(isolate()->native_context()->float32x4_function()->initial_map(),
+             isolate());
+  return Bounds(Type::Class(float32x4_map, zone()));
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4Sub(Node* node) {
+  Handle<Map> float32x4_map =
+      handle(isolate()->native_context()->float32x4_function()->initial_map(),
+             isolate());
+  return Bounds(Type::Class(float32x4_map, zone()));
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4Mul(Node* node) {
+  Handle<Map> float32x4_map =
+      handle(isolate()->native_context()->float32x4_function()->initial_map(),
+             isolate());
+  return Bounds(Type::Class(float32x4_map, zone()));
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4Div(Node* node) {
+  Handle<Map> float32x4_map =
+      handle(isolate()->native_context()->float32x4_function()->initial_map(),
+             isolate());
+  return Bounds(Type::Class(float32x4_map, zone()));
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4Constructor(Node* node) {
+  Handle<Map> float32x4_map =
+      handle(isolate()->native_context()->float32x4_function()->initial_map(),
+             isolate());
+  return Bounds(Type::Class(float32x4_map, zone()));
 }
 
 

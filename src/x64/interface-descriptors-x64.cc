@@ -164,6 +164,15 @@ void AllocateHeapNumberDescriptor::Initialize(
 }
 
 
+void AllocateFloat32x4Descriptor::Initialize(
+    CallInterfaceDescriptorData* data) {
+  // register state
+  // rsi -- context
+  Register registers[] = {rsi};
+  data->Initialize(arraysize(registers), registers, nullptr);
+}
+
+
 void ArrayConstructorConstantArgCountDescriptor::Initialize(
     CallInterfaceDescriptorData* data) {
   // register state

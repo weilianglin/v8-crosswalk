@@ -64,6 +64,10 @@ class RepresentationChanger {
                                         use_type & kTypeUint32);
     } else if (use_type & kRepWord64) {
       return GetWord64RepresentationFor(node, output_type);
+    } else if (use_type & kRepFloat32x4) {
+      UNREACHABLE();
+      return NULL;
+      // return GetFloat32x4RepresentationFor(node, output_type);
     } else {
       return node;
     }
@@ -112,6 +116,8 @@ class RepresentationChanger {
       op = simplified()->ChangeFloat64ToTagged();
     } else if (output_type & kRepFloat64) {
       op = simplified()->ChangeFloat64ToTagged();
+    } else if (output_type & kRepFloat32x4) {
+      op = simplified()->ChangeFloat32x4ToTagged();
     } else {
       return TypeError(node, output_type, kRepTagged);
     }

@@ -189,6 +189,9 @@ void InstructionSelector::VisitStore(Node* node) {
     case kRepWord64:
       opcode = kX64Movq;
       break;
+    case kRepFloat32x4:
+      opcode = kX64Movups;
+      break;
     default:
       UNREACHABLE();
       return;
@@ -1299,6 +1302,32 @@ void InstructionSelector::VisitFloat64LessThan(Node* node) {
 void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
   FlagsContinuation cont(kUnorderedLessThanOrEqual, node);
   VisitFloat64Compare(this, node, &cont);
+}
+
+#define BINARY_SIMD_OPERATION_LIST(V) \
+  V(Float32x4Add)                     \
+  V(Float32x4Sub)                     \
+  V(Float32x4Mul)                     \
+  V(Float32x4Div)
+
+#define DECLARE_VISIT_BINARY_SIMD_OPERATION(type)                              \
+  void InstructionSelector::Visit##type(Node* node) {                          \
+    X64OperandGenerator g(this);                                               \
+    InstructionOperand* output = IsSupported(AVX) ? g.DefineAsRegister(node)   \
+                                                  : g.DefineSameAsFirst(node); \
+    Emit(k##type, output, g.UseRegister(node->InputAt(0)),                     \
+         g.Use(node->InputAt(1)));                                             \
+  }
+
+
+BINARY_SIMD_OPERATION_LIST(DECLARE_VISIT_BINARY_SIMD_OPERATION)
+
+
+void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4Constructor, g.DefineAsRegister(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseRegister(node->InputAt(2)), g.UseRegister(node->InputAt(3)));
 }
 
 
