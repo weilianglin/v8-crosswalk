@@ -68,6 +68,10 @@ Handle<Code> CodeGenerator::GenerateCode() {
     ProfileEntryHookStub::MaybeCallEntryHook(masm());
   }
 
+#ifdef DEBUG
+  AssembleStopAt();
+#endif
+
   // Architecture-specific, linkage-specific prologue.
   info->set_prologue_offset(masm()->pc_offset());
   AssemblePrologue();
@@ -609,6 +613,8 @@ void CodeGenerator::AssembleDeoptimizerCall(
 
 
 void CodeGenerator::AssemblePrologue() { UNIMPLEMENTED(); }
+
+void CodeGenerator::AssembleStopAt() { UNIMPLEMENTED(); }
 
 
 void CodeGenerator::AssembleReturn() { UNIMPLEMENTED(); }

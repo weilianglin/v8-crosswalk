@@ -278,6 +278,15 @@ InstructionOperand* LiveRange::GetAssignedOperand(
         return cache->RegisterOperand(assigned_register());
       case DOUBLE_REGISTERS:
         return cache->DoubleRegisterOperand(assigned_register());
+      case FLOAT32x4_REGISTERS:
+        op = Float32x4RegisterOperand::Create(assigned_register(), zone);
+        break;
+      case INT32x4_REGISTERS:
+        op = Int32x4RegisterOperand::Create(assigned_register(), zone);
+        break;
+      case FLOAT64x2_REGISTERS:
+        op = Float64x2RegisterOperand::Create(assigned_register(), zone);
+        break;
       default:
         UNREACHABLE();
     }
@@ -527,6 +536,7 @@ void LiveRange::AddUsePosition(LifetimePosition pos,
 }
 
 
+<<<<<<< HEAD
 void LiveRange::ConvertUsesToOperand(InstructionOperand* op,
                                      InstructionOperand* spill_op) {
   for (auto pos = first_pos(); pos != nullptr; pos = pos->next()) {
@@ -547,6 +557,18 @@ void LiveRange::ConvertUsesToOperand(InstructionOperand* op,
       case UsePositionType::kAny:
         pos->operand()->ConvertTo(op->kind(), op->index());
         break;
+=======
+void LiveRange::ConvertUsesToOperand(InstructionOperand* op) {
+  auto use_pos = first_pos();
+  while (use_pos != nullptr) {
+    DCHECK(Start().Value() <= use_pos->pos().Value() &&
+           use_pos->pos().Value() <= End().Value());
+
+    if (use_pos->HasOperand()) {
+      DCHECK(op->IsRegister() || op->IsDoubleRegister() ||
+             op->IsSIMD128Register() || !use_pos->RequiresRegister());
+      use_pos->operand()->ConvertTo(op->kind(), op->index());
+>>>>>>> fc63577... [SIMD.js] Optimize SIMD128 operations by TurboFan
     }
   }
 }
@@ -630,6 +652,11 @@ RegisterAllocator::RegisterAllocator(const RegisterConfiguration* config,
       unhandled_live_ranges_(local_zone()),
       active_live_ranges_(local_zone()),
       inactive_live_ranges_(local_zone()),
+<<<<<<< HEAD
+=======
+      reusable_slots_(local_zone()),
+      reusable_simd128_slots_(local_zone()),
+>>>>>>> 0c32baa... [SIMD.js] Optimize SIMD128 operations by TurboFan
       spill_ranges_(local_zone()),
       mode_(UNALLOCATED_REGISTERS),
       num_registers_(-1) {
@@ -645,6 +672,11 @@ RegisterAllocator::RegisterAllocator(const RegisterConfiguration* config,
       static_cast<size_t>(code->VirtualRegisterCount() * 2));
   active_live_ranges().reserve(8);
   inactive_live_ranges().reserve(8);
+<<<<<<< HEAD
+=======
+  reusable_slots().reserve(8);
+  reusable_simd128_slots().reserve(8);
+>>>>>>> 0c32baa... [SIMD.js] Optimize SIMD128 operations by TurboFan
   spill_ranges().reserve(8);
   assigned_registers_ =
       new (code_zone()) BitVector(config->num_general_registers(), code_zone());
@@ -956,7 +988,32 @@ void SpillRange::MergeDisjointIntervals(UseInterval* other) {
 }
 
 
+<<<<<<< HEAD
 void RegisterAllocator::AssignSpillSlots() {
+=======
+auto GetSpillSlotKind(RegisterKind kind) -> InstructionOperand::Kind {
+  switch (kind) {
+    case GENERAL_REGISTERS:
+      return InstructionOperand::STACK_SLOT;
+    case DOUBLE_REGISTERS:
+      return InstructionOperand::DOUBLE_STACK_SLOT;
+    case FLOAT32x4_REGISTERS:
+      return InstructionOperand::FLOAT32x4_STACK_SLOT;
+    case INT32x4_REGISTERS:
+      return InstructionOperand::INT32x4_STACK_SLOT;
+    case FLOAT64x2_REGISTERS:
+      return InstructionOperand::FLOAT64x2_STACK_SLOT;
+    default:
+      UNREACHABLE();
+      return InstructionOperand::UNALLOCATED;
+  }
+}
+
+
+void RegisterAllocator::ReuseSpillSlots() {
+  DCHECK(FLAG_turbo_reuse_spill_slots);
+
+>>>>>>> 0c32baa... [SIMD.js] Optimize SIMD128 operations by TurboFan
   // Merge disjoint spill ranges
   for (size_t i = 0; i < spill_ranges().size(); i++) {
     auto range = spill_ranges()[i];
@@ -974,11 +1031,21 @@ void RegisterAllocator::AssignSpillSlots() {
     if (range->IsEmpty()) continue;
     // Allocate a new operand referring to the spill slot.
     auto kind = range->Kind();
+<<<<<<< HEAD
     int index = frame()->AllocateSpillSlot(kind == DOUBLE_REGISTERS);
     auto op_kind = kind == DOUBLE_REGISTERS
                        ? InstructionOperand::DOUBLE_STACK_SLOT
                        : InstructionOperand::STACK_SLOT;
     auto op = InstructionOperand::New(code_zone(), op_kind, index);
+=======
+    bool is_double = kind == DOUBLE_REGISTERS;
+    bool is_simd128 = kind == INT32x4_REGISTERS ||
+                      kind == FLOAT32x4_REGISTERS ||
+                      kind == FLOAT64x2_REGISTERS;
+    int index = frame()->AllocateSpillSlot(is_double, is_simd128);
+    auto op_kind = GetSpillSlotKind(kind);
+    auto op = new (code_zone()) InstructionOperand(op_kind, index);
+>>>>>>> 0c32baa... [SIMD.js] Optimize SIMD128 operations by TurboFan
     range->SetOperand(op);
   }
 }
@@ -1976,11 +2043,19 @@ void RegisterAllocator::AllocateRegisters() {
     if (range == nullptr) continue;
     if (range->Kind() == mode_) {
       AddToUnhandledUnsorted(range);
+    } else if (mode_ == DOUBLE_REGISTERS &&
+               IsSIMD128RegisterKind(range->Kind())) {
+      AddToUnhandledUnsorted(range);
     }
   }
   SortUnhandled();
   DCHECK(UnhandledIsSorted());
 
+<<<<<<< HEAD
+=======
+  DCHECK(reusable_slots().empty());
+  DCHECK(reusable_simd128_slots().empty());
+>>>>>>> 0c32baa... [SIMD.js] Optimize SIMD128 operations by TurboFan
   DCHECK(active_live_ranges().empty());
   DCHECK(inactive_live_ranges().empty());
 
@@ -2066,6 +2141,11 @@ void RegisterAllocator::AllocateRegisters() {
     }
   }
 
+<<<<<<< HEAD
+=======
+  reusable_slots().clear();
+  reusable_simd128_slots().clear();
+>>>>>>> 0c32baa... [SIMD.js] Optimize SIMD128 operations by TurboFan
   active_live_ranges().clear();
   inactive_live_ranges().clear();
 }
@@ -2087,8 +2167,12 @@ bool RegisterAllocator::HasTaggedValue(int virtual_register) const {
 
 RegisterKind RegisterAllocator::RequiredRegisterKind(
     int virtual_register) const {
-  return (code()->IsDouble(virtual_register)) ? DOUBLE_REGISTERS
-                                              : GENERAL_REGISTERS;
+  if (code()->IsDouble(virtual_register)) return DOUBLE_REGISTERS;
+  if (code()->IsFloat32x4(virtual_register)) return FLOAT32x4_REGISTERS;
+  if (code()->IsInt32x4(virtual_register)) return INT32x4_REGISTERS;
+  if (code()->IsFloat64x2(virtual_register)) return FLOAT64x2_REGISTERS;
+
+  return GENERAL_REGISTERS;
 }
 
 
@@ -2161,6 +2245,41 @@ bool RegisterAllocator::UnhandledIsSorted() {
 }
 
 
+<<<<<<< HEAD
+=======
+void RegisterAllocator::FreeSpillSlot(LiveRange* range) {
+  DCHECK(!FLAG_turbo_reuse_spill_slots);
+  // Check that we are the last range.
+  if (range->next() != nullptr) return;
+  if (!range->TopLevel()->HasSpillOperand()) return;
+  auto spill_operand = range->TopLevel()->GetSpillOperand();
+  if (spill_operand->IsConstant()) return;
+  if (spill_operand->index() >= 0) {
+    if (IsSIMD128RegisterKind(range->Kind())) {
+      reusable_simd128_slots().push_back(range);
+    } else {
+      reusable_slots().push_back(range);
+    }
+  }
+}
+
+
+InstructionOperand* RegisterAllocator::TryReuseSpillSlot(LiveRange* range) {
+  DCHECK(!FLAG_turbo_reuse_spill_slots);
+  ZoneVector<LiveRange*>& rs = IsSIMD128RegisterKind(range->Kind())
+                                   ? reusable_simd128_slots()
+                                   : reusable_slots();
+  if (rs.empty()) return nullptr;
+  if (rs.front()->End().Value() > range->TopLevel()->Start().Value()) {
+    return nullptr;
+  }
+  auto result = rs.front()->TopLevel()->GetSpillOperand();
+  rs.erase(reusable_slots().begin());
+  return result;
+}
+
+
+>>>>>>> 0c32baa... [SIMD.js] Optimize SIMD128 operations by TurboFan
 void RegisterAllocator::ActiveToHandled(LiveRange* range) {
   RemoveElement(&active_live_ranges(), range);
   TRACE("Moving live range %d from active to handled\n", range->id());
@@ -2208,7 +2327,8 @@ bool RegisterAllocator::TryAllocateFreeReg(LiveRange* current) {
   }
 
   auto hint = current->FirstHint();
-  if (hint != nullptr && (hint->IsRegister() || hint->IsDoubleRegister())) {
+  if (hint != nullptr && (hint->IsRegister() || hint->IsDoubleRegister() ||
+                          hint->IsSIMD128Register())) {
     int register_index = hint->index();
     TRACE("Found reg hint %s (free until [%d) for live range %d (end %d[).\n",
           RegisterName(register_index), free_until_pos[register_index].Value(),
@@ -2550,7 +2670,27 @@ void RegisterAllocator::Spill(LiveRange* range) {
   TRACE("Spilling live range %d\n", range->id());
   auto first = range->TopLevel();
   if (first->HasNoSpillType()) {
+<<<<<<< HEAD
     AssignSpillRangeToLiveRange(first);
+=======
+    if (FLAG_turbo_reuse_spill_slots) {
+      AssignSpillRangeToLiveRange(first);
+    } else {
+      auto op = TryReuseSpillSlot(range);
+      if (op == nullptr) {
+        // Allocate a new operand referring to the spill slot.
+        RegisterKind kind = range->Kind();
+        bool is_double = kind == DOUBLE_REGISTERS;
+        bool is_simd128 = kind == FLOAT64x2_REGISTERS ||
+                          kind == INT32x4_REGISTERS ||
+                          kind == FLOAT32x4_REGISTERS;
+        int index = frame()->AllocateSpillSlot(is_double, is_simd128);
+        auto op_kind = GetSpillSlotKind(kind);
+        op = new (code_zone()) InstructionOperand(op_kind, index);
+      }
+      first->SetSpillOperand(op);
+    }
+>>>>>>> 0c32baa... [SIMD.js] Optimize SIMD128 operations by TurboFan
   }
   range->MakeSpilled();
 }
@@ -2574,7 +2714,8 @@ void RegisterAllocator::Verify() const {
 
 void RegisterAllocator::SetLiveRangeAssignedRegister(LiveRange* range,
                                                      int reg) {
-  if (range->Kind() == DOUBLE_REGISTERS) {
+  if (range->Kind() == DOUBLE_REGISTERS ||
+      IsSIMD128RegisterKind(range->Kind())) {
     assigned_double_registers_->Add(reg);
   } else {
     DCHECK(range->Kind() == GENERAL_REGISTERS);
