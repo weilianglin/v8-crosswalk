@@ -15,7 +15,9 @@ namespace compiler {
 enum RegisterKind {
   UNALLOCATED_REGISTERS,
   GENERAL_REGISTERS,
-  DOUBLE_REGISTERS
+  DOUBLE_REGISTERS,
+  FLOAT32x4_REGISTERS,
+  INT32x4_REGISTERS,
 };
 
 
@@ -99,6 +101,11 @@ class LifetimePosition FINAL {
 
   int value_;
 };
+
+
+inline bool IsSIMD128RegisterKind(RegisterKind kind) {
+  return kind == FLOAT32x4_REGISTERS || kind == INT32x4_REGISTERS;
+}
 
 
 // Representation of the non-empty interval [start,end[.
@@ -583,6 +590,9 @@ class RegisterAllocator FINAL : public ZoneObject {
     return inactive_live_ranges_;
   }
   ZoneVector<LiveRange*>& reusable_slots() { return reusable_slots_; }
+  ZoneVector<LiveRange*>& reusable_simd128_slots() {
+    return reusable_simd128_slots_;
+  }
   ZoneVector<SpillRange*>& spill_ranges() { return spill_ranges_; }
 
   struct PhiMapValue {
@@ -617,6 +627,7 @@ class RegisterAllocator FINAL : public ZoneObject {
   ZoneVector<LiveRange*> active_live_ranges_;
   ZoneVector<LiveRange*> inactive_live_ranges_;
   ZoneVector<LiveRange*> reusable_slots_;
+  ZoneVector<LiveRange*> reusable_simd128_slots_;
   ZoneVector<SpillRange*> spill_ranges_;
 
   RegisterKind mode_;

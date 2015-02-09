@@ -243,6 +243,36 @@ void InstructionSelector::MarkAsDouble(Node* node) {
 }
 
 
+bool InstructionSelector::IsFloat32x4(const Node* node) const {
+  DCHECK_NOT_NULL(node);
+  int virtual_register = GetMappedVirtualRegister(node);
+  if (virtual_register == kNodeUnmapped) return false;
+  return sequence()->IsFloat32x4(virtual_register);
+}
+
+
+void InstructionSelector::MarkAsFloat32x4(Node* node) {
+  DCHECK_NOT_NULL(node);
+  DCHECK(!IsReference(node));
+  sequence()->MarkAsFloat32x4(GetVirtualRegister(node));
+}
+
+
+bool InstructionSelector::IsInt32x4(const Node* node) const {
+  DCHECK_NOT_NULL(node);
+  int virtual_register = GetMappedVirtualRegister(node);
+  if (virtual_register == kNodeUnmapped) return false;
+  return sequence()->IsInt32x4(virtual_register);
+}
+
+
+void InstructionSelector::MarkAsInt32x4(Node* node) {
+  DCHECK_NOT_NULL(node);
+  DCHECK(!IsReference(node));
+  sequence()->MarkAsInt32x4(GetVirtualRegister(node));
+}
+
+
 bool InstructionSelector::IsReference(const Node* node) const {
   DCHECK_NOT_NULL(node);
   int virtual_register = GetMappedVirtualRegister(node);
@@ -269,6 +299,12 @@ void InstructionSelector::MarkAsRepresentation(MachineType rep,
     case kRepTagged:
       sequence()->MarkAsReference(unalloc->virtual_register());
       break;
+    case kRepFloat32x4:
+      sequence()->MarkAsFloat32x4(unalloc->virtual_register());
+      break;
+    case kRepInt32x4:
+      sequence()->MarkAsInt32x4(unalloc->virtual_register());
+      break;
     default:
       break;
   }
@@ -284,6 +320,12 @@ void InstructionSelector::MarkAsRepresentation(MachineType rep, Node* node) {
       break;
     case kRepTagged:
       MarkAsReference(node);
+      break;
+    case kRepFloat32x4:
+      MarkAsFloat32x4(node);
+      break;
+    case kRepInt32x4:
+      MarkAsInt32x4(node);
       break;
     default:
       break;
@@ -844,15 +886,15 @@ void InstructionSelector::VisitNode(Node* node) {
     case IrOpcode::kCheckedStore:
       return VisitCheckedStore(node);
     case IrOpcode::kFloat32x4Add:
-      return MarkAsDouble(node), VisitFloat32x4Add(node);
+      return MarkAsFloat32x4(node), VisitFloat32x4Add(node);
     case IrOpcode::kFloat32x4Sub:
-      return MarkAsDouble(node), VisitFloat32x4Sub(node);
+      return MarkAsFloat32x4(node), VisitFloat32x4Sub(node);
     case IrOpcode::kFloat32x4Mul:
-      return MarkAsDouble(node), VisitFloat32x4Mul(node);
+      return MarkAsFloat32x4(node), VisitFloat32x4Mul(node);
     case IrOpcode::kFloat32x4Div:
-      return MarkAsDouble(node), VisitFloat32x4Div(node);
+      return MarkAsFloat32x4(node), VisitFloat32x4Div(node);
     case IrOpcode::kFloat32x4Constructor:
-      return MarkAsDouble(node), VisitFloat32x4Constructor(node);
+      return MarkAsFloat32x4(node), VisitFloat32x4Constructor(node);
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());

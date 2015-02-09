@@ -145,6 +145,10 @@ void RegisterAllocatorVerifier::BuildConstraint(const InstructionOperand* op,
         case UnallocatedOperand::NONE:
           if (sequence()->IsDouble(vreg)) {
             constraint->type_ = kNoneDouble;
+          } else if (sequence()->IsFloat32x4(vreg)) {
+            constraint->type_ = kNoneFloat32x4;
+          } else if (sequence()->IsInt32x4(vreg)) {
+            constraint->type_ = kNoneInt32x4;
           } else {
             constraint->type_ = kNone;
           }
@@ -160,6 +164,10 @@ void RegisterAllocatorVerifier::BuildConstraint(const InstructionOperand* op,
         case UnallocatedOperand::MUST_HAVE_REGISTER:
           if (sequence()->IsDouble(vreg)) {
             constraint->type_ = kDoubleRegister;
+          } else if (sequence()->IsFloat32x4(vreg)) {
+            constraint->type_ = kFloat32x4Register;
+          } else if (sequence()->IsInt32x4(vreg)) {
+            constraint->type_ = kInt32x4Register;
           } else {
             constraint->type_ = kRegister;
           }
@@ -194,6 +202,12 @@ void RegisterAllocatorVerifier::CheckConstraint(
     case kDoubleRegister:
       CHECK(op->IsDoubleRegister());
       return;
+    case kFloat32x4Register:
+      CHECK(op->IsFloat32x4Register());
+      return;
+    case kInt32x4Register:
+      CHECK(op->IsInt32x4Register());
+      return;
     case kFixedDoubleRegister:
       CHECK(op->IsDoubleRegister());
       CHECK_EQ(op->index(), constraint->value_);
@@ -207,6 +221,12 @@ void RegisterAllocatorVerifier::CheckConstraint(
       return;
     case kNoneDouble:
       CHECK(op->IsDoubleRegister() || op->IsDoubleStackSlot());
+      return;
+    case kNoneFloat32x4:
+      CHECK(op->IsFloat32x4Register() || op->IsFloat32x4StackSlot());
+      return;
+    case kNoneInt32x4:
+      CHECK(op->IsInt32x4Register() || op->IsInt32x4StackSlot());
       return;
     case kSameAsFirst:
       CHECK(false);

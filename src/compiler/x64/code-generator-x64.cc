@@ -38,7 +38,8 @@ class X64OperandConverter : public InstructionOperandConverter {
   }
 
   Operand ToOperand(InstructionOperand* op, int extra = 0) {
-    DCHECK(op->IsStackSlot() || op->IsDoubleStackSlot());
+    DCHECK(op->IsStackSlot() || op->IsDoubleStackSlot() ||
+           op->IsSIMD128StackSlot());
     // The linkage computes where all spill slots are located.
     FrameOffset offset = linkage()->GetFrameOffset(op->index(), frame(), extra);
     return Operand(offset.from_stack_pointer() ? rsp : rbp, offset.offset());
@@ -272,15 +273,15 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
   } while (0)
 
 
-#define ASSEMBLE_SIMD_BINOP(asm_instr)                                 \
-  do {                                                                 \
-    if (instr->InputAt(1)->IsDoubleRegister()) {                       \
-      __ asm_instr(i.OutputDoubleRegister(), i.InputDoubleRegister(0), \
-                   i.InputDoubleRegister(1));                          \
-    } else {                                                           \
-      __ asm_instr(i.OutputDoubleRegister(), i.InputDoubleRegister(0), \
-                   i.InputOperand(1));                                 \
-    }                                                                  \
+#define ASSEMBLE_FLOAT32x4_BINOP(asm_instr)                                  \
+  do {                                                                       \
+    if (instr->InputAt(1)->IsFloat32x4Register()) {                          \
+      __ asm_instr(i.OutputFloat32x4Register(), i.InputFloat32x4Register(0), \
+                   i.InputFloat32x4Register(1));                             \
+    } else {                                                                 \
+      __ asm_instr(i.OutputFloat32x4Register(), i.InputFloat32x4Register(0), \
+                   i.InputOperand(1));                                       \
+    }                                                                        \
   } while (0)
 
 
@@ -808,16 +809,16 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       ASSEMBLE_AVX_DOUBLE_BINOP(vdivsd);
       break;
     case kFloat32x4Add:
-      ASSEMBLE_SIMD_BINOP(Addps);
+      ASSEMBLE_FLOAT32x4_BINOP(Addps);
       break;
     case kFloat32x4Sub:
-      ASSEMBLE_SIMD_BINOP(Subps);
+      ASSEMBLE_FLOAT32x4_BINOP(Subps);
       break;
     case kFloat32x4Mul:
-      ASSEMBLE_SIMD_BINOP(Mulps);
+      ASSEMBLE_FLOAT32x4_BINOP(Mulps);
       break;
     case kFloat32x4Div:
-      ASSEMBLE_SIMD_BINOP(Divps);
+      ASSEMBLE_FLOAT32x4_BINOP(Divps);
       break;
     case kFloat32x4Constructor:
       __ leaq(rsp, Operand(rsp, -kFloat32x4Size));
@@ -825,7 +826,7 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ movss(Operand(rsp, 1 * kFloatSize), i.InputDoubleRegister(1));
       __ movss(Operand(rsp, 2 * kFloatSize), i.InputDoubleRegister(2));
       __ movss(Operand(rsp, 3 * kFloatSize), i.InputDoubleRegister(3));
-      __ movups(i.OutputDoubleRegister(), Operand(rsp, 0 * kFloatSize));
+      __ movups(i.OutputFloat32x4Register(), Operand(rsp, 0 * kFloatSize));
       __ leaq(rsp, Operand(rsp, kFloat32x4Size));
       break;
     case kX64Movsxbl:
@@ -938,11 +939,11 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       break;
     case kX64Movups:
       if (instr->HasOutput()) {
-        __ movups(i.OutputDoubleRegister(), i.MemoryOperand());
+        __ movups(i.OutputFloat32x4Register(), i.MemoryOperand());
       } else {
         int index = 0;
         Operand operand = i.MemoryOperand(&index);
-        __ movups(operand, i.InputDoubleRegister(index));
+        __ movups(operand, i.InputFloat32x4Register(index));
       }
       break;
     case kX64Lea32: {
@@ -1218,6 +1219,12 @@ void CodeGenerator::AssembleDeoptimizerCall(int deoptimization_id) {
 
 
 void CodeGenerator::AssemblePrologue() {
+#ifdef DEBUG
+  if (strlen(FLAG_stop_at) > 0 &&
+      info()->function()->name()->IsUtf8EqualTo(CStrVector(FLAG_stop_at))) {
+    __ int3();
+  }
+#endif
   CallDescriptor* descriptor = linkage()->GetIncomingDescriptor();
   int stack_slots = frame()->GetSpillSlotCount();
   if (descriptor->kind() == CallDescriptor::kCallAddress) {
@@ -1390,6 +1397,25 @@ void CodeGenerator::AssembleMove(InstructionOperand* source,
       __ movsd(xmm0, src);
       __ movsd(dst, xmm0);
     }
+  } else if (source->IsSIMD128Register()) {
+    DCHECK(destination->IsSIMD128Register() ||
+           destination->IsSIMD128StackSlot());
+    XMMRegister src = g.ToSIMD128Register(source);
+    if (destination->IsSIMD128Register()) {
+      __ movaps(g.ToSIMD128Register(destination), src);
+    } else {
+      __ movups(g.ToOperand(destination), src);
+    }
+  } else if (source->IsSIMD128StackSlot()) {
+    DCHECK(destination->IsSIMD128Register() ||
+           destination->IsSIMD128StackSlot());
+    Operand src = g.ToOperand(source);
+    if (destination->IsSIMD128Register()) {
+      __ movups(g.ToSIMD128Register(destination), src);
+    } else {
+      __ movups(xmm0, src);
+      __ movups(g.ToOperand(destination), xmm0);
+    }
   } else {
     UNREACHABLE();
   }
@@ -1418,6 +1444,19 @@ void CodeGenerator::AssembleSwap(InstructionOperand* source,
     __ movq(tmp, dst);
     __ xchgq(tmp, src);
     __ movq(dst, tmp);
+  } else if ((source->IsSIMD128StackSlot() &&
+              destination->IsSIMD128StackSlot())) {
+    // Swap two XMM stack slots.
+    STATIC_ASSERT(kSIMD128Size == 2 * kDoubleSize);
+    Operand src = g.ToOperand(source);
+    Operand dst = g.ToOperand(destination);
+    __ movups(xmm0, src);
+    __ movq(kScratchRegister, dst);
+    __ movq(src, kScratchRegister);
+    __ movq(kScratchRegister, Operand(dst, kDoubleSize));
+    __ movq(Operand(src, kDoubleSize), kScratchRegister);
+    __ movups(dst, xmm0);
+
   } else if (source->IsDoubleRegister() && destination->IsDoubleRegister()) {
     // XMM register-register swap. We rely on having xmm0
     // available as a fixed scratch register.
@@ -1426,6 +1465,15 @@ void CodeGenerator::AssembleSwap(InstructionOperand* source,
     __ movsd(xmm0, src);
     __ movsd(src, dst);
     __ movsd(dst, xmm0);
+
+  } else if (source->IsSIMD128Register() && destination->IsSIMD128Register()) {
+    // Swap two XMM registers.
+    XMMRegister src = g.ToSIMD128Register(source);
+    XMMRegister dst = g.ToSIMD128Register(destination);
+    __ movaps(xmm0, src);
+    __ movaps(src, dst);
+    __ movaps(dst, xmm0);
+
   } else if (source->IsDoubleRegister() && destination->IsDoubleStackSlot()) {
     // XMM register-memory swap.  We rely on having xmm0
     // available as a fixed scratch register.
@@ -1434,6 +1482,15 @@ void CodeGenerator::AssembleSwap(InstructionOperand* source,
     __ movsd(xmm0, src);
     __ movsd(src, dst);
     __ movsd(dst, xmm0);
+
+  } else if (source->IsSIMD128Register() && destination->IsSIMD128StackSlot()) {
+    // Swap a xmm register and a xmm stack slot.
+    XMMRegister src = g.ToSIMD128Register(source);
+    Operand dst = g.ToOperand(destination);
+    __ movups(xmm0, dst);
+    __ movups(dst, src);
+    __ movups(dst, xmm0);
+
   } else {
     // No other combinations are possible.
     UNREACHABLE();

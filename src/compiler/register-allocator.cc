@@ -261,6 +261,12 @@ InstructionOperand* LiveRange::CreateAssignedOperand(Zone* zone) const {
       case DOUBLE_REGISTERS:
         op = DoubleRegisterOperand::Create(assigned_register(), zone);
         break;
+      case FLOAT32x4_REGISTERS:
+        op = Float32x4RegisterOperand::Create(assigned_register(), zone);
+        break;
+      case INT32x4_REGISTERS:
+        op = Int32x4RegisterOperand::Create(assigned_register(), zone);
+        break;
       default:
         UNREACHABLE();
     }
@@ -499,7 +505,7 @@ void LiveRange::ConvertUsesToOperand(InstructionOperand* op) {
 
     if (use_pos->HasOperand()) {
       DCHECK(op->IsRegister() || op->IsDoubleRegister() ||
-             !use_pos->RequiresRegister());
+             op->IsSIMD128Register() || !use_pos->RequiresRegister());
       use_pos->operand()->ConvertTo(op->kind(), op->index());
     }
     use_pos = use_pos->next();
@@ -573,6 +579,7 @@ RegisterAllocator::RegisterAllocator(const RegisterConfiguration* config,
       active_live_ranges_(local_zone()),
       inactive_live_ranges_(local_zone()),
       reusable_slots_(local_zone()),
+      reusable_simd128_slots_(local_zone()),
       spill_ranges_(local_zone()),
       mode_(UNALLOCATED_REGISTERS),
       num_registers_(-1),
@@ -590,6 +597,7 @@ RegisterAllocator::RegisterAllocator(const RegisterConfiguration* config,
   active_live_ranges().reserve(8);
   inactive_live_ranges().reserve(8);
   reusable_slots().reserve(8);
+  reusable_simd128_slots().reserve(8);
   spill_ranges().reserve(8);
   assigned_registers_ =
       new (code_zone()) BitVector(config->num_general_registers(), code_zone());
@@ -898,6 +906,23 @@ void SpillRange::MergeDisjointIntervals(UseInterval* other) {
 }
 
 
+auto GetSpillSlotKind(RegisterKind kind) -> InstructionOperand::Kind {
+  switch (kind) {
+    case GENERAL_REGISTERS:
+      return InstructionOperand::STACK_SLOT;
+    case DOUBLE_REGISTERS:
+      return InstructionOperand::DOUBLE_STACK_SLOT;
+    case FLOAT32x4_REGISTERS:
+      return InstructionOperand::FLOAT32x4_STACK_SLOT;
+    case INT32x4_REGISTERS:
+      return InstructionOperand::INT32x4_STACK_SLOT;
+    default:
+      UNREACHABLE();
+      return InstructionOperand::UNALLOCATED;
+  }
+}
+
+
 void RegisterAllocator::ReuseSpillSlots() {
   DCHECK(FLAG_turbo_reuse_spill_slots);
 
@@ -918,10 +943,10 @@ void RegisterAllocator::ReuseSpillSlots() {
     if (range->IsEmpty()) continue;
     // Allocate a new operand referring to the spill slot.
     auto kind = range->Kind();
-    int index = frame()->AllocateSpillSlot(kind == DOUBLE_REGISTERS);
-    auto op_kind = kind == DOUBLE_REGISTERS
-                       ? InstructionOperand::DOUBLE_STACK_SLOT
-                       : InstructionOperand::STACK_SLOT;
+    bool is_double = kind == DOUBLE_REGISTERS;
+    bool is_simd128 = kind == INT32x4_REGISTERS || kind == FLOAT32x4_REGISTERS;
+    int index = frame()->AllocateSpillSlot(is_double, is_simd128);
+    auto op_kind = GetSpillSlotKind(kind);
     auto op = new (code_zone()) InstructionOperand(op_kind, index);
     range->SetOperand(op);
   }
@@ -1878,12 +1903,16 @@ void RegisterAllocator::AllocateRegisters() {
     if (range == nullptr) continue;
     if (range->Kind() == mode_) {
       AddToUnhandledUnsorted(range);
+    } else if (mode_ == DOUBLE_REGISTERS &&
+               IsSIMD128RegisterKind(range->Kind())) {
+      AddToUnhandledUnsorted(range);
     }
   }
   SortUnhandled();
   DCHECK(UnhandledIsSorted());
 
   DCHECK(reusable_slots().empty());
+  DCHECK(reusable_simd128_slots().empty());
   DCHECK(active_live_ranges().empty());
   DCHECK(inactive_live_ranges().empty());
 
@@ -1981,6 +2010,7 @@ void RegisterAllocator::AllocateRegisters() {
   }
 
   reusable_slots().clear();
+  reusable_simd128_slots().clear();
   active_live_ranges().clear();
   inactive_live_ranges().clear();
 }
@@ -2002,8 +2032,11 @@ bool RegisterAllocator::HasTaggedValue(int virtual_register) const {
 
 RegisterKind RegisterAllocator::RequiredRegisterKind(
     int virtual_register) const {
-  return (code()->IsDouble(virtual_register)) ? DOUBLE_REGISTERS
-                                              : GENERAL_REGISTERS;
+  if (code()->IsDouble(virtual_register)) return DOUBLE_REGISTERS;
+  if (code()->IsFloat32x4(virtual_register)) return FLOAT32x4_REGISTERS;
+  if (code()->IsInt32x4(virtual_register)) return INT32x4_REGISTERS;
+
+  return GENERAL_REGISTERS;
 }
 
 
@@ -2084,20 +2117,26 @@ void RegisterAllocator::FreeSpillSlot(LiveRange* range) {
   auto spill_operand = range->TopLevel()->GetSpillOperand();
   if (spill_operand->IsConstant()) return;
   if (spill_operand->index() >= 0) {
-    reusable_slots().push_back(range);
+    if (IsSIMD128RegisterKind(range->Kind())) {
+      reusable_simd128_slots().push_back(range);
+    } else {
+      reusable_slots().push_back(range);
+    }
   }
 }
 
 
 InstructionOperand* RegisterAllocator::TryReuseSpillSlot(LiveRange* range) {
   DCHECK(!FLAG_turbo_reuse_spill_slots);
-  if (reusable_slots().empty()) return nullptr;
-  if (reusable_slots().front()->End().Value() >
-      range->TopLevel()->Start().Value()) {
+  ZoneVector<LiveRange*>& rs = IsSIMD128RegisterKind(range->Kind())
+                                   ? reusable_simd128_slots()
+                                   : reusable_slots();
+  if (rs.empty()) return nullptr;
+  if (rs.front()->End().Value() > range->TopLevel()->Start().Value()) {
     return nullptr;
   }
-  auto result = reusable_slots().front()->TopLevel()->GetSpillOperand();
-  reusable_slots().erase(reusable_slots().begin());
+  auto result = rs.front()->TopLevel()->GetSpillOperand();
+  rs.erase(reusable_slots().begin());
   return result;
 }
 
@@ -2151,7 +2190,8 @@ bool RegisterAllocator::TryAllocateFreeReg(LiveRange* current) {
   }
 
   auto hint = current->FirstHint();
-  if (hint != nullptr && (hint->IsRegister() || hint->IsDoubleRegister())) {
+  if (hint != nullptr && (hint->IsRegister() || hint->IsDoubleRegister() ||
+                          hint->IsSIMD128Register())) {
     int register_index = hint->index();
     TraceAlloc(
         "Found reg hint %s (free until [%d) for live range %d (end %d[).\n",
@@ -2503,10 +2543,11 @@ void RegisterAllocator::Spill(LiveRange* range) {
       if (op == nullptr) {
         // Allocate a new operand referring to the spill slot.
         RegisterKind kind = range->Kind();
-        int index = frame()->AllocateSpillSlot(kind == DOUBLE_REGISTERS);
-        auto op_kind = kind == DOUBLE_REGISTERS
-                           ? InstructionOperand::DOUBLE_STACK_SLOT
-                           : InstructionOperand::STACK_SLOT;
+        bool is_double = kind == DOUBLE_REGISTERS;
+        bool is_simd128 =
+            kind == INT32x4_REGISTERS || kind == FLOAT32x4_REGISTERS;
+        int index = frame()->AllocateSpillSlot(is_double, is_simd128);
+        auto op_kind = GetSpillSlotKind(kind);
         op = new (code_zone()) InstructionOperand(op_kind, index);
       }
       first->SetSpillOperand(op);
@@ -2534,7 +2575,8 @@ void RegisterAllocator::Verify() const {
 
 void RegisterAllocator::SetLiveRangeAssignedRegister(LiveRange* range,
                                                      int reg) {
-  if (range->Kind() == DOUBLE_REGISTERS) {
+  if (range->Kind() == DOUBLE_REGISTERS ||
+      IsSIMD128RegisterKind(range->Kind())) {
     assigned_double_registers_->Add(reg);
   } else {
     DCHECK(range->Kind() == GENERAL_REGISTERS);

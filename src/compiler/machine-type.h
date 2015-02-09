@@ -27,17 +27,18 @@ enum MachineType {
   kRepFloat32 = 1 << 5,
   kRepFloat64 = 1 << 6,
   kRepFloat32x4 = 1 << 7,
-  kRepTagged = 1 << 8,
+  kRepInt32x4 = 1 << 8,
+  kRepTagged = 1 << 9,
 
   // Types.
-  kTypeBool = 1 << 9,
-  kTypeInt32 = 1 << 10,
-  kTypeUint32 = 1 << 11,
-  kTypeInt64 = 1 << 12,
-  kTypeUint64 = 1 << 13,
-  kTypeNumber = 1 << 14,
-  kTypeVector = 1 << 15,
-  kTypeAny = 1 << 16,
+  kTypeBool = 1 << 10,
+  kTypeInt32 = 1 << 11,
+  kTypeUint32 = 1 << 12,
+  kTypeInt64 = 1 << 13,
+  kTypeUint64 = 1 << 14,
+  kTypeNumber = 1 << 15,
+  kTypeVector = 1 << 16,
+  kTypeAny = 1 << 17,
 
   // Machine types.
   kMachNone = 0,
@@ -98,6 +99,8 @@ inline int ElementSizeLog2Of(MachineType machine_type) {
     case kRepWord64:
     case kRepFloat64:
       return 3;
+    case kRepFloat32x4:
+      return 4;
     case kRepTagged:
       return kPointerSizeLog2;
     default:

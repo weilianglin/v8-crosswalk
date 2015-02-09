@@ -35,6 +35,14 @@ class InstructionOperandConverter {
     return ToDoubleRegister(instr_->InputAt(index));
   }
 
+  DoubleRegister InputFloat32x4Register(int index) {
+    return ToSIMD128Register(instr_->InputAt(index));
+  }
+
+  DoubleRegister InputInt32x4Register(int index) {
+    return ToSIMD128Register(instr_->InputAt(index));
+  }
+
   double InputDouble(int index) { return ToDouble(instr_->InputAt(index)); }
 
   int32_t InputInt32(int index) {
@@ -75,6 +83,14 @@ class InstructionOperandConverter {
     return ToDoubleRegister(instr_->Output());
   }
 
+  DoubleRegister OutputFloat32x4Register() {
+    return ToSIMD128Register(instr_->Output());
+  }
+
+  DoubleRegister OutputInt32x4Register() {
+    return ToSIMD128Register(instr_->Output());
+  }
+
   // -- Conversions for operands -----------------------------------------------
 
   Label* ToLabel(InstructionOperand* op) {
@@ -92,6 +108,11 @@ class InstructionOperandConverter {
 
   DoubleRegister ToDoubleRegister(InstructionOperand* op) {
     DCHECK(op->IsDoubleRegister());
+    return DoubleRegister::FromAllocationIndex(op->index());
+  }
+
+  DoubleRegister ToSIMD128Register(InstructionOperand* op) {
+    DCHECK(op->IsSIMD128Register());
     return DoubleRegister::FromAllocationIndex(op->index());
   }
 

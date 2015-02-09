@@ -33,8 +33,15 @@ const InstructionCode kSourcePositionInstruction = -3;
   V(Immediate, IMMEDIATE, 0)                                         \
   V(StackSlot, STACK_SLOT, 128)                                      \
   V(DoubleStackSlot, DOUBLE_STACK_SLOT, 128)                         \
+  V(Float32x4StackSlot, FLOAT32x4_STACK_SLOT, 128)                   \
+  V(Int32x4StackSlot, INT32x4_STACK_SLOT, 128)                       \
   V(Register, REGISTER, RegisterConfiguration::kMaxGeneralRegisters) \
-  V(DoubleRegister, DOUBLE_REGISTER, RegisterConfiguration::kMaxDoubleRegisters)
+  V(DoubleRegister, DOUBLE_REGISTER,                                 \
+    RegisterConfiguration::kMaxDoubleRegisters)                      \
+  V(Float32x4Register, FLOAT32x4_REGISTER,                           \
+    RegisterConfiguration::kMaxDoubleRegisters)                      \
+  V(Int32x4Register, INT32x4_REGISTER,                               \
+    RegisterConfiguration::kMaxDoubleRegisters)
 
 class InstructionOperand : public ZoneObject {
  public:
@@ -44,8 +51,12 @@ class InstructionOperand : public ZoneObject {
     IMMEDIATE,
     STACK_SLOT,
     DOUBLE_STACK_SLOT,
+    FLOAT32x4_STACK_SLOT,
+    INT32x4_STACK_SLOT,
     REGISTER,
-    DOUBLE_REGISTER
+    DOUBLE_REGISTER,
+    FLOAT32x4_REGISTER,
+    INT32x4_REGISTER
   };
 
   InstructionOperand(Kind kind, int index) { ConvertTo(kind, index); }
@@ -57,12 +68,24 @@ class InstructionOperand : public ZoneObject {
   INSTRUCTION_OPERAND_LIST(INSTRUCTION_OPERAND_PREDICATE)
   INSTRUCTION_OPERAND_PREDICATE(Unallocated, UNALLOCATED, 0)
 #undef INSTRUCTION_OPERAND_PREDICATE
+  bool IsSIMD128Register() const {
+    return kind() == FLOAT32x4_REGISTER || kind() == INT32x4_REGISTER;
+  }
+  bool IsSIMD128StackSlot() const {
+    return kind() == FLOAT32x4_STACK_SLOT || kind() == INT32x4_STACK_SLOT;
+  }
   bool Equals(const InstructionOperand* other) const {
-    return value_ == other->value_;
+    return value_ == other->value_ ||
+           (index() == other->index() &&
+            ((IsSIMD128Register() && other->IsSIMD128Register()) ||
+             (IsSIMD128StackSlot() && other->IsSIMD128StackSlot())));
+    ;
   }
 
   void ConvertTo(Kind kind, int index) {
-    if (kind == REGISTER || kind == DOUBLE_REGISTER) DCHECK(index >= 0);
+    if (kind == REGISTER || kind == DOUBLE_REGISTER ||
+        kind == FLOAT32x4_REGISTER || kind == INT32x4_REGISTER)
+      DCHECK(index >= 0);
     value_ = KindField::encode(kind);
     value_ |= bit_cast<unsigned>(index << KindField::kSize);
     DCHECK(this->index() == index);
@@ -73,7 +96,7 @@ class InstructionOperand : public ZoneObject {
   static void TearDownCaches();
 
  protected:
-  typedef BitField64<Kind, 0, 3> KindField;
+  typedef BitField64<Kind, 0, 4> KindField;
 
   uint64_t value_;
 };
@@ -173,31 +196,31 @@ class UnallocatedOperand : public InstructionOperand {
   //
   // For FIXED_SLOT policy:
   //     +------------------------------------------+
-  //     |       slot_index      |  vreg  | 0 | 001 |
+  //     |       slot_index      |  vreg  | 0 |0001 |
   //     +------------------------------------------+
   //
   // For all other (extended) policies:
   //     +------------------------------------------+
-  //     |  reg_index  | L | PPP |  vreg  | 1 | 001 |    L ... Lifetime
+  //     |  reg_index  | L | PPP |  vreg  | 1 |0001 |    L ... Lifetime
   //     +------------------------------------------+    P ... Policy
   //
   // The slot index is a signed value which requires us to decode it manually
   // instead of using the BitField64 utility class.
 
   // The superclass has a KindField.
-  STATIC_ASSERT(KindField::kSize == 3);
+  STATIC_ASSERT(KindField::kSize == 4);
 
   // BitFields for all unallocated operands.
-  class BasicPolicyField : public BitField64<BasicPolicy, 3, 1> {};
-  class VirtualRegisterField : public BitField64<unsigned, 4, 30> {};
+  class BasicPolicyField : public BitField64<BasicPolicy, 4, 1> {};
+  class VirtualRegisterField : public BitField64<unsigned, 5, 30> {};
 
   // BitFields specific to BasicPolicy::FIXED_SLOT.
-  class FixedSlotIndexField : public BitField64<int, 34, 30> {};
+  class FixedSlotIndexField : public BitField64<int, 35, 30> {};
 
   // BitFields specific to BasicPolicy::EXTENDED_POLICY.
-  class ExtendedPolicyField : public BitField64<ExtendedPolicy, 34, 3> {};
-  class LifetimeField : public BitField64<Lifetime, 37, 1> {};
-  class FixedRegisterField : public BitField64<int, 38, 6> {};
+  class ExtendedPolicyField : public BitField64<ExtendedPolicy, 35, 3> {};
+  class LifetimeField : public BitField64<Lifetime, 38, 1> {};
+  class FixedRegisterField : public BitField64<int, 39, 6> {};
 
   static const int kInvalidVirtualRegister = VirtualRegisterField::kMax;
   static const int kMaxVirtualRegisters = VirtualRegisterField::kMax;
@@ -976,9 +999,13 @@ class InstructionSequence FINAL : public ZoneObject {
 
   bool IsReference(int virtual_register) const;
   bool IsDouble(int virtual_register) const;
+  bool IsFloat32x4(int virtual_register) const;
+  bool IsInt32x4(int virtual_register) const;
 
   void MarkAsReference(int virtual_register);
   void MarkAsDouble(int virtual_register);
+  void MarkAsFloat32x4(int virtual_register);
+  void MarkAsInt32x4(int virtual_register);
 
   void AddGapMove(int index, InstructionOperand* from, InstructionOperand* to);
 
@@ -1073,6 +1100,8 @@ class InstructionSequence FINAL : public ZoneObject {
   int next_virtual_register_;
   PointerMapDeque pointer_maps_;
   VirtualRegisterSet doubles_;
+  VirtualRegisterSet float32x4_;
+  VirtualRegisterSet int32x4_;
   VirtualRegisterSet references_;
   DeoptimizationVector deoptimization_entries_;
 
