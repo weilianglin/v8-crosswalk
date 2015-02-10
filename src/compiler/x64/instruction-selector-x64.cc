@@ -131,6 +131,9 @@ void InstructionSelector::VisitLoad(Node* node) {
     case kRepWord64:
       opcode = kX64Movq;
       break;
+    case kRepFloat32x4:
+      opcode = kX64Movups;
+      break;
     default:
       UNREACHABLE();
       return;

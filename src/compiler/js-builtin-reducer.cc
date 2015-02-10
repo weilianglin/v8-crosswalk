@@ -98,7 +98,12 @@ class JSCallReduction {
 
 
 JSBuiltinReducer::JSBuiltinReducer(JSGraph* jsgraph)
-    : jsgraph_(jsgraph), simplified_(jsgraph->zone()) {}
+    : jsgraph_(jsgraph), simplified_(jsgraph->zone()) {
+  Isolate* isolate = jsgraph_->isolate();
+  Handle<Map> float32x4_map = handle(
+      isolate->native_context()->float32x4_function()->initial_map(), isolate);
+  float32x4_ = Type::Class(float32x4_map, jsgraph_->zone());
+}
 
 
 // ECMA-262, section 15.8.2.1.
@@ -213,37 +218,54 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Add(Node* node) {
   JSCallReduction r(node);
-  // SIMD.float32x4.add(a:float32x4, b:float32x4) -> Float32x4Add(a, b)
-  Node* value =
-      graph()->NewNode(machine()->Float32x4Add(), r.left(), r.right());
-  return Replace(value);
+
+  if (r.InputsMatchTwo(float32x4_, float32x4_)) {
+    // SIMD.float32x4.add(a:float32x4, b:float32x4) -> Float32x4Add(a, b)
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Add(), r.left(), r.right());
+    return Replace(value);
+  }
+
+  return NoChange();
 }
 
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Sub(Node* node) {
   JSCallReduction r(node);
-  // SIMD.float32x4.sub(a:float32x4, b:float32x4) -> Float32x4Sub(a, b)
-  Node* value =
-      graph()->NewNode(machine()->Float32x4Sub(), r.left(), r.right());
-  return Replace(value);
+  if (r.InputsMatchTwo(float32x4_, float32x4_)) {
+    // SIMD.float32x4.sub(a:float32x4, b:float32x4) -> Float32x4Sub(a, b)
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Sub(), r.left(), r.right());
+    return Replace(value);
+  }
+
+  return NoChange();
 }
 
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Mul(Node* node) {
   JSCallReduction r(node);
-  // SIMD.float32x4.mul(a:float32x4, b:float32x4) -> Float32x4Mul(a, b)
-  Node* value =
-      graph()->NewNode(machine()->Float32x4Mul(), r.left(), r.right());
-  return Replace(value);
+  if (r.InputsMatchTwo(float32x4_, float32x4_)) {
+    // SIMD.float32x4.mul(a:float32x4, b:float32x4) -> Float32x4Mul(a, b)
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Mul(), r.left(), r.right());
+    return Replace(value);
+  }
+
+  return NoChange();
 }
 
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Div(Node* node) {
   JSCallReduction r(node);
-  // SIMD.float32x4.div(a:float32x4, b:float32x4) -> Float32x4Div(a, b)
-  Node* value =
-      graph()->NewNode(machine()->Float32x4Div(), r.left(), r.right());
-  return Replace(value);
+  if (r.InputsMatchTwo(float32x4_, float32x4_)) {
+    // SIMD.float32x4.div(a:float32x4, b:float32x4) -> Float32x4Div(a, b)
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Div(), r.left(), r.right());
+    return Replace(value);
+  }
+
+  return NoChange();
 }
 
 

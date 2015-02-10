@@ -47,6 +47,7 @@ class JSBuiltinReducer FINAL : public Reducer {
 
   JSGraph* jsgraph_;
   SimplifiedOperatorBuilder simplified_;
+  Type* float32x4_;
 };
 
 }  // namespace compiler
