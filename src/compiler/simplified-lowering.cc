@@ -1028,6 +1028,8 @@ class RepresentationSelector {
       case IrOpcode::kFloat32x4Sub:
       case IrOpcode::kFloat32x4Mul:
       case IrOpcode::kFloat32x4Div:
+      case IrOpcode::kFloat32x4Min:
+      case IrOpcode::kFloat32x4Max:
         DCHECK_EQ(2, node->InputCount());
         ProcessInput(node, 0, kMachFloat32x4);
         ProcessInput(node, 1, kMachFloat32x4);

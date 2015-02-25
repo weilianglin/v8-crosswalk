@@ -2082,6 +2082,16 @@ Bounds Typer::Visitor::TypeFloat32x4Constructor(Node* node) {
 }
 
 
+Bounds Typer::Visitor::TypeFloat32x4Min(Node* node) {
+  return Bounds(typer_->float32x4_);
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4Max(Node* node) {
+  return Bounds(typer_->float32x4_);
+}
+
+
 // Heap constants.
 
 

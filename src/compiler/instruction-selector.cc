@@ -681,6 +681,8 @@ MachineType InstructionSelector::GetMachineType(Node* node) {
     case IrOpcode::kFloat32x4Mul:
     case IrOpcode::kFloat32x4Div:
     case IrOpcode::kFloat32x4Constructor:
+    case IrOpcode::kFloat32x4Min:
+    case IrOpcode::kFloat32x4Max:
       return kMachFloat32x4;
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
@@ -895,6 +897,10 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsFloat32x4(node), VisitFloat32x4Div(node);
     case IrOpcode::kFloat32x4Constructor:
       return MarkAsFloat32x4(node), VisitFloat32x4Constructor(node);
+    case IrOpcode::kFloat32x4Min:
+      return MarkAsFloat32x4(node), VisitFloat32x4Min(node);
+    case IrOpcode::kFloat32x4Max:
+      return MarkAsFloat32x4(node), VisitFloat32x4Max(node);
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());

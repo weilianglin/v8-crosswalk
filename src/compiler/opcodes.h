@@ -245,7 +245,9 @@
   V(Float32x4Mul)             \
   V(Float32x4Sub)             \
   V(Float32x4Div)             \
-  V(Float32x4Constructor)
+  V(Float32x4Constructor)     \
+  V(Float32x4Min)             \
+  V(Float32x4Max)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \

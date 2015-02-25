@@ -322,6 +322,34 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
 }
 
 
+Reduction JSBuiltinReducer::ReduceFloat32x4Min(Node* node) {
+  JSCallReduction r(node);
+
+  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
+    // SIMD.float32x4.min(a:float32x4, b:float32x4) -> Float32x4Min(a, b)
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Min(), r.left(), r.right());
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
+Reduction JSBuiltinReducer::ReduceFloat32x4Max(Node* node) {
+  JSCallReduction r(node);
+
+  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
+    // SIMD.float32x4.max(a:float32x4, b:float32x4) -> Float32x4Max(a, b)
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Max(), r.left(), r.right());
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
 Reduction JSBuiltinReducer::Reduce(Node* node) {
   JSCallReduction r(node);
 
@@ -352,6 +380,10 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat32x4Div(node));
     case kFloat32x4Constructor:
       return ReplaceWithPureReduction(node, ReduceFloat32x4Constructor(node));
+    case kFloat32x4Min:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Min(node));
+    case kFloat32x4Max:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Max(node));
     default:
       break;
   }

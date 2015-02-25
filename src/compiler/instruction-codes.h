@@ -56,6 +56,8 @@ namespace compiler {
   V(Float32x4Sub)           \
   V(Float32x4Div)           \
   V(Float32x4Constructor)   \
+  V(Float32x4Min)           \
+  V(Float32x4Max)           \
   TARGET_ARCH_OPCODE_LIST(V)
 
 enum ArchOpcode {

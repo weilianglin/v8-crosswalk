@@ -741,6 +741,8 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4Constructor:
     case IrOpcode::kChangeFloat32x4ToTagged:
     case IrOpcode::kChangeTaggedToFloat32x4:
+    case IrOpcode::kFloat32x4Min:
+    case IrOpcode::kFloat32x4Max:
       // TODO(rossberg): Check.
       break;
   }

@@ -285,6 +285,16 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
   } while (0)
 
 
+#define ASSEMBLE_FLOAT32x4_BINOP_NOAVX(asm_instr)                            \
+  do {                                                                       \
+    if (instr->InputAt(1)->IsFloat32x4Register()) {                          \
+      __ asm_instr(i.InputFloat32x4Register(0), i.InputFloat32x4Register(1));\
+    } else {                                                                 \
+      __ asm_instr(i.InputFloat32x4Register(0), i.InputOperand(1));          \
+    }                                                                        \
+  } while (0)
+
+
 #define ASSEMBLE_CHECKED_LOAD_FLOAT(asm_instr)                               \
   do {                                                                       \
     auto result = i.OutputDoubleRegister();                                  \
@@ -819,6 +829,12 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       break;
     case kFloat32x4Div:
       ASSEMBLE_FLOAT32x4_BINOP(Divps);
+      break;
+    case kFloat32x4Min:
+      ASSEMBLE_FLOAT32x4_BINOP_NOAVX(minps);
+      break;
+    case kFloat32x4Max:
+      ASSEMBLE_FLOAT32x4_BINOP_NOAVX(maxps);
       break;
     case kFloat32x4Constructor:
       __ leaq(rsp, Operand(rsp, -kFloat32x4Size));

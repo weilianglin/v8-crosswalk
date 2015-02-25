@@ -1311,7 +1311,9 @@ void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
   V(Float32x4Add)                     \
   V(Float32x4Sub)                     \
   V(Float32x4Mul)                     \
-  V(Float32x4Div)
+  V(Float32x4Div)                     \
+  V(Float32x4Min)                     \
+  V(Float32x4Max)
 
 #define DECLARE_VISIT_BINARY_SIMD_OPERATION(type)                              \
   void InstructionSelector::Visit##type(Node* node) {                          \

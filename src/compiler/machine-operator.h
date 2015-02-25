@@ -183,6 +183,8 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   const Operator* Float32x4Mul();
   const Operator* Float32x4Div();
   const Operator* Float32x4Constructor();
+  const Operator* Float32x4Min();
+  const Operator* Float32x4Max();
 
   // load [base + index]
   const Operator* Load(LoadRepresentation rep);

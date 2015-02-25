@@ -38,6 +38,8 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceFloat32x4Mul(Node* node);
   Reduction ReduceFloat32x4Div(Node* node);
   Reduction ReduceFloat32x4Constructor(Node* node);
+  Reduction ReduceFloat32x4Min(Node* node);
+  Reduction ReduceFloat32x4Max(Node* node);
 
   JSGraph* jsgraph() const { return jsgraph_; }
   Graph* graph() const;
