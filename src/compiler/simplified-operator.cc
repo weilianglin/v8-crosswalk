@@ -187,6 +187,7 @@ const ElementAccess& ElementAccessOf(const Operator* op) {
   V(ChangeUint32ToTagged, Operator::kNoProperties, 1)    \
   V(ChangeFloat64ToTagged, Operator::kNoProperties, 1)   \
   V(ChangeFloat32x4ToTagged, Operator::kNoProperties, 1) \
+  V(ChangeTaggedToFloat32x4, Operator::kNoProperties, 1) \
   V(ChangeBoolToBit, Operator::kNoProperties, 1)         \
   V(ChangeBitToBool, Operator::kNoProperties, 1)         \
   V(ObjectIsSmi, Operator::kNoProperties, 1)             \

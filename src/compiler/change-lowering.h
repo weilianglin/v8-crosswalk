@@ -48,6 +48,7 @@ class ChangeLowering FINAL : public Reducer {
   Reduction ChangeFloat32x4ToTagged(Node* value, Node* control);
   Reduction ChangeInt32ToTagged(Node* value, Node* control);
   Reduction ChangeTaggedToFloat64(Node* value, Node* control);
+  Reduction ChangeTaggedToFloat32x4(Node* value, Node* control);
   Reduction ChangeTaggedToUI32(Node* value, Node* control,
                                Signedness signedness);
   Reduction ChangeUint32ToTagged(Node* value, Node* control);

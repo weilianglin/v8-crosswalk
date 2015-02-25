@@ -62,6 +62,7 @@ class Typer {
   Type* number_fun2_;
   Type* weakint_fun1_;
   Type* random_fun_;
+  Type* float32x4_;
   LazyTypeCache* cache_;
 
   ZoneVector<Handle<Object> > weaken_min_limits_;

@@ -716,7 +716,7 @@ void GraphC1Visualizer::PrintLiveRange(LiveRange* range, const char* type) {
     if (range->HasRegisterAssigned()) {
       InstructionOperand* op = range->CreateAssignedOperand(zone());
       int assigned_reg = op->index();
-      if (op->IsDoubleRegister()) {
+      if (op->IsDoubleRegister() || op->IsFloat32x4Register()) {
         os_ << " \"" << DoubleRegister::AllocationIndexToString(assigned_reg)
             << "\"";
       } else {

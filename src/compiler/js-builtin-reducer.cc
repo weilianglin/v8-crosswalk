@@ -66,6 +66,21 @@ class JSCallReduction {
            NodeProperties::GetBounds(GetJSCallInput(1)).upper->Is(t2);
   }
 
+  // Determines whether the call takes two inputs of the given opcodes.
+  bool InputsMatchTwoEither(Type* t, IrOpcode::Value opcode) {
+    return GetJSCallArity() == 2 &&
+           (NodeProperties::GetBounds(left()).upper->Is(t) ||
+            GetJSCallInput(0)->opcode() == opcode ||
+            (GetJSCallInput(0)->opcode() == IrOpcode::kHeapConstant &&
+             OpParameter<Unique<HeapObject> >(left()).handle()->map() ==
+                 *(t->AsClass()->Map()))) &&
+           (NodeProperties::GetBounds(right()).upper->Is(t) ||
+            GetJSCallInput(1)->opcode() == opcode ||
+            (GetJSCallInput(1)->opcode() == IrOpcode::kHeapConstant &&
+             OpParameter<Unique<HeapObject> >(right()).handle()->map() ==
+                 *(t->AsClass()->Map())));
+  }
+
   // Determines whether the call takes inputs all of the given type.
   bool InputsMatchAll(Type* t) {
     for (int i = 0; i < GetJSCallArity(); i++) {
@@ -219,7 +234,7 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
 Reduction JSBuiltinReducer::ReduceFloat32x4Add(Node* node) {
   JSCallReduction r(node);
 
-  if (r.InputsMatchTwo(float32x4_, float32x4_)) {
+  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
     // SIMD.float32x4.add(a:float32x4, b:float32x4) -> Float32x4Add(a, b)
     Node* value =
         graph()->NewNode(machine()->Float32x4Add(), r.left(), r.right());
@@ -232,7 +247,8 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Add(Node* node) {
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Sub(Node* node) {
   JSCallReduction r(node);
-  if (r.InputsMatchTwo(float32x4_, float32x4_)) {
+
+  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
     // SIMD.float32x4.sub(a:float32x4, b:float32x4) -> Float32x4Sub(a, b)
     Node* value =
         graph()->NewNode(machine()->Float32x4Sub(), r.left(), r.right());
@@ -245,7 +261,8 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Sub(Node* node) {
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Mul(Node* node) {
   JSCallReduction r(node);
-  if (r.InputsMatchTwo(float32x4_, float32x4_)) {
+
+  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
     // SIMD.float32x4.mul(a:float32x4, b:float32x4) -> Float32x4Mul(a, b)
     Node* value =
         graph()->NewNode(machine()->Float32x4Mul(), r.left(), r.right());
@@ -258,7 +275,8 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Mul(Node* node) {
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Div(Node* node) {
   JSCallReduction r(node);
-  if (r.InputsMatchTwo(float32x4_, float32x4_)) {
+
+  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
     // SIMD.float32x4.div(a:float32x4, b:float32x4) -> Float32x4Div(a, b)
     Node* value =
         graph()->NewNode(machine()->Float32x4Div(), r.left(), r.right());
@@ -285,6 +303,19 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
                                    r.GetJSCallInput(0), r.GetJSCallInput(1),
                                    r.GetJSCallInput(2), r.GetJSCallInput(3));
     return Replace(value);
+  } else if (r.GetJSCallArity() == 1) {
+    // SIMD.float32x4(...) -> type annotation
+    if (r.InputsMatchOne(float32x4_)) {
+      return Replace(r.GetJSCallInput(0));
+    } else {
+      Node* const object = r.GetJSCallInput(0);
+      Node* const effect = NodeProperties::GetEffectInput(node);
+      Node* const control = NodeProperties::GetControlInput(node);
+      Node* value =
+          graph()->NewNode(jsgraph()->javascript()->ToFloat32x4Obj(), object,
+                           jsgraph()->NoContextConstant(), effect, control);
+      return Replace(value);
+    }
   }
 
   return NoChange();

@@ -86,7 +86,8 @@
   V(JSToNumber)                    \
   V(JSToString)                    \
   V(JSToName)                      \
-  V(JSToObject)
+  V(JSToObject)                    \
+  V(JSToFloat32x4Obj)
 
 #define JS_OTHER_UNOP_LIST(V) \
   V(JSTypeOf)
@@ -157,6 +158,7 @@
   V(ChangeUint32ToTagged)     \
   V(ChangeFloat64ToTagged)    \
   V(ChangeFloat32x4ToTagged)  \
+  V(ChangeTaggedToFloat32x4)  \
   V(ChangeBoolToBit)          \
   V(ChangeBitToBool)          \
   V(LoadField)                \

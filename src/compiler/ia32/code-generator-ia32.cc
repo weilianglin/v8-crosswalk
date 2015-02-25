@@ -876,6 +876,14 @@ void CodeGenerator::AssembleDeoptimizerCall(int deoptimization_id) {
 }
 
 
+void CodeGenerator::AssembleStopAt() {
+  if (strlen(FLAG_stop_at) > 0 &&
+      info_->function()->name()->IsUtf8EqualTo(CStrVector(FLAG_stop_at))) {
+    __ int3();
+  }
+}
+
+
 // The calling convention for JSFunctions on IA32 passes arguments on the
 // stack and the JSFunction and context in EDI and ESI, respectively, thus
 // the steps of the call look as follows:

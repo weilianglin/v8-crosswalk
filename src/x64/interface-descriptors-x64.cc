@@ -75,6 +75,12 @@ void ToNumberDescriptor::Initialize(CallInterfaceDescriptorData* data) {
 }
 
 
+void ToFloat32x4Descriptor::Initialize(CallInterfaceDescriptorData* data) {
+  Register registers[] = {rsi, rax};
+  data->Initialize(arraysize(registers), registers, NULL);
+}
+
+
 void NumberToStringDescriptor::Initialize(CallInterfaceDescriptorData* data) {
   Register registers[] = {rsi, rax};
   data->Initialize(arraysize(registers), registers, NULL);

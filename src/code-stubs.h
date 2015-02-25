@@ -51,6 +51,7 @@ namespace internal {
   V(StubFailureTrampoline)                  \
   V(SubString)                              \
   V(ToNumber)                               \
+  V(ToFloat32x4)                            \
   /* HydrogenCodeStubs */                   \
   V(AllocateHeapNumber)                     \
   V(AllocateFloat32x4)                      \
@@ -2575,6 +2576,15 @@ class ToNumberStub FINAL : public PlatformCodeStub {
 
   DEFINE_CALL_INTERFACE_DESCRIPTOR(ToNumber);
   DEFINE_PLATFORM_CODE_STUB(ToNumber, PlatformCodeStub);
+};
+
+
+class ToFloat32x4Stub FINAL : public PlatformCodeStub {
+ public:
+  explicit ToFloat32x4Stub(Isolate* isolate) : PlatformCodeStub(isolate) {}
+
+  DEFINE_CALL_INTERFACE_DESCRIPTOR(ToFloat32x4);
+  DEFINE_PLATFORM_CODE_STUB(ToFloat32x4, PlatformCodeStub);
 };
 
 

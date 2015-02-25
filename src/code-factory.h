@@ -52,6 +52,8 @@ class CodeFactory FINAL {
 
   static Callable ToNumber(Isolate* isolate);
 
+  static Callable ToFloat32x4Obj(Isolate* isolate);
+
   static Callable StringAdd(Isolate* isolate, StringAddFlags flags,
                             PretenureFlag pretenure_flag);
 

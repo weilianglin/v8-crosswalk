@@ -29,6 +29,8 @@ Reduction ChangeLowering::Reduce(Node* node) {
       return ChangeFloat64ToTagged(node->InputAt(0), control);
     case IrOpcode::kChangeFloat32x4ToTagged:
       return ChangeFloat32x4ToTagged(node->InputAt(0), control);
+    case IrOpcode::kChangeTaggedToFloat32x4:
+      return ChangeTaggedToFloat32x4(node->InputAt(0), control);
     case IrOpcode::kChangeInt32ToTagged:
       return ChangeInt32ToTagged(node->InputAt(0), control);
     case IrOpcode::kChangeTaggedToFloat64:
@@ -284,6 +286,37 @@ Reduction ChangeLowering::ChangeTaggedToFloat64(Node* value, Node* control) {
   Node* load = LoadHeapNumberValue(value, d.if_true);
   Node* number = ChangeSmiToFloat64(value);
   return Replace(d.Phi(kMachFloat64, load, number));
+}
+
+
+Reduction ChangeLowering::ChangeTaggedToFloat32x4(Node* value, Node* control) {
+  if (CanCover(value, IrOpcode::kJSToFloat32x4Obj)) {
+    Node* const object = NodeProperties::GetValueInput(value, 0);
+    Node* const effect = NodeProperties::GetEffectInput(value);
+    Node* const control = NodeProperties::GetControlInput(value);
+
+    Node* val_obj =
+        graph()->NewNode(machine()->Load(kRepTagged), object,
+                         Float32x4ValueIndexConstant(), effect, control);
+
+    Node* load = graph()->NewNode(
+        machine()->Load(kMachFloat32x4), val_obj,
+        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1), effect,
+        control);
+
+    return Replace(load);
+  } else {
+    Node* val_obj = graph()->NewNode(machine()->Load(kRepTagged), value,
+                                     Float32x4ValueIndexConstant(),
+                                     graph()->start(), control);
+
+    Node* load = graph()->NewNode(
+        machine()->Load(kMachFloat32x4), val_obj,
+        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
+        graph()->start(), control);
+
+    return Replace(load);
+  }
 }
 
 

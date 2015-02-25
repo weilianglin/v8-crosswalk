@@ -1218,13 +1218,15 @@ void CodeGenerator::AssembleDeoptimizerCall(int deoptimization_id) {
 }
 
 
-void CodeGenerator::AssemblePrologue() {
-#ifdef DEBUG
+void CodeGenerator::AssembleStopAt() {
   if (strlen(FLAG_stop_at) > 0 &&
-      info()->function()->name()->IsUtf8EqualTo(CStrVector(FLAG_stop_at))) {
+      info_->function()->name()->IsUtf8EqualTo(CStrVector(FLAG_stop_at))) {
     __ int3();
   }
-#endif
+}
+
+
+void CodeGenerator::AssemblePrologue() {
   CallDescriptor* descriptor = linkage()->GetIncomingDescriptor();
   int stack_slots = frame()->GetSpillSlotCount();
   if (descriptor->kind() == CallDescriptor::kCallAddress) {

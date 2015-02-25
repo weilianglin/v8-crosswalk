@@ -24,6 +24,7 @@ class PlatformInterfaceDescriptor;
   V(FastNewClosure)                           \
   V(FastNewContext)                           \
   V(ToNumber)                                 \
+  V(ToFloat32x4)                              \
   V(NumberToString)                           \
   V(FastCloneShallowArray)                    \
   V(FastCloneShallowObject)                   \
@@ -290,6 +291,12 @@ class FastNewContextDescriptor : public CallInterfaceDescriptor {
 class ToNumberDescriptor : public CallInterfaceDescriptor {
  public:
   DECLARE_DESCRIPTOR(ToNumberDescriptor, CallInterfaceDescriptor)
+};
+
+
+class ToFloat32x4Descriptor : public CallInterfaceDescriptor {
+ public:
+  DECLARE_DESCRIPTOR(ToFloat32x4Descriptor, CallInterfaceDescriptor)
 };
 
 

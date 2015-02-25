@@ -65,9 +65,7 @@ class RepresentationChanger {
     } else if (use_type & kRepWord64) {
       return GetWord64RepresentationFor(node, output_type);
     } else if (use_type & kRepFloat32x4) {
-      UNREACHABLE();
-      return NULL;
-      // return GetFloat32x4RepresentationFor(node, output_type);
+      return GetFloat32x4RepresentationFor(node, output_type);
     } else {
       return node;
     }
@@ -210,6 +208,18 @@ class RepresentationChanger {
     return jsgraph()->graph()->NewNode(op, node);
   }
 
+  Node* GetFloat32x4RepresentationFor(Node* node,
+                                      MachineTypeUnion output_type) {
+    // Select the correct X -> Float32x4 operator.
+    if (output_type & kRepTagged) {
+      return jsgraph()->graph()->NewNode(
+          simplified()->ChangeTaggedToFloat32x4(), node);
+    } else if (output_type & kRepFloat32x4) {
+      return node;
+    } else {
+      return TypeError(node, output_type, kRepFloat32x4);
+    }
+  }
   Node* MakeInt32Constant(double value) {
     if (value < 0) {
       DCHECK(IsInt32Double(value));

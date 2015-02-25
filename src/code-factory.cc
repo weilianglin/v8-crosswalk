@@ -96,6 +96,13 @@ Callable CodeFactory::ToNumber(Isolate* isolate) {
 
 
 // static
+Callable CodeFactory::ToFloat32x4Obj(Isolate* isolate) {
+  ToFloat32x4Stub stub(isolate);
+  return Callable(stub.GetCode(), stub.GetCallInterfaceDescriptor());
+}
+
+
+// static
 Callable CodeFactory::StringAdd(Isolate* isolate, StringAddFlags flags,
                                 PretenureFlag pretenure_flag) {
   StringAddStub stub(isolate, flags, pretenure_flag);

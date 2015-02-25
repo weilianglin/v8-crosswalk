@@ -222,6 +222,11 @@ Typer::Typer(Graph* graph, MaybeHandle<Context> context)
     limit *= 2;
   }
 
+  Handle<Map> float32x4_map =
+      handle(isolate()->native_context()->float32x4_function()->initial_map(),
+             isolate());
+  float32x4_ = Type::Class(float32x4_map, zone);
+
   decorator_ = new (zone) Decorator(this);
   graph_->AddDecorator(decorator_);
 }
@@ -1219,6 +1224,11 @@ Bounds Typer::Visitor::TypeJSToObject(Node* node) {
 }
 
 
+Bounds Typer::Visitor::TypeJSToFloat32x4Obj(Node* node) {
+  return Bounds(Type::None(), Type::Receiver());
+}
+
+
 // JS object operators.
 
 
@@ -1603,9 +1613,15 @@ Bounds Typer::Visitor::TypeChangeFloat64ToTagged(Node* node) {
 
 Bounds Typer::Visitor::TypeChangeFloat32x4ToTagged(Node* node) {
   Bounds arg = Operand(node, 0);
-  // TODO(neis): CHECK(arg.upper->Is(Type::Number()));
   return Bounds(ChangeRepresentation(arg.lower, Type::Tagged(), zone()),
                 ChangeRepresentation(arg.upper, Type::Tagged(), zone()));
+}
+
+
+Bounds Typer::Visitor::TypeChangeTaggedToFloat32x4(Node* node) {
+  Bounds arg = Operand(node, 0);
+  return Bounds(ChangeRepresentation(arg.lower, typer_->float32x4_, zone()),
+                ChangeRepresentation(arg.upper, typer_->float32x4_, zone()));
 }
 
 
@@ -2042,42 +2058,27 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
 
 
 Bounds Typer::Visitor::TypeFloat32x4Add(Node* node) {
-  Handle<Map> float32x4_map =
-      handle(isolate()->native_context()->float32x4_function()->initial_map(),
-             isolate());
-  return Bounds(Type::Class(float32x4_map, zone()));
+  return Bounds(typer_->float32x4_);
 }
 
 
 Bounds Typer::Visitor::TypeFloat32x4Sub(Node* node) {
-  Handle<Map> float32x4_map =
-      handle(isolate()->native_context()->float32x4_function()->initial_map(),
-             isolate());
-  return Bounds(Type::Class(float32x4_map, zone()));
+  return Bounds(typer_->float32x4_);
 }
 
 
 Bounds Typer::Visitor::TypeFloat32x4Mul(Node* node) {
-  Handle<Map> float32x4_map =
-      handle(isolate()->native_context()->float32x4_function()->initial_map(),
-             isolate());
-  return Bounds(Type::Class(float32x4_map, zone()));
+  return Bounds(typer_->float32x4_);
 }
 
 
 Bounds Typer::Visitor::TypeFloat32x4Div(Node* node) {
-  Handle<Map> float32x4_map =
-      handle(isolate()->native_context()->float32x4_function()->initial_map(),
-             isolate());
-  return Bounds(Type::Class(float32x4_map, zone()));
+  return Bounds(typer_->float32x4_);
 }
 
 
 Bounds Typer::Visitor::TypeFloat32x4Constructor(Node* node) {
-  Handle<Map> float32x4_map =
-      handle(isolate()->native_context()->float32x4_function()->initial_map(),
-             isolate());
-  return Bounds(Type::Class(float32x4_map, zone()));
+  return Bounds(typer_->float32x4_);
 }
 
 
