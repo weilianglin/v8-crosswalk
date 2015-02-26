@@ -2056,40 +2056,29 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   return Bounds();
 }
 
-
-Bounds Typer::Visitor::TypeFloat32x4Add(Node* node) {
-  return Bounds(typer_->float32x4_);
-}
-
-
-Bounds Typer::Visitor::TypeFloat32x4Sub(Node* node) {
-  return Bounds(typer_->float32x4_);
-}
-
-
-Bounds Typer::Visitor::TypeFloat32x4Mul(Node* node) {
-  return Bounds(typer_->float32x4_);
-}
-
-
-Bounds Typer::Visitor::TypeFloat32x4Div(Node* node) {
-  return Bounds(typer_->float32x4_);
-}
+#define SIMD_OPERATIONS(V)               \
+  V(float32x4_, Float32x4Add)            \
+  V(float32x4_, Float32x4Sub)            \
+  V(float32x4_, Float32x4Mul)            \
+  V(float32x4_, Float32x4Div)            \
+  V(float32x4_, Float32x4Constructor)    \
+  V(float32x4_, Float32x4Min)            \
+  V(float32x4_, Float32x4Max)            \
+  V(float32x4_, Float32x4Abs)            \
+  V(float32x4_, Float32x4Neg)            \
+  V(float32x4_, Float32x4Reciprocal)     \
+  V(float32x4_, Float32x4ReciprocalSqrt) \
+  V(float32x4_, Float32x4Splat)          \
+  V(float32x4_, Float32x4Sqrt)
 
 
-Bounds Typer::Visitor::TypeFloat32x4Constructor(Node* node) {
-  return Bounds(typer_->float32x4_);
-}
+#define DECLARE_TYPE_SIMD_OPERATION(type, opcode)   \
+  Bounds Typer::Visitor::Type##opcode(Node* node) { \
+    return Bounds(typer_->type);                    \
+  }
 
 
-Bounds Typer::Visitor::TypeFloat32x4Min(Node* node) {
-  return Bounds(typer_->float32x4_);
-}
-
-
-Bounds Typer::Visitor::TypeFloat32x4Max(Node* node) {
-  return Bounds(typer_->float32x4_);
-}
+SIMD_OPERATIONS(DECLARE_TYPE_SIMD_OPERATION)
 
 
 Bounds Typer::Visitor::TypeFloat32x4GetX(Node* node) {

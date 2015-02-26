@@ -66,17 +66,26 @@ class JSCallReduction {
            NodeProperties::GetBounds(GetJSCallInput(1)).upper->Is(t2);
   }
 
+  bool InputsMatchOneEither(Type* t, IrOpcode::Value opcode) {
+    return GetJSCallArity() == 1 &&
+           (NodeProperties::GetBounds(left()).upper->Is(t) ||
+            left()->opcode() == opcode ||
+            (left()->opcode() == IrOpcode::kHeapConstant &&
+             OpParameter<Unique<HeapObject> >(left()).handle()->map() ==
+                 *(t->AsClass()->Map())));
+  }
+
   // Determines whether the call takes two inputs of the given opcodes.
   bool InputsMatchTwoEither(Type* t, IrOpcode::Value opcode) {
     return GetJSCallArity() == 2 &&
            (NodeProperties::GetBounds(left()).upper->Is(t) ||
-            GetJSCallInput(0)->opcode() == opcode ||
-            (GetJSCallInput(0)->opcode() == IrOpcode::kHeapConstant &&
+            left()->opcode() == opcode ||
+            (left()->opcode() == IrOpcode::kHeapConstant &&
              OpParameter<Unique<HeapObject> >(left()).handle()->map() ==
                  *(t->AsClass()->Map()))) &&
            (NodeProperties::GetBounds(right()).upper->Is(t) ||
-            GetJSCallInput(1)->opcode() == opcode ||
-            (GetJSCallInput(1)->opcode() == IrOpcode::kHeapConstant &&
+            right()->opcode() == opcode ||
+            (right()->opcode() == IrOpcode::kHeapConstant &&
              OpParameter<Unique<HeapObject> >(right()).handle()->map() ==
                  *(t->AsClass()->Map())));
   }
@@ -350,6 +359,41 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Max(Node* node) {
 }
 
 
+#define REDUCED_SIMD_UNARY_OPERATIONS(V)                    \
+  V(float32x4_, kJSToFloat32x4Obj, Float32x4Abs)            \
+  V(float32x4_, kJSToFloat32x4Obj, Float32x4Neg)            \
+  V(float32x4_, kJSToFloat32x4Obj, Float32x4Reciprocal)     \
+  V(float32x4_, kJSToFloat32x4Obj, Float32x4ReciprocalSqrt) \
+  V(float32x4_, kJSToFloat32x4Obj, Float32x4Sqrt)
+
+#define DECLARE_REDUCE_UNARY_SIMD_OPERATION(type, type_opcode, opcode) \
+  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {             \
+    JSCallReduction r(node);                                           \
+                                                                       \
+    if (r.InputsMatchOneEither(type, IrOpcode::type_opcode)) {         \
+      Node* value = graph()->NewNode(machine()->opcode(), r.left());   \
+      return Replace(value);                                           \
+    }                                                                  \
+                                                                       \
+    return NoChange();                                                 \
+  }
+
+
+REDUCED_SIMD_UNARY_OPERATIONS(DECLARE_REDUCE_UNARY_SIMD_OPERATION)
+
+
+Reduction JSBuiltinReducer::ReduceFloat32x4Splat(Node* node) {
+  JSCallReduction r(node);
+
+  if (r.InputsMatchOne(Type::Number())) {
+    Node* value = graph()->NewNode(machine()->Float32x4Splat(), r.left());
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
 Reduction JSBuiltinReducer::Reduce(Node* node) {
   JSCallReduction r(node);
 
@@ -384,6 +428,17 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat32x4Min(node));
     case kFloat32x4Max:
       return ReplaceWithPureReduction(node, ReduceFloat32x4Max(node));
+    case kFloat32x4Abs:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Abs(node));
+    case kFloat32x4Reciprocal:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Reciprocal(node));
+    case kFloat32x4ReciprocalSqrt:
+      return ReplaceWithPureReduction(node,
+                                      ReduceFloat32x4ReciprocalSqrt(node));
+    case kFloat32x4Splat:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Splat(node));
+    case kFloat32x4Sqrt:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Sqrt(node));
     default:
       break;
   }

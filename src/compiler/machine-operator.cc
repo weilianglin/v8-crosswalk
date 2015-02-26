@@ -144,7 +144,13 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
   V(Float32x4GetY, Operator::kNoProperties, 1, 0, 1)                          \
   V(Float32x4GetZ, Operator::kNoProperties, 1, 0, 1)                          \
   V(Float32x4GetW, Operator::kNoProperties, 1, 0, 1)                          \
-  V(Float32x4GetSignMask, Operator::kNoProperties, 1, 0, 1)
+  V(Float32x4GetSignMask, Operator::kNoProperties, 1, 0, 1)                   \
+  V(Float32x4Abs, Operator::kNoProperties, 1, 0, 1)                           \
+  V(Float32x4Neg, Operator::kNoProperties, 1, 0, 1)                           \
+  V(Float32x4Reciprocal, Operator::kNoProperties, 1, 0, 1)                    \
+  V(Float32x4ReciprocalSqrt, Operator::kNoProperties, 1, 0, 1)                \
+  V(Float32x4Splat, Operator::kNoProperties, 1, 0, 1)                         \
+  V(Float32x4Sqrt, Operator::kNoProperties, 1, 0, 1)
 
 
 #define MACHINE_TYPE_LIST(V) \

@@ -252,7 +252,13 @@
   V(Float32x4GetY)            \
   V(Float32x4GetZ)            \
   V(Float32x4GetW)            \
-  V(Float32x4GetSignMask)
+  V(Float32x4GetSignMask)     \
+  V(Float32x4Abs)             \
+  V(Float32x4Neg)             \
+  V(Float32x4Reciprocal)      \
+  V(Float32x4ReciprocalSqrt)  \
+  V(Float32x4Splat)           \
+  V(Float32x4Sqrt)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \

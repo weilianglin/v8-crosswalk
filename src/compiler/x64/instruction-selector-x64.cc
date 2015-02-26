@@ -1336,14 +1336,15 @@ void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
 }
 
 
-#define UNARY_SIMD_OPERATION_LIST(V) \
-  V(Float32x4GetX)                   \
-  V(Float32x4GetY)                   \
-  V(Float32x4GetZ)                   \
-  V(Float32x4GetW)                   \
-  V(Float32x4GetSignMask)
+#define UNARY_SIMD_OPERATION_LIST1(V) \
+  V(Float32x4GetX)                    \
+  V(Float32x4GetY)                    \
+  V(Float32x4GetZ)                    \
+  V(Float32x4GetW)                    \
+  V(Float32x4GetSignMask)             \
+  V(Float32x4Splat)
 
-#define DECLARE_VISIT_UARY_SIMD_OPERATION(opcode)       \
+#define DECLARE_VISIT_UARY_SIMD_OPERATION1(opcode)      \
   void InstructionSelector::Visit##opcode(Node* node) { \
     X64OperandGenerator g(this);                        \
     Emit(k##opcode, g.DefineAsRegister(node),           \
@@ -1351,7 +1352,25 @@ void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
   }
 
 
-UNARY_SIMD_OPERATION_LIST(DECLARE_VISIT_UARY_SIMD_OPERATION)
+UNARY_SIMD_OPERATION_LIST1(DECLARE_VISIT_UARY_SIMD_OPERATION1)
+
+
+#define UNARY_SIMD_OPERATION_LIST2(V) \
+  V(Float32x4Abs)                     \
+  V(Float32x4Neg)                     \
+  V(Float32x4Reciprocal)              \
+  V(Float32x4ReciprocalSqrt)          \
+  V(Float32x4Sqrt)
+
+#define DECLARE_VISIT_UARY_SIMD_OPERATION2(opcode)      \
+  void InstructionSelector::Visit##opcode(Node* node) { \
+    X64OperandGenerator g(this);                        \
+    Emit(k##opcode, g.DefineSameAsFirst(node),          \
+         g.UseRegister(node->InputAt(0)));              \
+  }
+
+
+UNARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_UARY_SIMD_OPERATION2)
 
 
 // static

@@ -748,6 +748,12 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4GetZ:
     case IrOpcode::kFloat32x4GetW:
     case IrOpcode::kFloat32x4GetSignMask:
+    case IrOpcode::kFloat32x4Abs:
+    case IrOpcode::kFloat32x4Neg:
+    case IrOpcode::kFloat32x4Reciprocal:
+    case IrOpcode::kFloat32x4ReciprocalSqrt:
+    case IrOpcode::kFloat32x4Sqrt:
+    case IrOpcode::kFloat32x4Splat:
       // TODO(rossberg): Check.
       break;
   }

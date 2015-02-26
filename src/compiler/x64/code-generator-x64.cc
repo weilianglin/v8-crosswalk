@@ -875,6 +875,27 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     case kFloat32x4GetSignMask:
       __ movmskps(i.OutputRegister(), i.InputFloat32x4Register(0));
       break;
+    case kFloat32x4Abs:
+      __ absps(i.InputFloat32x4Register(0));
+      break;
+    case kFloat32x4Neg:
+      __ negateps(i.InputFloat32x4Register(0));
+      break;
+    case kFloat32x4Reciprocal:
+      __ rcpps(i.OutputFloat32x4Register(), i.InputFloat32x4Register(0));
+      break;
+    case kFloat32x4ReciprocalSqrt:
+      __ rsqrtps(i.OutputFloat32x4Register(), i.InputFloat32x4Register(0));
+      break;
+    case kFloat32x4Sqrt:
+      __ sqrtps(i.OutputFloat32x4Register(), i.InputFloat32x4Register(0));
+      break;
+    case kFloat32x4Splat: {
+      XMMRegister output = i.OutputFloat32x4Register();
+      __ movaps(output, i.InputDoubleRegister(0));
+      __ shufps(output, output, 0x0);
+      break;
+    }
     case kX64Movzxbl:
       __ movzxbl(i.OutputRegister(), i.MemoryOperand());
       break;

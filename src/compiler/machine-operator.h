@@ -177,20 +177,30 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   bool HasFloat64RoundTruncate() { return flags_ & kFloat64RoundTruncate; }
   bool HasFloat64RoundTiesAway() { return flags_ & kFloat64RoundTiesAway; }
 
-  // SIMD operators
-  const Operator* Float32x4Add();
-  const Operator* Float32x4Sub();
-  const Operator* Float32x4Mul();
-  const Operator* Float32x4Div();
-  const Operator* Float32x4Constructor();
-  const Operator* Float32x4Min();
-  const Operator* Float32x4Max();
-  const Operator* Float32x4GetX();
-  const Operator* Float32x4GetY();
-  const Operator* Float32x4GetZ();
-  const Operator* Float32x4GetW();
-  const Operator* Float32x4GetSignMask();
+// SIMD operators
+#define SIMD_OPERATORS(V)    \
+  V(Float32x4Add)            \
+  V(Float32x4Mul)            \
+  V(Float32x4Sub)            \
+  V(Float32x4Div)            \
+  V(Float32x4Constructor)    \
+  V(Float32x4Min)            \
+  V(Float32x4Max)            \
+  V(Float32x4GetX)           \
+  V(Float32x4GetY)           \
+  V(Float32x4GetZ)           \
+  V(Float32x4GetW)           \
+  V(Float32x4GetSignMask)    \
+  V(Float32x4Abs)            \
+  V(Float32x4Neg)            \
+  V(Float32x4Reciprocal)     \
+  V(Float32x4ReciprocalSqrt) \
+  V(Float32x4Splat)          \
+  V(Float32x4Sqrt)
 
+#define DECLARE_SIMD_OPERATORS(opcode) const Operator* opcode();
+
+  SIMD_OPERATORS(DECLARE_SIMD_OPERATORS)
   // load [base + index]
   const Operator* Load(LoadRepresentation rep);
 

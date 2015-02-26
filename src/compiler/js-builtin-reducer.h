@@ -40,6 +40,12 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceFloat32x4Constructor(Node* node);
   Reduction ReduceFloat32x4Min(Node* node);
   Reduction ReduceFloat32x4Max(Node* node);
+  Reduction ReduceFloat32x4Abs(Node* node);
+  Reduction ReduceFloat32x4Neg(Node* node);
+  Reduction ReduceFloat32x4Reciprocal(Node* node);
+  Reduction ReduceFloat32x4ReciprocalSqrt(Node* node);
+  Reduction ReduceFloat32x4Splat(Node* node);
+  Reduction ReduceFloat32x4Sqrt(Node* node);
 
   JSGraph* jsgraph() const { return jsgraph_; }
   Graph* graph() const;
