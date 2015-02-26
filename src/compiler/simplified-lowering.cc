@@ -1043,6 +1043,19 @@ class RepresentationSelector {
         ProcessInput(node, 3, kMachFloat32);
         SetOutput(node, kMachFloat32x4);
         break;
+      case IrOpcode::kFloat32x4GetX:
+      case IrOpcode::kFloat32x4GetY:
+      case IrOpcode::kFloat32x4GetZ:
+      case IrOpcode::kFloat32x4GetW:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachFloat32x4);
+        SetOutput(node, kMachFloat32);
+        break;
+      case IrOpcode::kFloat32x4GetSignMask:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachFloat32x4);
+        SetOutput(node, kMachInt32);
+        break;
       default:
         VisitInputs(node);
         break;

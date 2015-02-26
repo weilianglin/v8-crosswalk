@@ -285,13 +285,13 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
   } while (0)
 
 
-#define ASSEMBLE_FLOAT32x4_BINOP_NOAVX(asm_instr)                            \
-  do {                                                                       \
-    if (instr->InputAt(1)->IsFloat32x4Register()) {                          \
-      __ asm_instr(i.InputFloat32x4Register(0), i.InputFloat32x4Register(1));\
-    } else {                                                                 \
-      __ asm_instr(i.InputFloat32x4Register(0), i.InputOperand(1));          \
-    }                                                                        \
+#define ASSEMBLE_FLOAT32x4_BINOP_NOAVX(asm_instr)                             \
+  do {                                                                        \
+    if (instr->InputAt(1)->IsFloat32x4Register()) {                           \
+      __ asm_instr(i.InputFloat32x4Register(0), i.InputFloat32x4Register(1)); \
+    } else {                                                                  \
+      __ asm_instr(i.InputFloat32x4Register(0), i.InputOperand(1));           \
+    }                                                                         \
   } while (0)
 
 
@@ -526,6 +526,7 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
 // Assembles an instruction after register allocation, producing machine code.
 void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
   X64OperandConverter i(this, instr);
+  int select = 0;
 
   switch (ArchOpcodeField::decode(instr->opcode())) {
     case kArchCallCodeObject: {
@@ -854,6 +855,25 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
         __ movsxbl(i.OutputRegister(), i.InputOperand(0));
       }
       __ AssertZeroExtended(i.OutputRegister());
+      break;
+    case kFloat32x4GetW:
+      select++;
+    case kFloat32x4GetZ:
+      select++;
+    case kFloat32x4GetY:
+      select++;
+    case kFloat32x4GetX: {
+      XMMRegister dst = i.OutputDoubleRegister();
+      XMMRegister input = i.InputFloat32x4Register(0);
+      if (select == 0x0) {
+        __ movaps(dst, input);
+      } else {
+        __ pshufd(dst, input, select);
+      }
+      break;
+    }
+    case kFloat32x4GetSignMask:
+      __ movmskps(i.OutputRegister(), i.InputFloat32x4Register(0));
       break;
     case kX64Movzxbl:
       __ movzxbl(i.OutputRegister(), i.MemoryOperand());

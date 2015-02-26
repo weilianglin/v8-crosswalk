@@ -93,9 +93,6 @@ class InstructionSelector FINAL {
   };
 
   bool IsSupported(CpuFeature feature) const {
-    // TODO(weiliang) remove it when enable AVX for all simd128 instructions
-    if (feature == AVX) return false;
-
     return features_.Contains(feature);
   }
 

@@ -743,6 +743,11 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kChangeTaggedToFloat32x4:
     case IrOpcode::kFloat32x4Min:
     case IrOpcode::kFloat32x4Max:
+    case IrOpcode::kFloat32x4GetX:
+    case IrOpcode::kFloat32x4GetY:
+    case IrOpcode::kFloat32x4GetZ:
+    case IrOpcode::kFloat32x4GetW:
+    case IrOpcode::kFloat32x4GetSignMask:
       // TODO(rossberg): Check.
       break;
   }

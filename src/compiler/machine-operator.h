@@ -185,6 +185,11 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   const Operator* Float32x4Constructor();
   const Operator* Float32x4Min();
   const Operator* Float32x4Max();
+  const Operator* Float32x4GetX();
+  const Operator* Float32x4GetY();
+  const Operator* Float32x4GetZ();
+  const Operator* Float32x4GetW();
+  const Operator* Float32x4GetSignMask();
 
   // load [base + index]
   const Operator* Load(LoadRepresentation rep);

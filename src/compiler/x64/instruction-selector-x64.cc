@@ -1336,6 +1336,24 @@ void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
 }
 
 
+#define UNARY_SIMD_OPERATION_LIST(V) \
+  V(Float32x4GetX)                   \
+  V(Float32x4GetY)                   \
+  V(Float32x4GetZ)                   \
+  V(Float32x4GetW)                   \
+  V(Float32x4GetSignMask)
+
+#define DECLARE_VISIT_UARY_SIMD_OPERATION(opcode)       \
+  void InstructionSelector::Visit##opcode(Node* node) { \
+    X64OperandGenerator g(this);                        \
+    Emit(k##opcode, g.DefineAsRegister(node),           \
+         g.UseRegister(node->InputAt(0)));              \
+  }
+
+
+UNARY_SIMD_OPERATION_LIST(DECLARE_VISIT_UARY_SIMD_OPERATION)
+
+
 // static
 MachineOperatorBuilder::Flags
 InstructionSelector::SupportedMachineOperatorFlags() {

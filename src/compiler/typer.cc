@@ -2092,6 +2092,31 @@ Bounds Typer::Visitor::TypeFloat32x4Max(Node* node) {
 }
 
 
+Bounds Typer::Visitor::TypeFloat32x4GetX(Node* node) {
+  return Bounds(Type::UntaggedFloat32());
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4GetY(Node* node) {
+  return Bounds(Type::UntaggedFloat32());
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4GetZ(Node* node) {
+  return Bounds(Type::UntaggedFloat32());
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4GetW(Node* node) {
+  return Bounds(Type::UntaggedFloat32());
+}
+
+
+Bounds Typer::Visitor::TypeFloat32x4GetSignMask(Node* node) {
+  return Bounds(Type::UntaggedSigned32());
+}
+
+
 // Heap constants.
 
 

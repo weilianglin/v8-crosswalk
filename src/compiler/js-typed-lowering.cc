@@ -37,6 +37,12 @@ JSTypedLowering::JSTypedLowering(JSGraph* jsgraph, Zone* zone)
   one_range_ = Type::Range(one, one, graph()->zone());
   Handle<Object> thirtyone = factory()->NewNumber(31.0);
   zero_thirtyone_range_ = Type::Range(zero, thirtyone, graph()->zone());
+
+  Isolate* isolate = jsgraph_->isolate();
+  Handle<Map> float32x4_map = handle(
+      isolate->native_context()->float32x4_function()->initial_map(), isolate);
+  float32x4_ = Type::Class(float32x4_map, jsgraph_->zone());
+
   // TODO(jarin): Can we have a correctification of the stupid type system?
   // These stupid work-arounds are just stupid!
   shifted_int32_ranges_[0] = Type::Signed32();
@@ -731,6 +737,43 @@ Reduction JSTypedLowering::ReduceJSLoadProperty(Node* node) {
 }
 
 
+static bool CheckSIMDType(Node* obj, Type* t, IrOpcode::Value opcode) {
+  return (NodeProperties::GetBounds(obj).upper->Is(t) ||
+          obj->opcode() == opcode ||
+          (obj->opcode() == IrOpcode::kHeapConstant &&
+           OpParameter<Unique<HeapObject> >(obj).handle()->map() ==
+               *(t->AsClass()->Map())));
+}
+
+
+Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
+  Node* obj = NodeProperties::GetValueInput(node, 0);
+  const LoadNamedParameters& p = LoadNamedParametersOf(node->op());
+  Isolate* isolate = jsgraph()->isolate();
+  if (CheckSIMDType(obj, float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
+    Node* value = NULL;
+    Handle<Name> name = p.name().handle();
+    if (name->Equals(isolate->heap()->x())) {
+      value = graph()->NewNode(machine()->Float32x4GetX(), obj);
+    } else if (name->Equals(isolate->heap()->y())) {
+      value = graph()->NewNode(machine()->Float32x4GetY(), obj);
+    } else if (name->Equals(isolate->heap()->z())) {
+      value = graph()->NewNode(machine()->Float32x4GetZ(), obj);
+    } else if (name->Equals(isolate->heap()->w())) {
+      value = graph()->NewNode(machine()->Float32x4GetW(), obj);
+    } else if (name->Equals(isolate->heap()->signMask())) {
+      value = graph()->NewNode(machine()->Float32x4GetSignMask(), obj);
+    }
+
+    if (value != NULL) {
+      NodeProperties::ReplaceWithValue(node, value);
+      return Replace(value);
+    }
+  }
+  return NoChange();
+}
+
+
 Reduction JSTypedLowering::ReduceJSStoreProperty(Node* node) {
   Node* key = NodeProperties::GetValueInput(node, 1);
   Node* base = NodeProperties::GetValueInput(node, 0);
@@ -929,6 +972,8 @@ Reduction JSTypedLowering::Reduce(Node* node) {
       return ReduceJSToString(node);
     case IrOpcode::kJSLoadProperty:
       return ReduceJSLoadProperty(node);
+    case IrOpcode::kJSLoadNamed:
+      return ReduceJSLoadNamed(node);
     case IrOpcode::kJSStoreProperty:
       return ReduceJSStoreProperty(node);
     case IrOpcode::kJSLoadContext:

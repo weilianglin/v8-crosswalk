@@ -36,6 +36,7 @@ class JSTypedLowering FINAL : public Reducer {
   Reduction ReduceJSMultiply(Node* node);
   Reduction ReduceJSComparison(Node* node);
   Reduction ReduceJSLoadProperty(Node* node);
+  Reduction ReduceJSLoadNamed(Node* node);
   Reduction ReduceJSStoreProperty(Node* node);
   Reduction ReduceJSLoadContext(Node* node);
   Reduction ReduceJSStoreContext(Node* node);
@@ -74,6 +75,7 @@ class JSTypedLowering FINAL : public Reducer {
   Type* zero_range_;
   Type* one_range_;
   Type* zero_thirtyone_range_;
+  Type* float32x4_;
   Type* shifted_int32_ranges_[4];
 };
 

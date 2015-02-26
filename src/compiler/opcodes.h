@@ -247,7 +247,12 @@
   V(Float32x4Div)             \
   V(Float32x4Constructor)     \
   V(Float32x4Min)             \
-  V(Float32x4Max)
+  V(Float32x4Max)             \
+  V(Float32x4GetX)            \
+  V(Float32x4GetY)            \
+  V(Float32x4GetZ)            \
+  V(Float32x4GetW)            \
+  V(Float32x4GetSignMask)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \
