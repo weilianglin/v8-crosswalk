@@ -306,6 +306,19 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
 REDUCED_SIMD_UNARY_OPERATIONS(DECLARE_REDUCE_UNARY_SIMD_OPERATION)
 
 
+Reduction JSBuiltinReducer::ReduceFloat32x4Clamp(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(float32x4_)) {
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Clamp(), r.GetJSCallInput(0),
+                         r.GetJSCallInput(1), r.GetJSCallInput(2));
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
 Reduction JSBuiltinReducer::Reduce(Node* node) {
   JSCallReduction r(node);
 
@@ -361,6 +374,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat32x4WithZ(node));
     case kFloat32x4WithW:
       return ReplaceWithPureReduction(node, ReduceFloat32x4WithW(node));
+    case kFloat32x4Clamp:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Clamp(node));
     default:
       break;
   }

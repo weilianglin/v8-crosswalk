@@ -1080,6 +1080,13 @@ class RepresentationSelector {
         ProcessInput(node, 1, kMachFloat32);
         SetOutput(node, kMachFloat32x4);
         break;
+      case IrOpcode::kFloat32x4Clamp:
+        DCHECK_EQ(3, node->InputCount());
+        ProcessInput(node, 0, kMachFloat32x4);
+        ProcessInput(node, 1, kMachFloat32x4);
+        ProcessInput(node, 2, kMachFloat32x4);
+        SetOutput(node, kMachFloat32x4);
+        break;
       default:
         VisitInputs(node);
         break;

@@ -1408,6 +1408,14 @@ void InstructionSelector::VisitFloat32x4WithW(Node* node) {
 }
 
 
+void InstructionSelector::VisitFloat32x4Clamp(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4Clamp, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseRegister(node->InputAt(2)));
+}
+
+
 // static
 MachineOperatorBuilder::Flags
 InstructionSelector::SupportedMachineOperatorFlags() {

@@ -923,6 +923,14 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       }
       break;
     }
+    case kFloat32x4Clamp: {
+      XMMRegister value_reg = i.InputFloat32x4Register(0);
+      XMMRegister lower_reg = i.InputFloat32x4Register(1);
+      XMMRegister upper_reg = i.InputFloat32x4Register(2);
+      __ minps(value_reg, upper_reg);
+      __ maxps(value_reg, lower_reg);
+      break;
+    }
     case kX64Movzxbl:
       __ movzxbl(i.OutputRegister(), i.MemoryOperand());
       break;
