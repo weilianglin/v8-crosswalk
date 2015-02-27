@@ -1225,7 +1225,7 @@ Bounds Typer::Visitor::TypeJSToObject(Node* node) {
 
 
 Bounds Typer::Visitor::TypeJSToFloat32x4Obj(Node* node) {
-  return Bounds(Type::None(), Type::Receiver());
+  return Bounds(typer_->float32x4_);
 }
 
 
@@ -2178,6 +2178,8 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
       TYPED_ARRAYS(TYPED_ARRAY_CASE)
 #undef TYPED_ARRAY_CASE
     }
+  } else if (value->IsFloat32x4()) {
+    return typer_->float32x4_;
   }
   return Type::Constant(value, zone());
 }

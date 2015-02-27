@@ -737,20 +737,11 @@ Reduction JSTypedLowering::ReduceJSLoadProperty(Node* node) {
 }
 
 
-static bool CheckSIMDType(Node* obj, Type* t, IrOpcode::Value opcode) {
-  return (NodeProperties::GetBounds(obj).upper->Is(t) ||
-          obj->opcode() == opcode ||
-          (obj->opcode() == IrOpcode::kHeapConstant &&
-           OpParameter<Unique<HeapObject> >(obj).handle()->map() ==
-               *(t->AsClass()->Map())));
-}
-
-
 Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
   Node* obj = NodeProperties::GetValueInput(node, 0);
   const LoadNamedParameters& p = LoadNamedParametersOf(node->op());
   Isolate* isolate = jsgraph()->isolate();
-  if (CheckSIMDType(obj, float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
+  if (NodeProperties::GetBounds(obj).upper->Is(float32x4_)) {
     Node* value = NULL;
     Handle<Name> name = p.name().handle();
     if (name->Equals(isolate->heap()->x())) {

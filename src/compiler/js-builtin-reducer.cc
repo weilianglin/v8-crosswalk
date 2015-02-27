@@ -66,30 +66,6 @@ class JSCallReduction {
            NodeProperties::GetBounds(GetJSCallInput(1)).upper->Is(t2);
   }
 
-  bool InputsMatchOneEither(Type* t, IrOpcode::Value opcode) {
-    return GetJSCallArity() == 1 &&
-           (NodeProperties::GetBounds(left()).upper->Is(t) ||
-            left()->opcode() == opcode ||
-            (left()->opcode() == IrOpcode::kHeapConstant &&
-             OpParameter<Unique<HeapObject> >(left()).handle()->map() ==
-                 *(t->AsClass()->Map())));
-  }
-
-  // Determines whether the call takes two inputs of the given opcodes.
-  bool InputsMatchTwoEither(Type* t, IrOpcode::Value opcode) {
-    return GetJSCallArity() == 2 &&
-           (NodeProperties::GetBounds(left()).upper->Is(t) ||
-            left()->opcode() == opcode ||
-            (left()->opcode() == IrOpcode::kHeapConstant &&
-             OpParameter<Unique<HeapObject> >(left()).handle()->map() ==
-                 *(t->AsClass()->Map()))) &&
-           (NodeProperties::GetBounds(right()).upper->Is(t) ||
-            right()->opcode() == opcode ||
-            (right()->opcode() == IrOpcode::kHeapConstant &&
-             OpParameter<Unique<HeapObject> >(right()).handle()->map() ==
-                 *(t->AsClass()->Map())));
-  }
-
   // Determines whether the call takes inputs all of the given type.
   bool InputsMatchAll(Type* t) {
     for (int i = 0; i < GetJSCallArity(); i++) {
@@ -240,60 +216,30 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
 }
 
 
-Reduction JSBuiltinReducer::ReduceFloat32x4Add(Node* node) {
-  JSCallReduction r(node);
+#define REDUCED_SIMD_BINARY_OPERATIONS(V) \
+  V(float32x4_, Float32x4Add)             \
+  V(float32x4_, Float32x4Sub)             \
+  V(float32x4_, Float32x4Mul)             \
+  V(float32x4_, Float32x4Div)             \
+  V(float32x4_, Float32x4Max)             \
+  V(float32x4_, Float32x4Min)
 
-  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
-    // SIMD.float32x4.add(a:float32x4, b:float32x4) -> Float32x4Add(a, b)
-    Node* value =
-        graph()->NewNode(machine()->Float32x4Add(), r.left(), r.right());
-    return Replace(value);
+
+#define DECLARE_REDUCE_BINARY_SIMD_OPERATION(type, opcode)            \
+  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {            \
+    JSCallReduction r(node);                                          \
+                                                                      \
+    if (r.InputsMatchTwo(type, type)) {                               \
+      Node* value =                                                   \
+          graph()->NewNode(machine()->opcode(), r.left(), r.right()); \
+      return Replace(value);                                          \
+    }                                                                 \
+                                                                      \
+    return NoChange();                                                \
   }
 
-  return NoChange();
-}
 
-
-Reduction JSBuiltinReducer::ReduceFloat32x4Sub(Node* node) {
-  JSCallReduction r(node);
-
-  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
-    // SIMD.float32x4.sub(a:float32x4, b:float32x4) -> Float32x4Sub(a, b)
-    Node* value =
-        graph()->NewNode(machine()->Float32x4Sub(), r.left(), r.right());
-    return Replace(value);
-  }
-
-  return NoChange();
-}
-
-
-Reduction JSBuiltinReducer::ReduceFloat32x4Mul(Node* node) {
-  JSCallReduction r(node);
-
-  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
-    // SIMD.float32x4.mul(a:float32x4, b:float32x4) -> Float32x4Mul(a, b)
-    Node* value =
-        graph()->NewNode(machine()->Float32x4Mul(), r.left(), r.right());
-    return Replace(value);
-  }
-
-  return NoChange();
-}
-
-
-Reduction JSBuiltinReducer::ReduceFloat32x4Div(Node* node) {
-  JSCallReduction r(node);
-
-  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
-    // SIMD.float32x4.div(a:float32x4, b:float32x4) -> Float32x4Div(a, b)
-    Node* value =
-        graph()->NewNode(machine()->Float32x4Div(), r.left(), r.right());
-    return Replace(value);
-  }
-
-  return NoChange();
-}
+REDUCED_SIMD_BINARY_OPERATIONS(DECLARE_REDUCE_BINARY_SIMD_OPERATION)
 
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
@@ -331,51 +277,23 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
 }
 
 
-Reduction JSBuiltinReducer::ReduceFloat32x4Min(Node* node) {
-  JSCallReduction r(node);
+#define REDUCED_SIMD_UNARY_OPERATIONS(V) \
+  V(float32x4_, Float32x4Abs)            \
+  V(float32x4_, Float32x4Neg)            \
+  V(float32x4_, Float32x4Reciprocal)     \
+  V(float32x4_, Float32x4ReciprocalSqrt) \
+  V(float32x4_, Float32x4Sqrt)
 
-  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
-    // SIMD.float32x4.min(a:float32x4, b:float32x4) -> Float32x4Min(a, b)
-    Node* value =
-        graph()->NewNode(machine()->Float32x4Min(), r.left(), r.right());
-    return Replace(value);
-  }
-
-  return NoChange();
-}
-
-
-Reduction JSBuiltinReducer::ReduceFloat32x4Max(Node* node) {
-  JSCallReduction r(node);
-
-  if (r.InputsMatchTwoEither(float32x4_, IrOpcode::kJSToFloat32x4Obj)) {
-    // SIMD.float32x4.max(a:float32x4, b:float32x4) -> Float32x4Max(a, b)
-    Node* value =
-        graph()->NewNode(machine()->Float32x4Max(), r.left(), r.right());
-    return Replace(value);
-  }
-
-  return NoChange();
-}
-
-
-#define REDUCED_SIMD_UNARY_OPERATIONS(V)                    \
-  V(float32x4_, kJSToFloat32x4Obj, Float32x4Abs)            \
-  V(float32x4_, kJSToFloat32x4Obj, Float32x4Neg)            \
-  V(float32x4_, kJSToFloat32x4Obj, Float32x4Reciprocal)     \
-  V(float32x4_, kJSToFloat32x4Obj, Float32x4ReciprocalSqrt) \
-  V(float32x4_, kJSToFloat32x4Obj, Float32x4Sqrt)
-
-#define DECLARE_REDUCE_UNARY_SIMD_OPERATION(type, type_opcode, opcode) \
-  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {             \
-    JSCallReduction r(node);                                           \
-                                                                       \
-    if (r.InputsMatchOneEither(type, IrOpcode::type_opcode)) {         \
-      Node* value = graph()->NewNode(machine()->opcode(), r.left());   \
-      return Replace(value);                                           \
-    }                                                                  \
-                                                                       \
-    return NoChange();                                                 \
+#define DECLARE_REDUCE_UNARY_SIMD_OPERATION(type, opcode)            \
+  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {           \
+    JSCallReduction r(node);                                         \
+                                                                     \
+    if (r.InputsMatchOne(type)) {                                    \
+      Node* value = graph()->NewNode(machine()->opcode(), r.left()); \
+      return Replace(value);                                         \
+    }                                                                \
+                                                                     \
+    return NoChange();                                               \
   }
 
 

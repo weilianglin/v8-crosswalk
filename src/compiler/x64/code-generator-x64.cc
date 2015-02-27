@@ -866,7 +866,7 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       XMMRegister dst = i.OutputDoubleRegister();
       XMMRegister input = i.InputFloat32x4Register(0);
       if (select == 0x0) {
-        __ movaps(dst, input);
+        if (!dst.is(input)) __ movaps(dst, input);
       } else {
         __ pshufd(dst, input, select);
       }
