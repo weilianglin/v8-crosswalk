@@ -526,7 +526,7 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
 // Assembles an instruction after register allocation, producing machine code.
 void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
   X64OperandConverter i(this, instr);
-  int select = 0;
+  uint8_t select = 0;
 
   switch (ArchOpcodeField::decode(instr->opcode())) {
     case kArchCallCodeObject: {
@@ -894,6 +894,33 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       XMMRegister output = i.OutputFloat32x4Register();
       __ movaps(output, i.InputDoubleRegister(0));
       __ shufps(output, output, 0x0);
+      break;
+    }
+    case kFloat32x4Scale: {
+      XMMRegister scale = i.InputDoubleRegister(1);
+      __ shufps(scale, scale, 0x0);
+      __ mulps(i.InputFloat32x4Register(0), scale);
+      break;
+    }
+    case kFloat32x4WithW:
+      select++;
+    case kFloat32x4WithZ:
+      select++;
+    case kFloat32x4WithY:
+      select++;
+    case kFloat32x4WithX: {
+      if (CpuFeatures::IsSupported(SSE4_1)) {
+        select = select << 4;
+        CpuFeatureScope scope(masm(), SSE4_1);
+        __ insertps(i.InputFloat32x4Register(0), i.InputDoubleRegister(1),
+                    select);
+      } else {
+        __ subq(rsp, Immediate(kFloat32x4Size));
+        __ movups(Operand(rsp, 0), i.InputFloat32x4Register(0));
+        __ movss(Operand(rsp, select * kFloatSize), i.InputDoubleRegister(1));
+        __ movups(i.InputFloat32x4Register(0), Operand(rsp, 0));
+        __ addq(rsp, Immediate(kFloat32x4Size));
+      }
       break;
     }
     case kX64Movzxbl:

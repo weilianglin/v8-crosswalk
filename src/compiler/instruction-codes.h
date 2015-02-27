@@ -69,6 +69,11 @@ namespace compiler {
   V(Float32x4ReciprocalSqrt) \
   V(Float32x4Splat)          \
   V(Float32x4Sqrt)           \
+  V(Float32x4Scale)          \
+  V(Float32x4WithX)          \
+  V(Float32x4WithY)          \
+  V(Float32x4WithZ)          \
+  V(Float32x4WithW)          \
   TARGET_ARCH_OPCODE_LIST(V)
 
 enum ArchOpcode {

@@ -216,20 +216,25 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
 }
 
 
-#define REDUCED_SIMD_BINARY_OPERATIONS(V) \
-  V(float32x4_, Float32x4Add)             \
-  V(float32x4_, Float32x4Sub)             \
-  V(float32x4_, Float32x4Mul)             \
-  V(float32x4_, Float32x4Div)             \
-  V(float32x4_, Float32x4Max)             \
-  V(float32x4_, Float32x4Min)
+#define REDUCED_SIMD_BINARY_OPERATIONS(V)       \
+  V(float32x4_, float32x4_, Float32x4Add)       \
+  V(float32x4_, float32x4_, Float32x4Sub)       \
+  V(float32x4_, float32x4_, Float32x4Mul)       \
+  V(float32x4_, float32x4_, Float32x4Div)       \
+  V(float32x4_, float32x4_, Float32x4Max)       \
+  V(float32x4_, float32x4_, Float32x4Min)       \
+  V(float32x4_, Type::Number(), Float32x4Scale) \
+  V(float32x4_, Type::Number(), Float32x4WithX) \
+  V(float32x4_, Type::Number(), Float32x4WithY) \
+  V(float32x4_, Type::Number(), Float32x4WithZ) \
+  V(float32x4_, Type::Number(), Float32x4WithW)
 
 
-#define DECLARE_REDUCE_BINARY_SIMD_OPERATION(type, opcode)            \
+#define DECLARE_REDUCE_BINARY_SIMD_OPERATION(type1, type2, opcode)    \
   Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {            \
     JSCallReduction r(node);                                          \
                                                                       \
-    if (r.InputsMatchTwo(type, type)) {                               \
+    if (r.InputsMatchTwo(type1, type2)) {                             \
       Node* value =                                                   \
           graph()->NewNode(machine()->opcode(), r.left(), r.right()); \
       return Replace(value);                                          \
@@ -282,7 +287,8 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
   V(float32x4_, Float32x4Neg)            \
   V(float32x4_, Float32x4Reciprocal)     \
   V(float32x4_, Float32x4ReciprocalSqrt) \
-  V(float32x4_, Float32x4Sqrt)
+  V(float32x4_, Float32x4Sqrt)           \
+  V(Type::Number(), Float32x4Splat)
 
 #define DECLARE_REDUCE_UNARY_SIMD_OPERATION(type, opcode)            \
   Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {           \
@@ -298,18 +304,6 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
 
 
 REDUCED_SIMD_UNARY_OPERATIONS(DECLARE_REDUCE_UNARY_SIMD_OPERATION)
-
-
-Reduction JSBuiltinReducer::ReduceFloat32x4Splat(Node* node) {
-  JSCallReduction r(node);
-
-  if (r.InputsMatchOne(Type::Number())) {
-    Node* value = graph()->NewNode(machine()->Float32x4Splat(), r.left());
-    return Replace(value);
-  }
-
-  return NoChange();
-}
 
 
 Reduction JSBuiltinReducer::Reduce(Node* node) {
@@ -357,6 +351,16 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat32x4Splat(node));
     case kFloat32x4Sqrt:
       return ReplaceWithPureReduction(node, ReduceFloat32x4Sqrt(node));
+    case kFloat32x4Scale:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Scale(node));
+    case kFloat32x4WithX:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4WithX(node));
+    case kFloat32x4WithY:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4WithY(node));
+    case kFloat32x4WithZ:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4WithZ(node));
+    case kFloat32x4WithW:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4WithW(node));
     default:
       break;
   }

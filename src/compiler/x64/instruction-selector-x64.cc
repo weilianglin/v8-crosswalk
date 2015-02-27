@@ -1373,6 +1373,41 @@ UNARY_SIMD_OPERATION_LIST1(DECLARE_VISIT_UARY_SIMD_OPERATION1)
 UNARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_UARY_SIMD_OPERATION2)
 
 
+void InstructionSelector::VisitFloat32x4Scale(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4Scale, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
+}
+
+
+void InstructionSelector::VisitFloat32x4WithX(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4WithX, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
+}
+
+
+void InstructionSelector::VisitFloat32x4WithY(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4WithY, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
+}
+
+
+void InstructionSelector::VisitFloat32x4WithZ(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4WithZ, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
+}
+
+
+void InstructionSelector::VisitFloat32x4WithW(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4WithW, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
+}
+
+
 // static
 MachineOperatorBuilder::Flags
 InstructionSelector::SupportedMachineOperatorFlags() {

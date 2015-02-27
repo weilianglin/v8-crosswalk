@@ -2069,7 +2069,12 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(float32x4_, Float32x4Reciprocal)     \
   V(float32x4_, Float32x4ReciprocalSqrt) \
   V(float32x4_, Float32x4Splat)          \
-  V(float32x4_, Float32x4Sqrt)
+  V(float32x4_, Float32x4Sqrt)           \
+  V(float32x4_, Float32x4Scale)          \
+  V(float32x4_, Float32x4WithX)          \
+  V(float32x4_, Float32x4WithY)          \
+  V(float32x4_, Float32x4WithZ)          \
+  V(float32x4_, Float32x4WithW)
 
 
 #define DECLARE_TYPE_SIMD_OPERATION(type, opcode)   \

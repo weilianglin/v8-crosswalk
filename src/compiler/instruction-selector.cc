@@ -921,6 +921,16 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsFloat32x4(node), VisitFloat32x4Splat(node);
     case IrOpcode::kFloat32x4Sqrt:
       return MarkAsFloat32x4(node), VisitFloat32x4Sqrt(node);
+    case IrOpcode::kFloat32x4Scale:
+      return MarkAsFloat32x4(node), VisitFloat32x4Scale(node);
+    case IrOpcode::kFloat32x4WithX:
+      return MarkAsFloat32x4(node), VisitFloat32x4WithX(node);
+    case IrOpcode::kFloat32x4WithY:
+      return MarkAsFloat32x4(node), VisitFloat32x4WithY(node);
+    case IrOpcode::kFloat32x4WithZ:
+      return MarkAsFloat32x4(node), VisitFloat32x4WithZ(node);
+    case IrOpcode::kFloat32x4WithW:
+      return MarkAsFloat32x4(node), VisitFloat32x4WithW(node);
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());

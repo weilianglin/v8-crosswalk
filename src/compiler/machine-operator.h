@@ -196,7 +196,12 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   V(Float32x4Reciprocal)     \
   V(Float32x4ReciprocalSqrt) \
   V(Float32x4Splat)          \
-  V(Float32x4Sqrt)
+  V(Float32x4Sqrt)           \
+  V(Float32x4Scale)          \
+  V(Float32x4WithX)          \
+  V(Float32x4WithY)          \
+  V(Float32x4WithZ)          \
+  V(Float32x4WithW)
 
 #define DECLARE_SIMD_OPERATORS(opcode) const Operator* opcode();
 

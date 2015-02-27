@@ -754,6 +754,11 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4ReciprocalSqrt:
     case IrOpcode::kFloat32x4Sqrt:
     case IrOpcode::kFloat32x4Splat:
+    case IrOpcode::kFloat32x4Scale:
+    case IrOpcode::kFloat32x4WithX:
+    case IrOpcode::kFloat32x4WithY:
+    case IrOpcode::kFloat32x4WithZ:
+    case IrOpcode::kFloat32x4WithW:
       // TODO(rossberg): Check.
       break;
   }

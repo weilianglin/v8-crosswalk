@@ -1186,10 +1186,8 @@ int DisassemblerX64::TwoByteOpcodeInstruction(byte* data) {
       } else if (third_byte == 0x21) {
         get_modrm(*current, &mod, &regop, &rm);
         // insertps xmm, xmm, imm8
-        AppendToBuffer("insertps %s,%s,%d",
-                       NameOfXMMRegister(regop),
-                       NameOfXMMRegister(rm),
-                       (*(current + 1)) & 3);
+        AppendToBuffer("insertps %s,%s,0x%x", NameOfXMMRegister(regop),
+                       NameOfXMMRegister(rm), *(current + 1));
         current += 2;
       } else if (third_byte == 0x22) {
         get_modrm(*current, &mod, &regop, &rm);
