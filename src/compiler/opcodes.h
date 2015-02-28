@@ -264,7 +264,8 @@
   V(Float32x4WithY)           \
   V(Float32x4WithZ)           \
   V(Float32x4WithW)           \
-  V(Float32x4Clamp)
+  V(Float32x4Clamp)           \
+  V(Float32x4Swizzle)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \

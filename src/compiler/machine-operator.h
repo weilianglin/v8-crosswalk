@@ -202,7 +202,8 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   V(Float32x4WithY)          \
   V(Float32x4WithZ)          \
   V(Float32x4WithW)          \
-  V(Float32x4Clamp)
+  V(Float32x4Clamp)          \
+  V(Float32x4Swizzle)
 
 #define DECLARE_SIMD_OPERATORS(opcode) const Operator* opcode();
 

@@ -1416,6 +1416,15 @@ void InstructionSelector::VisitFloat32x4Clamp(Node* node) {
 }
 
 
+void InstructionSelector::VisitFloat32x4Swizzle(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4Swizzle, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseImmediate(node->InputAt(1)),
+       g.UseImmediate(node->InputAt(2)), g.UseImmediate(node->InputAt(3)),
+       g.UseImmediate(node->InputAt(4)));
+}
+
+
 // static
 MachineOperatorBuilder::Flags
 InstructionSelector::SupportedMachineOperatorFlags() {

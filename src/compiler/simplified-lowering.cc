@@ -1087,6 +1087,15 @@ class RepresentationSelector {
         ProcessInput(node, 2, kMachFloat32x4);
         SetOutput(node, kMachFloat32x4);
         break;
+      case IrOpcode::kFloat32x4Swizzle:
+        DCHECK_EQ(5, node->InputCount());
+        ProcessInput(node, 0, kMachFloat32x4);
+        ProcessInput(node, 1, kMachInt32);
+        ProcessInput(node, 2, kMachInt32);
+        ProcessInput(node, 3, kMachInt32);
+        ProcessInput(node, 4, kMachInt32);
+        SetOutput(node, kMachFloat32x4);
+        break;
       default:
         VisitInputs(node);
         break;

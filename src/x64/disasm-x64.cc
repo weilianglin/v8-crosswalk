@@ -1570,16 +1570,7 @@ int DisassemblerX64::TwoByteOpcodeInstruction(byte* data) {
     get_modrm(*current, &mod, &regop, &rm);
     AppendToBuffer("shufps %s, ", NameOfXMMRegister(regop));
     current += PrintRightXMMOperand(current);
-    AppendToBuffer(", %d", (*current) & 3);
-    current += 1;
-
-  } else if (opcode == 0xC6) {
-    // shufps xmm, xmm/m128, imm8
-    int mod, regop, rm;
-    get_modrm(*current, &mod, &regop, &rm);
-    AppendToBuffer("shufps %s, ", NameOfXMMRegister(regop));
-    current += PrintRightXMMOperand(current);
-    AppendToBuffer(", %d", (*current) & 3);
+    AppendToBuffer(", 0x%x", *current);
     current += 1;
 
   } else if (opcode == 0x54) {

@@ -36,32 +36,33 @@ function asmModule(stdlib, imports, buffer) {
   var fwithZ = f4.withZ;
   var fwithW = f4.withW;
   var fclamp = f4.clamp;
+  var fswizzle = f4.swizzle;
 
   function scale(a, b) {
     a = f4(a);
     b = +b;
-    var ret = f4(); 
+    var ret = f4();
     ret = fscale(a, b);
     return f4(ret);
   }
   function withX(a, b) {
     a = f4(a);
     b = +b;
-    var ret = f4(); 
+    var ret = f4();
     ret = fwithX(a, b);
     return f4(ret);
   }
   function withY(a, b) {
     a = f4(a);
     b = +b;
-    var ret = f4(); 
+    var ret = f4();
     ret = fwithY(a, b);
     return f4(ret);
   }
   function withZ(a, b) {
     a = f4(a);
     b = +b;
-    var ret = f4(); 
+    var ret = f4();
     ret = fwithZ(a, b);
     return f4(ret);
   }
@@ -80,7 +81,19 @@ function asmModule(stdlib, imports, buffer) {
     ret = fclamp(a, b, c);
     return f4(ret);
   }
-  return {scale : scale, withX : withX, withY : withY, withZ : withZ, withW : withW, clamp : clamp};
+  function swizzle1(a) {
+    a = f4(a);
+    var ret = f4();
+    ret = fswizzle(a, 0, 0, 0, 0);
+    return f4(ret);
+  }
+  function swizzle2(a) {
+    a = f4(a);
+    var ret = f4();
+    ret = fswizzle(a, 3, 2, 1, 0);
+    return f4(ret);
+  }
+  return {scale : scale, withX : withX, withY : withY, withZ : withZ, withW : withW, clamp : clamp, swizzle1 : swizzle1, swizzle2 : swizzle2};
 }
 
 
@@ -122,6 +135,20 @@ assertEquals(result.w, expected.w);
 
 var result = m.clamp(SIMD.float32x4(1.0, -2.0, 3.0, -4.0), SIMD.float32x4(0.0, 0.0, 0.0, 0.0), SIMD.float32x4(2.0, 2.0, 2.0, 2.0));
 var expected = SIMD.float32x4.clamp(SIMD.float32x4(1.0, -2.0, 3.0, -4.0), SIMD.float32x4(0.0, 0.0, 0.0, 0.0), SIMD.float32x4(2.0, 2.0, 2.0, 2.0));
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.swizzle1(SIMD.float32x4(1.0, 2.0, 3.0, 4.0));
+var expected = SIMD.float32x4.swizzle(SIMD.float32x4(1.0, 2.0, 3.0, 4.0), 0, 0, 0, 0);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.swizzle2(SIMD.float32x4(1.0, 2.0, 3.0, 4.0));
+var expected = SIMD.float32x4.swizzle(SIMD.float32x4(1.0, 2.0, 3.0, 4.0), 3, 2, 1, 0);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);

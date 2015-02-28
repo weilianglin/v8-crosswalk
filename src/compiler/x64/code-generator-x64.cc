@@ -523,6 +523,15 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
   } while (false)
 
 
+static uint8_t ComputeShuffleSelect(uint32_t x, uint32_t y, uint32_t z,
+                                    uint32_t w) {
+  DCHECK(x < 4 && y < 4 && z < 4 && w < 4);
+  uint32_t r =
+      static_cast<uint8_t>(((w << 6) | (z << 4) | (y << 2) | (x << 0)) & 0xFF);
+  return r;
+}
+
+
 // Assembles an instruction after register allocation, producing machine code.
 void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
   X64OperandConverter i(this, instr);
@@ -929,6 +938,13 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       XMMRegister upper_reg = i.InputFloat32x4Register(2);
       __ minps(value_reg, upper_reg);
       __ maxps(value_reg, lower_reg);
+      break;
+    }
+    case kFloat32x4Swizzle: {
+      uint8_t s = ComputeShuffleSelect(i.InputInt32(1), i.InputInt32(2),
+                                       i.InputInt32(3), i.InputInt32(4));
+      XMMRegister value_reg = i.InputFloat32x4Register(0);
+      __ shufps(value_reg, value_reg, s);
       break;
     }
     case kX64Movzxbl:
