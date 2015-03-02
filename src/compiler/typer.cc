@@ -1225,7 +1225,7 @@ Bounds Typer::Visitor::TypeJSToObject(Node* node) {
 
 
 Bounds Typer::Visitor::TypeJSToFloat32x4Obj(Node* node) {
-  return Bounds(typer_->float32x4_);
+  return Bounds(Type::Intersect(typer_->float32x4_, Type::Tagged(), zone()));
 }
 
 
@@ -2079,9 +2079,10 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(float32x4_, Float32x4Swizzle)
 
 
-#define DECLARE_TYPE_SIMD_OPERATION(type, opcode)   \
-  Bounds Typer::Visitor::Type##opcode(Node* node) { \
-    return Bounds(typer_->type);                    \
+#define DECLARE_TYPE_SIMD_OPERATION(type, opcode)                         \
+  Bounds Typer::Visitor::Type##opcode(Node* node) {                       \
+    return Bounds(                                                        \
+        Type::Intersect(typer_->type, Type::Untagged(), typer_->zone())); \
   }
 
 
@@ -2089,27 +2090,32 @@ SIMD_OPERATIONS(DECLARE_TYPE_SIMD_OPERATION)
 
 
 Bounds Typer::Visitor::TypeFloat32x4GetX(Node* node) {
-  return Bounds(Type::UntaggedFloat32());
+  return Bounds(
+      Type::Intersect(Type::Number(), Type::UntaggedFloat32(), zone()));
 }
 
 
 Bounds Typer::Visitor::TypeFloat32x4GetY(Node* node) {
-  return Bounds(Type::UntaggedFloat32());
+  return Bounds(
+      Type::Intersect(Type::Number(), Type::UntaggedFloat32(), zone()));
 }
 
 
 Bounds Typer::Visitor::TypeFloat32x4GetZ(Node* node) {
-  return Bounds(Type::UntaggedFloat32());
+  return Bounds(
+      Type::Intersect(Type::Number(), Type::UntaggedFloat32(), zone()));
 }
 
 
 Bounds Typer::Visitor::TypeFloat32x4GetW(Node* node) {
-  return Bounds(Type::UntaggedFloat32());
+  return Bounds(
+      Type::Intersect(Type::Number(), Type::UntaggedFloat32(), zone()));
 }
 
 
 Bounds Typer::Visitor::TypeFloat32x4GetSignMask(Node* node) {
-  return Bounds(Type::UntaggedSigned32());
+  return Bounds(
+      Type::Intersect(Type::Signed32(), Type::UntaggedSigned32(), zone()));
 }
 
 
@@ -2186,7 +2192,7 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
 #undef TYPED_ARRAY_CASE
     }
   } else if (value->IsFloat32x4()) {
-    return typer_->float32x4_;
+    return Type::Intersect(typer_->float32x4_, Type::Tagged(), zone());
   }
   return Type::Constant(value, zone());
 }
