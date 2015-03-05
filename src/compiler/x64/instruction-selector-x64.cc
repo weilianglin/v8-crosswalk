@@ -1425,6 +1425,45 @@ void InstructionSelector::VisitFloat32x4Swizzle(Node* node) {
 }
 
 
+#define SIMD_LOAD_OPERATION_LIST(V)                                            \
+  V(SIMD.float32x4, load, GetFloat32x4XYZW)                                    \
+  V(SIMD.float32x4, loadX, GetFloat32x4X)                                      \
+  V(SIMD.float32x4, loadXY, GetFloat32x4XY)                                    \
+  V(SIMD.float32x4, loadXYZ, GetFloat32x4XYZ)
+
+#define DECLARE_VISIT_SIMD_LOAD(ignore1, ignore2, opcode)           \
+  void InstructionSelector::Visit##opcode(Node* node) {             \
+    X64OperandGenerator g(this);                                    \
+    Node* const base = node->InputAt(0);                            \
+    Node* const index = node->InputAt(1);                           \
+                                                                    \
+    InstructionOperand* index_operand = g.CanBeImmediate(index)     \
+                                            ? g.UseImmediate(index) \
+                                            : g.UseRegister(index); \
+    Emit(k##opcode, g.DefineAsRegister(node), g.UseRegister(base),  \
+         index_operand);                                            \
+  }
+
+
+#define DECLARE_VISIT_SIMD_CHECKED_LOAD(ignore1, ignore2, opcode)         \
+  void InstructionSelector::VisitChecked##opcode(Node* node) {            \
+    X64OperandGenerator g(this);                                          \
+    Node* const base = node->InputAt(0);                                  \
+    Node* const index = node->InputAt(1);                                 \
+    Node* const length = node->InputAt(2);                                \
+                                                                          \
+    InstructionOperand* length_operand = g.CanBeImmediate(length)         \
+                                             ? g.UseImmediate(length)     \
+                                             : g.UseRegister(length);     \
+    Emit(kChecked##opcode, g.DefineAsRegister(node), g.UseRegister(base), \
+         g.UseRegister(index), length_operand);                           \
+  }
+
+
+SIMD_LOAD_OPERATION_LIST(DECLARE_VISIT_SIMD_LOAD)
+SIMD_LOAD_OPERATION_LIST(DECLARE_VISIT_SIMD_CHECKED_LOAD)
+
+
 // static
 MachineOperatorBuilder::Flags
 InstructionSelector::SupportedMachineOperatorFlags() {

@@ -341,6 +341,57 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   return NoChange();
 }
 
+#define SIMD_LOAD_OPERATION(V)                     \
+  V(Type::UntaggedFloat32(), 0x1, GetFloat32x4X)   \
+  V(Type::UntaggedFloat32(), 0x2, GetFloat32x4XY)  \
+  V(Type::UntaggedFloat32(), 0x3, GetFloat32x4XYZ) \
+  V(Type::UntaggedFloat32(), 0x4, GetFloat32x4XYZW)
+
+#define DECLARE_REDUCE_GET_FLOAT32X4(etype, offset, opcode)                    \
+  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                  \
+    JSCallReduction r(node);                                                   \
+                                                                               \
+    if (r.GetJSCallArity() == 2) {                                             \
+      Node* base = r.GetJSCallInput(0);                                        \
+      Node* index = r.GetJSCallInput(1);                                       \
+      HeapObjectMatcher<Object> mbase(base);                                   \
+                                                                               \
+      Type* tfloat32 = Type::Intersect(Type::Number(), etype);                 \
+      Type* f32array = Type::Array(tfloat32, jsgraph_->zone());                \
+      Type* key_type = NodeProperties::GetBounds(index).upper;                 \
+      if (mbase.HasValue() &&                                                  \
+          NodeProperties::GetBounds(base).upper->Is(f32array) &&               \
+          key_type->Is(Type::Integral32())) {                                  \
+        Handle<JSTypedArray> const array =                                     \
+            Handle<JSTypedArray>::cast(mbase.Value().handle());                \
+        double const byte_length = array->byte_length()->Number();             \
+        if (IsExternalArrayElementsKind(array->map()->elements_kind()) &&      \
+            byte_length <= kMaxInt) {                                          \
+          Handle<ExternalArray> elements =                                     \
+              Handle<ExternalArray>::cast(handle(array->elements()));          \
+          Node* buffer =                                                       \
+              jsgraph()->PointerConstant(elements->external_pointer());        \
+          double const element_length = array->length()->Number();             \
+          Node* length = jsgraph()->Constant(element_length);                  \
+          if (key_type->Min() >= 0 &&                                          \
+              key_type->Max() < (element_length - offset)) {                   \
+            Node* load = graph()->NewNode(machine()->opcode(), buffer, index); \
+            return Replace(load);                                              \
+          }                                                                    \
+                                                                               \
+          Node* load = graph()->NewNode(machine()->Checked##opcode(), buffer,  \
+                                        index, length);                        \
+          return Replace(load);                                                \
+        }                                                                      \
+      }                                                                        \
+    }                                                                          \
+                                                                               \
+    return NoChange();                                                         \
+  }
+
+
+SIMD_LOAD_OPERATION(DECLARE_REDUCE_GET_FLOAT32X4)
+
 
 Reduction JSBuiltinReducer::Reduce(Node* node) {
   JSCallReduction r(node);
@@ -401,6 +452,14 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat32x4Clamp(node));
     case kFloat32x4Swizzle:
       return ReplaceWithPureReduction(node, ReduceFloat32x4Swizzle(node));
+    case kGetFloat32x4X:
+      return ReplaceWithPureReduction(node, ReduceGetFloat32x4X(node));
+    case kGetFloat32x4XY:
+      return ReplaceWithPureReduction(node, ReduceGetFloat32x4XY(node));
+    case kGetFloat32x4XYZ:
+      return ReplaceWithPureReduction(node, ReduceGetFloat32x4XYZ(node));
+    case kGetFloat32x4XYZW:
+      return ReplaceWithPureReduction(node, ReduceGetFloat32x4XYZW(node));
     default:
       break;
   }

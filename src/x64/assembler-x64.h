@@ -1034,6 +1034,8 @@ class Assembler : public AssemblerBase {
   void movss(const Operand& dst, XMMRegister src);
   void shufps(XMMRegister dst, XMMRegister src, byte imm8);
   void shufpd(XMMRegister dst, XMMRegister src, byte imm8);
+  void movlhps(XMMRegister dst, XMMRegister src);
+  void movhlps(XMMRegister dst, XMMRegister src);
 
   void cvttss2si(Register dst, const Operand& src);
   void cvttss2si(Register dst, XMMRegister src);
@@ -1068,8 +1070,10 @@ class Assembler : public AssemblerBase {
 
   // SSE2 instructions
   void movd(XMMRegister dst, Register src);
+  void movd(XMMRegister dst, const Operand& src);
   void movd(Register dst, XMMRegister src);
   void movq(XMMRegister dst, Register src);
+  void movq(XMMRegister dst, const Operand& src);
   void movq(Register dst, XMMRegister src);
   void movq(XMMRegister dst, XMMRegister src);
 

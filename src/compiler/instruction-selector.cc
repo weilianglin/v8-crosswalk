@@ -935,6 +935,22 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsFloat32x4(node), VisitFloat32x4Clamp(node);
     case IrOpcode::kFloat32x4Swizzle:
       return MarkAsFloat32x4(node), VisitFloat32x4Swizzle(node);
+    case IrOpcode::kGetFloat32x4X:
+      return MarkAsFloat32x4(node), VisitGetFloat32x4X(node);
+    case IrOpcode::kGetFloat32x4XY:
+      return MarkAsFloat32x4(node), VisitGetFloat32x4XY(node);
+    case IrOpcode::kGetFloat32x4XYZ:
+      return MarkAsFloat32x4(node), VisitGetFloat32x4XYZ(node);
+    case IrOpcode::kGetFloat32x4XYZW:
+      return MarkAsFloat32x4(node), VisitGetFloat32x4XYZW(node);
+    case IrOpcode::kCheckedGetFloat32x4X:
+      return MarkAsFloat32x4(node), VisitCheckedGetFloat32x4X(node);
+    case IrOpcode::kCheckedGetFloat32x4XY:
+      return MarkAsFloat32x4(node), VisitCheckedGetFloat32x4XY(node);
+    case IrOpcode::kCheckedGetFloat32x4XYZ:
+      return MarkAsFloat32x4(node), VisitCheckedGetFloat32x4XYZ(node);
+    case IrOpcode::kCheckedGetFloat32x4XYZW:
+      return MarkAsFloat32x4(node), VisitCheckedGetFloat32x4XYZW(node);
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());

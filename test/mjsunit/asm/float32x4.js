@@ -153,3 +153,78 @@ assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
+
+function asmModule2(stdlib, imports, buffer) {
+  "use asm"
+  var f4 = stdlib.SIMD.float32x4;
+  var f4load = f4.load;
+  var f4loadX = f4.loadX;
+  var f4loadXY = f4.loadXY;
+  var f4loadXYZ = f4.loadXYZ;
+  var f32array = new stdlib.Float32Array(buffer);
+
+  function load(a) {
+    a = a | 0;
+    var ret = f4(0, 0, 0, 0);
+    ret = f4load(f32array, a | 0);
+    return f4(ret);
+  }
+
+  function loadX(a) {
+    a = a | 0;
+    var ret = f4(0, 0, 0, 0);
+    ret = f4loadX(f32array, a | 0);
+    return f4(ret);
+  }
+
+  function loadXY(a) {
+    a = a | 0;
+    var ret = f4(0, 0, 0, 0);
+    ret = f4loadXY(f32array, a | 0);
+    return f4(ret);
+  }
+
+  function loadXYZ(a) {
+    a = a | 0;
+    var ret = f4(0, 0, 0, 0);
+    ret = f4loadXYZ(f32array, a);
+    return f4(ret);
+  }
+  return {load : load, loadX : loadX, loadXY : loadXY, loadXYZ : loadXYZ};
+}
+
+
+var heap = new ArrayBuffer(0x4000);
+var f32array = new Float32Array(heap);
+for (var i = 0; i < 0x4000; i = i + 4) {
+  f32array[i>>2] = i;
+}
+var m = asmModule2(this, {}, heap);
+var f32x4a_length = 0x4000/16;
+var result = m.load(4);
+var expected = SIMD.float32x4.load(f32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.loadX(4);
+var expected = SIMD.float32x4.loadX(f32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.loadXY(4);
+var expected = SIMD.float32x4.loadXY(f32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.loadXYZ(4);
+var expected = SIMD.float32x4.loadXYZ(f32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);

@@ -947,6 +947,128 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ shufps(value_reg, value_reg, s);
       break;
     }
+    case kGetFloat32x4X: {
+      auto base = i.InputRegister(0);
+      if (instr->InputAt(1)->IsRegister()) {
+        auto index = i.InputRegister(1);
+        __ movd(i.OutputFloat32x4Register(), Operand(base, index, times_4, 0));
+      } else {
+        __ movd(i.OutputFloat32x4Register(),
+                Operand(base, i.InputInt32(1) * 0x4));
+      }
+      break;
+    }
+    case kGetFloat32x4XY: {
+      auto base = i.InputRegister(0);
+      if (instr->InputAt(1)->IsRegister()) {
+        auto index = i.InputRegister(1);
+        __ movq(i.OutputFloat32x4Register(), Operand(base, index, times_4, 0));
+      } else {
+        __ movq(i.OutputFloat32x4Register(),
+                Operand(base, i.InputInt32(1) * 0x4));
+      }
+      break;
+    }
+    case kGetFloat32x4XYZ: {
+      auto base = i.InputRegister(0);
+      auto result = i.OutputFloat32x4Register();
+      if (instr->InputAt(1)->IsRegister()) {
+        auto index = i.InputRegister(1);
+        __ movq(result, Operand(base, index, times_4, 0));
+        __ movd(xmm0, Operand(base, index, times_4, 0x8));
+      } else {
+        __ movq(result, Operand(base, i.InputInt32(1) * 0x4));
+        __ movd(xmm0, Operand(base, i.InputInt32(1) * 0x4 + 0x8));
+      }
+      __ movlhps(result, xmm0);
+      break;
+    }
+    case kGetFloat32x4XYZW: {
+      auto base = i.InputRegister(0);
+      if (instr->InputAt(1)->IsRegister()) {
+        auto index = i.InputRegister(1);
+        __ movups(i.OutputFloat32x4Register(),
+                  Operand(base, index, times_4, 0));
+      } else {
+        __ movups(i.OutputFloat32x4Register(),
+                  Operand(base, i.InputInt32(1) * 0x4));
+      }
+      break;
+    }
+    case kCheckedGetFloat32x4X: {
+      auto base = i.InputRegister(0);
+      auto index = i.InputRegister(1);
+      auto result = i.OutputFloat32x4Register();
+      OutOfLineCode* ool = new (zone()) OutOfLineLoadNaN(this, result);
+      if (instr->InputAt(2)->IsRegister()) {
+        __ movl(kScratchRegister, i.InputRegister(2));
+        __ subl(kScratchRegister, Immediate(0x1));
+        __ cmpl(index, kScratchRegister);
+      } else {
+        int length = i.InputInt32(2);
+        __ cmpl(index, Immediate(length - 0x1));
+      }
+      __ j(above_equal, ool->entry());
+      __ movd(result, Operand(base, index, times_4, 0));
+      __ bind(ool->exit());
+      break;
+    }
+    case kCheckedGetFloat32x4XY: {
+      auto base = i.InputRegister(0);
+      auto index = i.InputRegister(1);
+      auto result = i.OutputFloat32x4Register();
+      OutOfLineCode* ool = new (zone()) OutOfLineLoadNaN(this, result);
+      if (instr->InputAt(2)->IsRegister()) {
+        __ movl(kScratchRegister, i.InputRegister(2));
+        __ subl(kScratchRegister, Immediate(0x2));
+        __ cmpl(index, kScratchRegister);
+      } else {
+        int length = i.InputInt32(2);
+        __ cmpl(index, Immediate(length - 0x2));
+      }
+      __ j(above_equal, ool->entry());
+      __ movq(result, Operand(base, index, times_4, 0));
+      __ bind(ool->exit());
+      break;
+    }
+    case kCheckedGetFloat32x4XYZ: {
+      auto base = i.InputRegister(0);
+      auto index = i.InputRegister(1);
+      auto result = i.OutputFloat32x4Register();
+      OutOfLineCode* ool = new (zone()) OutOfLineLoadNaN(this, result);
+      if (instr->InputAt(2)->IsRegister()) {
+        __ movl(kScratchRegister, i.InputRegister(2));
+        __ subl(kScratchRegister, Immediate(0x3));
+        __ cmpl(index, kScratchRegister);
+      } else {
+        int length = i.InputInt32(2);
+        __ cmpl(index, Immediate(length - 0x3));
+      }
+      __ j(above_equal, ool->entry());
+      __ movq(result, Operand(base, index, times_4, 0));
+      __ movd(xmm0, Operand(base, index, times_4, 0x8));
+      __ movlhps(result, xmm0);
+      __ bind(ool->exit());
+      break;
+    }
+    case kCheckedGetFloat32x4XYZW: {
+      auto base = i.InputRegister(0);
+      auto index = i.InputRegister(1);
+      auto result = i.OutputFloat32x4Register();
+      OutOfLineCode* ool = new (zone()) OutOfLineLoadNaN(this, result);
+      if (instr->InputAt(2)->IsRegister()) {
+        __ movl(kScratchRegister, i.InputRegister(2));
+        __ subl(kScratchRegister, Immediate(0x4));
+        __ cmpl(index, kScratchRegister);
+      } else {
+        int length = i.InputInt32(2);
+        __ cmpl(index, Immediate(length - 0x4));
+      }
+      __ j(above_equal, ool->entry());
+      __ movups(result, Operand(base, index, times_4, 0));
+      __ bind(ool->exit());
+      break;
+    }
     case kX64Movzxbl:
       __ movzxbl(i.OutputRegister(), i.MemoryOperand());
       break;

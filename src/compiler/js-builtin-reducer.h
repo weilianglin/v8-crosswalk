@@ -53,6 +53,10 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceFloat32x4WithW(Node* node);
   Reduction ReduceFloat32x4Clamp(Node* node);
   Reduction ReduceFloat32x4Swizzle(Node* node);
+  Reduction ReduceGetFloat32x4X(Node* node);
+  Reduction ReduceGetFloat32x4XY(Node* node);
+  Reduction ReduceGetFloat32x4XYZ(Node* node);
+  Reduction ReduceGetFloat32x4XYZW(Node* node);
 
   JSGraph* jsgraph() const { return jsgraph_; }
   Graph* graph() const;
