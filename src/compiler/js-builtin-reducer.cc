@@ -348,7 +348,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   V(Type::UntaggedFloat32(), 0x4, GetFloat32x4XYZW)
 
 #define DECLARE_REDUCE_GET_FLOAT32X4(etype, offset, opcode)                    \
-  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                  \
+  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                     \
     JSCallReduction r(node);                                                   \
                                                                                \
     if (r.GetJSCallArity() == 2) {                                             \

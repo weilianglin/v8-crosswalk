@@ -33,6 +33,15 @@ enum LazyCachedType {
   kImulFunc,
   kClz32Func,
   kArrayBufferFunc,
+  kFloat32x4Tagged,
+  kFloat32x4Func1,
+  kFloat32x4Func1f,
+  kFloat32x4Func2,
+  kFloat32x4FuncA,
+  kFloat32x4Func1_1n,
+  kFloat32x4Func3,
+  kFloat32x4Func4f,
+  kFloat32x4Func1_4i,
 #define TYPED_ARRAY_CASE(Type, type, TYPE, ctype, size) \
   k##Type, k##Type##Array, k##Type##ArrayFunc,
   TYPED_ARRAYS(TYPED_ARRAY_CASE)
@@ -101,7 +110,32 @@ class LazyTypeCache FINAL : public ZoneObject {
 #undef TYPED_ARRAY_CASE
       case kNumLazyCachedTypes:
         break;
+      case kFloat32x4Tagged:
+        return CreateFloat32x4Tagged();
       case kFloat32x4:
+        return CreateFloat32x4();
+      case kFloat32x4Func1:
+        return Type::Function(Get(kFloat32x4), Get(kFloat32x4), zone());
+      case kFloat32x4Func1f:
+        return Type::Function(Get(kFloat32x4), Get(kFloat32), zone());
+      case kFloat32x4Func2:
+        return Type::Function(Get(kFloat32x4), Get(kFloat32x4), Get(kFloat32x4),
+                              zone());
+      case kFloat32x4FuncA:
+        return Type::Function(Get(kFloat32x4), zone());
+      case kFloat32x4Func1_1n:
+        return Type::Function(Get(kFloat32x4), Get(kFloat32x4), Type::Number(),
+                              zone());
+      case kFloat32x4Func3:
+        return Type::Function(Get(kFloat32x4), Get(kFloat32x4), Get(kFloat32x4),
+                              Get(kFloat32x4), zone());
+      case kFloat32x4Func4f:
+        return Type::Function(Get(kFloat32x4), Get(kFloat32), Get(kFloat32),
+                              Get(kFloat32), Get(kFloat32), zone());
+      case kFloat32x4Func1_4i:
+        return Type::Function(Get(kFloat32x4), Get(kFloat32x4),
+                              Type::Integral32(), Type::Integral32(),
+                              Type::Integral32(), Type::Integral32(), zone());
       case kInt32x4:
       case kFloat64x2:
         // TODO(huningxin): fix this workaround.
@@ -135,6 +169,22 @@ class LazyTypeCache FINAL : public ZoneObject {
   Type* CreateRange(double min, double max) const {
     return Type::Range(factory()->NewNumber(min), factory()->NewNumber(max),
                        zone());
+  }
+
+  Type* CreateFloat32x4() {
+    Handle<Map> float32x4_map =
+        handle(isolate()->native_context()->float32x4_function()->initial_map(),
+               isolate());
+    return Type::Intersect(Type::Class(float32x4_map, zone()), Type::Untagged(),
+                           zone());
+  }
+
+  Type* CreateFloat32x4Tagged() {
+    Handle<Map> float32x4_map =
+        handle(isolate()->native_context()->float32x4_function()->initial_map(),
+               isolate());
+    return Type::Intersect(Type::Class(float32x4_map, zone()), Type::Tagged(),
+                           zone());
   }
 
   Factory* factory() const { return isolate()->factory(); }
@@ -2165,6 +2215,38 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
           return typer_->cache_->Get(kImulFunc);
         case kMathClz32:
           return typer_->cache_->Get(kClz32Func);
+        case kFloat32x4Abs:
+        case kFloat32x4Neg:
+        case kFloat32x4Reciprocal:
+        case kFloat32x4ReciprocalSqrt:
+        case kFloat32x4Sqrt:
+          return typer_->cache_->Get(kFloat32x4Func1);
+        case kFloat32x4Add:
+        case kFloat32x4Sub:
+        case kFloat32x4Mul:
+        case kFloat32x4Div:
+        case kFloat32x4Max:
+        case kFloat32x4Min:
+          return typer_->cache_->Get(kFloat32x4Func2);
+        case kFloat32x4Scale:
+        case kFloat32x4WithX:
+        case kFloat32x4WithY:
+        case kFloat32x4WithZ:
+        case kFloat32x4WithW:
+          return typer_->cache_->Get(kFloat32x4Func1_1n);
+        case kFloat32x4Clamp:
+          return typer_->cache_->Get(kFloat32x4Func3);
+        case kFloat32x4Swizzle:
+          return typer_->cache_->Get(kFloat32x4Func1_4i);
+        case kFloat32x4Splat:
+          return typer_->cache_->Get(kFloat32x4Func1f);
+        case kFloat32x4Constructor:
+          return typer_->cache_->Get(kFloat32x4Func4f);
+        case kGetFloat32x4X:
+        case kGetFloat32x4XY:
+        case kGetFloat32x4XYZ:
+        case kGetFloat32x4XYZW:
+          return typer_->cache_->Get(kFloat32x4FuncA);
         default:
           break;
       }
@@ -2200,7 +2282,7 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
 #undef TYPED_ARRAY_CASE
     }
   } else if (value->IsFloat32x4()) {
-    return Type::Intersect(typer_->float32x4_, Type::Tagged(), zone());
+    return typer_->cache_->Get(kFloat32x4Tagged);
   }
   return Type::Constant(value, zone());
 }

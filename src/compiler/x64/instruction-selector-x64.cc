@@ -1425,10 +1425,10 @@ void InstructionSelector::VisitFloat32x4Swizzle(Node* node) {
 }
 
 
-#define SIMD_LOAD_OPERATION_LIST(V)                                            \
-  V(SIMD.float32x4, load, GetFloat32x4XYZW)                                    \
-  V(SIMD.float32x4, loadX, GetFloat32x4X)                                      \
-  V(SIMD.float32x4, loadXY, GetFloat32x4XY)                                    \
+#define SIMD_LOAD_OPERATION_LIST(V)         \
+  V(SIMD.float32x4, load, GetFloat32x4XYZW) \
+  V(SIMD.float32x4, loadX, GetFloat32x4X)   \
+  V(SIMD.float32x4, loadXY, GetFloat32x4XY) \
   V(SIMD.float32x4, loadXYZ, GetFloat32x4XYZ)
 
 #define DECLARE_VISIT_SIMD_LOAD(ignore1, ignore2, opcode)           \
