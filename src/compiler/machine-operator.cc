@@ -157,15 +157,7 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
   V(Float32x4WithZ, Operator::kNoProperties, 2, 0, 1)                         \
   V(Float32x4WithW, Operator::kNoProperties, 2, 0, 1)                         \
   V(Float32x4Clamp, Operator::kNoProperties, 3, 0, 1)                         \
-  V(Float32x4Swizzle, Operator::kNoProperties, 5, 0, 1)                       \
-  V(GetFloat32x4X, Operator::kNoProperties, 2, 0, 1)                          \
-  V(GetFloat32x4XY, Operator::kNoProperties, 2, 0, 1)                         \
-  V(GetFloat32x4XYZ, Operator::kNoProperties, 2, 0, 1)                        \
-  V(GetFloat32x4XYZW, Operator::kNoProperties, 2, 0, 1)                       \
-  V(CheckedGetFloat32x4X, Operator::kNoProperties, 3, 0, 1)                   \
-  V(CheckedGetFloat32x4XY, Operator::kNoProperties, 3, 0, 1)                  \
-  V(CheckedGetFloat32x4XYZ, Operator::kNoProperties, 3, 0, 1)                 \
-  V(CheckedGetFloat32x4XYZW, Operator::kNoProperties, 3, 0, 1)
+  V(Float32x4Swizzle, Operator::kNoProperties, 5, 0, 1)
 
 
 #define MACHINE_TYPE_LIST(V) \
@@ -189,6 +181,9 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
   V(RepFloat64)              \
   V(RepTagged)
 
+#define MACHINE_SIMD_TYPE_LIST(V) \
+  V(RepFloat32x4)                 \
+  V(MachFloat32x4)
 
 struct MachineOperatorGlobalCache {
 #define PURE(Name, properties, value_input_count, control_input_count,         \
@@ -252,6 +247,57 @@ struct MachineOperatorGlobalCache {
   CheckedStore##Type##Operator kCheckedStore##Type;
   MACHINE_TYPE_LIST(STORE)
 #undef STORE
+
+#define SIMD_LOAD(Type)                                                        \
+  struct Load##Type##Operator FINAL : public Operator1<LoadRepresentation> {   \
+    Load##Type##Operator()                                                     \
+        : Operator1<LoadRepresentation>(                                       \
+              IrOpcode::kLoad, Operator::kNoThrow | Operator::kNoWrite,        \
+              "Load", 3, 1, 1, 1, 1, 0, k##Type) {}                            \
+  };                                                                           \
+  struct CheckedLoad##Type##Operator FINAL                                     \
+      : public Operator1<CheckedLoadRepresentation> {                          \
+    CheckedLoad##Type##Operator()                                              \
+        : Operator1<CheckedLoadRepresentation>(                                \
+              IrOpcode::kCheckedLoad, Operator::kNoThrow | Operator::kNoWrite, \
+              "CheckedLoad", 4, 1, 1, 1, 1, 0, k##Type) {}                     \
+  };                                                                           \
+  Load##Type##Operator kLoad##Type;                                            \
+  CheckedLoad##Type##Operator kCheckedLoad##Type;
+  MACHINE_SIMD_TYPE_LIST(SIMD_LOAD)
+#undef SIMD_LOAD
+
+#define SIMD_STORE(Type)                                                       \
+  struct Store##Type##Operator : public Operator1<StoreRepresentation> {       \
+    explicit Store##Type##Operator(WriteBarrierKind write_barrier_kind)        \
+        : Operator1<StoreRepresentation>(                                      \
+              IrOpcode::kStore, Operator::kNoRead | Operator::kNoThrow,        \
+              "Store", 4, 1, 1, 0, 1, 0,                                       \
+              StoreRepresentation(k##Type, write_barrier_kind)) {}             \
+  };                                                                           \
+  struct Store##Type##NoWriteBarrier##Operator FINAL                           \
+      : public Store##Type##Operator {                                         \
+    Store##Type##NoWriteBarrier##Operator()                                    \
+        : Store##Type##Operator(kNoWriteBarrier) {}                            \
+  };                                                                           \
+  struct Store##Type##FullWriteBarrier##Operator FINAL                         \
+      : public Store##Type##Operator {                                         \
+    Store##Type##FullWriteBarrier##Operator()                                  \
+        : Store##Type##Operator(kFullWriteBarrier) {}                          \
+  };                                                                           \
+  struct CheckedStore##Type##Operator FINAL                                    \
+      : public Operator1<CheckedStoreRepresentation> {                         \
+    CheckedStore##Type##Operator()                                             \
+        : Operator1<CheckedStoreRepresentation>(                               \
+              IrOpcode::kCheckedStore, Operator::kNoRead | Operator::kNoThrow, \
+              "CheckedStore", 5, 1, 1, 0, 1, 0, k##Type) {}                    \
+  };                                                                           \
+  Store##Type##NoWriteBarrier##Operator kStore##Type##NoWriteBarrier;          \
+  Store##Type##FullWriteBarrier##Operator kStore##Type##FullWriteBarrier;      \
+  CheckedStore##Type##Operator kCheckedStore##Type;
+// TODO(weiliang): enable store
+// MACHINE_SIMD_TYPE_LIST(STORE)
+#undef STORE
 };
 
 
@@ -279,6 +325,7 @@ const Operator* MachineOperatorBuilder::Load(LoadRepresentation rep) {
   case k##Type:    \
     return &cache_.kLoad##Type;
     MACHINE_TYPE_LIST(LOAD)
+    MACHINE_SIMD_TYPE_LIST(LOAD)
 #undef LOAD
     default:
       break;
@@ -321,6 +368,7 @@ const Operator* MachineOperatorBuilder::CheckedLoad(
   case k##Type:    \
     return &cache_.kCheckedLoad##Type;
     MACHINE_TYPE_LIST(LOAD)
+    MACHINE_SIMD_TYPE_LIST(LOAD)
 #undef LOAD
     default:
       break;

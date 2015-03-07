@@ -299,10 +299,11 @@ Reduction ChangeLowering::ChangeTaggedToFloat32x4(Node* value, Node* control) {
         graph()->NewNode(machine()->Load(kRepTagged), object,
                          Float32x4ValueIndexConstant(), effect, control);
 
+    Node* loaded_bytes = jsgraph()->Int32Constant(16);
     Node* load = graph()->NewNode(
-        machine()->Load(kMachFloat32x4), val_obj,
-        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1), effect,
-        control);
+        machine()->Load(kRepFloat32x4), val_obj,
+        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
+        loaded_bytes, effect, control);
 
     return Replace(load);
   } else {
@@ -310,10 +311,11 @@ Reduction ChangeLowering::ChangeTaggedToFloat32x4(Node* value, Node* control) {
                                      Float32x4ValueIndexConstant(),
                                      graph()->start(), control);
 
+    Node* loaded_bytes = jsgraph()->Int32Constant(16);
     Node* load = graph()->NewNode(
-        machine()->Load(kMachFloat32x4), val_obj,
+        machine()->Load(kRepFloat32x4), val_obj,
         jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
-        graph()->start(), control);
+        loaded_bytes, graph()->start(), control);
 
     return Replace(load);
   }

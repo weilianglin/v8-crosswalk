@@ -341,52 +341,63 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   return NoChange();
 }
 
-#define SIMD_LOAD_OPERATION(V)                     \
-  V(Type::UntaggedFloat32(), 0x1, GetFloat32x4X)   \
-  V(Type::UntaggedFloat32(), 0x2, GetFloat32x4XY)  \
-  V(Type::UntaggedFloat32(), 0x3, GetFloat32x4XYZ) \
-  V(Type::UntaggedFloat32(), 0x4, GetFloat32x4XYZW)
+#define SIMD_LOAD_OPERATION(V)                                      \
+  V(Type::UntaggedFloat32(), 4, GetFloat32x4X, kRepFloat32x4)    \
+  V(Type::UntaggedFloat32(), 8, GetFloat32x4XY, kRepFloat32x4)   \
+  V(Type::UntaggedFloat32(), 12, GetFloat32x4XYZ, kRepFloat32x4) \
+  V(Type::UntaggedFloat32(), 16, GetFloat32x4XYZW, kRepFloat32x4)
 
-#define DECLARE_REDUCE_GET_FLOAT32X4(etype, offset, opcode)                    \
-  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                     \
-    JSCallReduction r(node);                                                   \
-                                                                               \
-    if (r.GetJSCallArity() == 2) {                                             \
-      Node* base = r.GetJSCallInput(0);                                        \
-      Node* index = r.GetJSCallInput(1);                                       \
-      HeapObjectMatcher<Object> mbase(base);                                   \
-                                                                               \
-      Type* tfloat32 = Type::Intersect(Type::Number(), etype);                 \
-      Type* f32array = Type::Array(tfloat32, jsgraph_->zone());                \
-      Type* key_type = NodeProperties::GetBounds(index).upper;                 \
-      if (mbase.HasValue() &&                                                  \
-          NodeProperties::GetBounds(base).upper->Is(f32array) &&               \
-          key_type->Is(Type::Integral32())) {                                  \
-        Handle<JSTypedArray> const array =                                     \
-            Handle<JSTypedArray>::cast(mbase.Value().handle());                \
-        double const byte_length = array->byte_length()->Number();             \
-        if (IsExternalArrayElementsKind(array->map()->elements_kind()) &&      \
-            byte_length <= kMaxInt) {                                          \
-          Handle<ExternalArray> elements =                                     \
-              Handle<ExternalArray>::cast(handle(array->elements()));          \
-          Node* buffer =                                                       \
-              jsgraph()->PointerConstant(elements->external_pointer());        \
-          double const element_length = array->length()->Number();             \
-          Node* length = jsgraph()->Constant(element_length);                  \
-          if (key_type->Min() >= 0 &&                                          \
-              key_type->Max() < (element_length - offset)) {                   \
-            Node* load = graph()->NewNode(machine()->opcode(), buffer, index); \
-            return Replace(load);                                              \
-          }                                                                    \
-                                                                               \
-          Node* load = graph()->NewNode(machine()->Checked##opcode(), buffer,  \
-                                        index, length);                        \
-          return Replace(load);                                                \
-        }                                                                      \
-      }                                                                        \
-    }                                                                          \
-                                                                               \
-    return NoChange();                                                         \
+#define DECLARE_REDUCE_GET_FLOAT32X4(etype, partial, opcode, rep)            \
+  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                   \
+    JSCallReduction r(node);                                                 \
+                                                                             \
+    if (r.GetJSCallArity() == 2) {                                           \
+      Node* base = r.GetJSCallInput(0);                                      \
+      Node* index = r.GetJSCallInput(1);                                     \
+      HeapObjectMatcher<Object> mbase(base);                                 \
+      Type* key_type = NodeProperties::GetBounds(index).upper;               \
+                                                                             \
+      if (mbase.HasValue() && mbase.Value().handle()->IsJSTypedArray() &&    \
+          key_type->Is(Type::Integral32())) {                                \
+        Handle<JSTypedArray> const array =                                   \
+            Handle<JSTypedArray>::cast(mbase.Value().handle());              \
+        array->GetBuffer()->set_is_neuterable(false);                        \
+        BufferAccess const access(array->type());                            \
+        size_t const k = ElementSizeLog2Of(access.machine_type());           \
+        double const byte_length = array->byte_length()->Number();           \
+        Node* offset =                                                       \
+            graph()->NewNode(machine()->Word32Shl(), index,                  \
+                             jsgraph()->Int32Constant(static_cast<int>(k))); \
+        Node* loaded_bytes = jsgraph()->Int32Constant(partial);              \
+        if (IsExternalArrayElementsKind(array->map()->elements_kind()) &&    \
+            byte_length <= kMaxInt) {                                        \
+          Handle<ExternalArray> elements =                                   \
+              Handle<ExternalArray>::cast(handle(array->elements()));        \
+          Node* buffer =                                                     \
+              jsgraph()->PointerConstant(elements->external_pointer());      \
+          Node* length = jsgraph()->Int32Constant(byte_length - partial);    \
+          Node* effect = NodeProperties::GetEffectInput(node);               \
+          Node* control = NodeProperties::GetControlInput(node);             \
+          double const element_length = array->length()->Number();           \
+          if (key_type->Min() >= 0 &&                                        \
+              key_type->Max() < (element_length - partial / k)) {            \
+            Node* load =                                                     \
+                graph()->NewNode(machine()->Load(rep), buffer, offset,       \
+                                 loaded_bytes, effect, control);             \
+            NodeProperties::ReplaceWithValue(node, load, load);              \
+            return Changed(load);                                            \
+          }                                                                  \
+                                                                             \
+          Node* load =                                                       \
+              graph()->NewNode(machine()->CheckedLoad(rep), buffer, offset,  \
+                               length, loaded_bytes, effect, control);       \
+          NodeProperties::ReplaceWithValue(node, load, load);                \
+          return Changed(load);                                              \
+        }                                                                    \
+      }                                                                      \
+    }                                                                        \
+                                                                             \
+    return NoChange();                                                       \
   }
 
 

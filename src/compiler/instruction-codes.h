@@ -76,14 +76,8 @@ namespace compiler {
   V(Float32x4WithW)          \
   V(Float32x4Clamp)          \
   V(Float32x4Swizzle)        \
-  V(GetFloat32x4X)           \
-  V(GetFloat32x4XY)          \
-  V(GetFloat32x4XYZ)         \
-  V(GetFloat32x4XYZW)        \
-  V(CheckedGetFloat32x4X)    \
-  V(CheckedGetFloat32x4XY)   \
-  V(CheckedGetFloat32x4XYZ)  \
-  V(CheckedGetFloat32x4XYZW) \
+  V(LoadFloat32x4)           \
+  V(CheckedLoadFloat32x4)    \
   TARGET_ARCH_OPCODE_LIST(V)
 
 enum ArchOpcode {

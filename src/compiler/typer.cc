@@ -1749,7 +1749,12 @@ Bounds Typer::Visitor::TypeObjectIsNonNegativeSmi(Node* node) {
 // Machine operators.
 
 Bounds Typer::Visitor::TypeLoad(Node* node) {
-  return Bounds::Unbounded(zone());
+  if (OpParameter<MachineType>(node) == kRepFloat32x4) {
+    return Bounds(
+        Type::Intersect(typer_->float32x4_, Type::Untagged(), typer_->zone()));
+  } else {
+    return Bounds::Unbounded(zone());
+  }
 }
 
 
@@ -2097,7 +2102,12 @@ Bounds Typer::Visitor::TypeLoadStackPointer(Node* node) {
 
 
 Bounds Typer::Visitor::TypeCheckedLoad(Node* node) {
-  return Bounds::Unbounded(zone());
+  if (OpParameter<MachineType>(node) == kRepFloat32x4) {
+    return Bounds(
+        Type::Intersect(typer_->float32x4_, Type::Untagged(), typer_->zone()));
+  } else {
+    return Bounds::Unbounded(zone());
+  }
 }
 
 
@@ -2126,15 +2136,7 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(float32x4_, Float32x4WithZ)          \
   V(float32x4_, Float32x4WithW)          \
   V(float32x4_, Float32x4Clamp)          \
-  V(float32x4_, Float32x4Swizzle)        \
-  V(float32x4_, GetFloat32x4X)           \
-  V(float32x4_, GetFloat32x4XY)          \
-  V(float32x4_, GetFloat32x4XYZ)         \
-  V(float32x4_, GetFloat32x4XYZW)        \
-  V(float32x4_, CheckedGetFloat32x4X)    \
-  V(float32x4_, CheckedGetFloat32x4XY)   \
-  V(float32x4_, CheckedGetFloat32x4XYZ)  \
-  V(float32x4_, CheckedGetFloat32x4XYZW)
+  V(float32x4_, Float32x4Swizzle)
 
 
 #define DECLARE_TYPE_SIMD_OPERATION(type, opcode)                         \

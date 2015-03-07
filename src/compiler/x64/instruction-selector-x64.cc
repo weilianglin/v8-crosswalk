@@ -132,7 +132,7 @@ void InstructionSelector::VisitLoad(Node* node) {
       opcode = kX64Movq;
       break;
     case kRepFloat32x4:
-      opcode = kX64Movups;
+      opcode = kLoadFloat32x4;
       break;
     default:
       UNREACHABLE();
@@ -141,11 +141,19 @@ void InstructionSelector::VisitLoad(Node* node) {
 
   InstructionOperand* outputs[1];
   outputs[0] = g.DefineAsRegister(node);
-  InstructionOperand* inputs[3];
+  InstructionOperand* inputs[4];
+  Node* loaded_bytes = NULL;
+  if (opcode == kLoadFloat32x4) {
+    loaded_bytes = node->InputAt(2);
+  }
+
   size_t input_count = 0;
   AddressingMode mode =
       g.GetEffectiveAddressMemoryOperand(node, inputs, &input_count);
   InstructionCode code = opcode | AddressingModeField::encode(mode);
+  if (loaded_bytes != NULL) {
+    inputs[input_count++] = g.UseImmediate(loaded_bytes);
+  }
   Emit(code, 1, outputs, input_count, inputs);
 }
 
@@ -235,26 +243,50 @@ void InstructionSelector::VisitCheckedLoad(Node* node) {
     case kRepFloat64:
       opcode = kCheckedLoadFloat64;
       break;
+    case kRepFloat32x4:
+      opcode = kCheckedLoadFloat32x4;
+      break;
     default:
       UNREACHABLE();
       return;
   }
+  // To support simd.js partial load.
+  Node* loaded_bytes = NULL;
+  if (opcode == kCheckedLoadFloat32x4) {
+    loaded_bytes = node->InputAt(3);
+    DCHECK(g.CanBeImmediate(loaded_bytes));
+  }
+
   if (offset->opcode() == IrOpcode::kInt32Add && CanCover(node, offset)) {
     Int32Matcher mlength(length);
     Int32BinopMatcher moffset(offset);
     if (mlength.HasValue() && moffset.right().HasValue() &&
         moffset.right().Value() >= 0 &&
         mlength.Value() >= moffset.right().Value()) {
-      Emit(opcode, g.DefineAsRegister(node), g.UseRegister(buffer),
-           g.UseRegister(moffset.left().node()),
-           g.UseImmediate(moffset.right().node()), g.UseImmediate(length));
+      if (loaded_bytes != NULL) {
+        Emit(opcode, g.DefineAsRegister(node), g.UseRegister(buffer),
+             g.UseRegister(moffset.left().node()),
+             g.UseImmediate(moffset.right().node()), g.UseImmediate(length),
+             g.UseImmediate(loaded_bytes));
+
+      } else {
+        Emit(opcode, g.DefineAsRegister(node), g.UseRegister(buffer),
+             g.UseRegister(moffset.left().node()),
+             g.UseImmediate(moffset.right().node()), g.UseImmediate(length));
+      }
       return;
     }
   }
   InstructionOperand* length_operand =
       g.CanBeImmediate(length) ? g.UseImmediate(length) : g.UseRegister(length);
-  Emit(opcode, g.DefineAsRegister(node), g.UseRegister(buffer),
-       g.UseRegister(offset), g.TempImmediate(0), length_operand);
+  if (loaded_bytes != NULL) {
+    Emit(opcode, g.DefineAsRegister(node), g.UseRegister(buffer),
+         g.UseRegister(offset), g.TempImmediate(0), length_operand,
+         g.UseImmediate(loaded_bytes));
+  } else {
+    Emit(opcode, g.DefineAsRegister(node), g.UseRegister(buffer),
+         g.UseRegister(offset), g.TempImmediate(0), length_operand);
+  }
 }
 
 
@@ -1423,45 +1455,6 @@ void InstructionSelector::VisitFloat32x4Swizzle(Node* node) {
        g.UseImmediate(node->InputAt(2)), g.UseImmediate(node->InputAt(3)),
        g.UseImmediate(node->InputAt(4)));
 }
-
-
-#define SIMD_LOAD_OPERATION_LIST(V)         \
-  V(SIMD.float32x4, load, GetFloat32x4XYZW) \
-  V(SIMD.float32x4, loadX, GetFloat32x4X)   \
-  V(SIMD.float32x4, loadXY, GetFloat32x4XY) \
-  V(SIMD.float32x4, loadXYZ, GetFloat32x4XYZ)
-
-#define DECLARE_VISIT_SIMD_LOAD(ignore1, ignore2, opcode)           \
-  void InstructionSelector::Visit##opcode(Node* node) {             \
-    X64OperandGenerator g(this);                                    \
-    Node* const base = node->InputAt(0);                            \
-    Node* const index = node->InputAt(1);                           \
-                                                                    \
-    InstructionOperand* index_operand = g.CanBeImmediate(index)     \
-                                            ? g.UseImmediate(index) \
-                                            : g.UseRegister(index); \
-    Emit(k##opcode, g.DefineAsRegister(node), g.UseRegister(base),  \
-         index_operand);                                            \
-  }
-
-
-#define DECLARE_VISIT_SIMD_CHECKED_LOAD(ignore1, ignore2, opcode)         \
-  void InstructionSelector::VisitChecked##opcode(Node* node) {            \
-    X64OperandGenerator g(this);                                          \
-    Node* const base = node->InputAt(0);                                  \
-    Node* const index = node->InputAt(1);                                 \
-    Node* const length = node->InputAt(2);                                \
-                                                                          \
-    InstructionOperand* length_operand = g.CanBeImmediate(length)         \
-                                             ? g.UseImmediate(length)     \
-                                             : g.UseRegister(length);     \
-    Emit(kChecked##opcode, g.DefineAsRegister(node), g.UseRegister(base), \
-         g.UseRegister(index), length_operand);                           \
-  }
-
-
-SIMD_LOAD_OPERATION_LIST(DECLARE_VISIT_SIMD_LOAD)
-SIMD_LOAD_OPERATION_LIST(DECLARE_VISIT_SIMD_CHECKED_LOAD)
 
 
 // static

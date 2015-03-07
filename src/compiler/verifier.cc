@@ -761,14 +761,6 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4WithW:
     case IrOpcode::kFloat32x4Clamp:
     case IrOpcode::kFloat32x4Swizzle:
-    case IrOpcode::kGetFloat32x4X:
-    case IrOpcode::kGetFloat32x4XY:
-    case IrOpcode::kGetFloat32x4XYZ:
-    case IrOpcode::kGetFloat32x4XYZW:
-    case IrOpcode::kCheckedGetFloat32x4X:
-    case IrOpcode::kCheckedGetFloat32x4XY:
-    case IrOpcode::kCheckedGetFloat32x4XYZ:
-    case IrOpcode::kCheckedGetFloat32x4XYZW:
       // TODO(rossberg): Check.
       break;
   }

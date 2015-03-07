@@ -894,7 +894,27 @@ class RepresentationSelector {
         LoadRepresentation rep = OpParameter<LoadRepresentation>(node);
         ProcessInput(node, 0, tBase);   // pointer or object
         ProcessInput(node, 1, kMachInt32);  // index
-        ProcessRemainingInputs(node, 2);
+        if (RepresentationOf(rep) == kRepFloat32x4) {
+          ProcessInput(node, 2, kMachInt32);  // partial
+          ProcessRemainingInputs(node, 3);
+        } else {
+          ProcessRemainingInputs(node, 2);
+        }
+        SetOutput(node, rep);
+        break;
+      }
+      case IrOpcode::kCheckedLoad: {
+        MachineTypeUnion tBase = kRepTagged | kMachPtr;
+        LoadRepresentation rep = OpParameter<LoadRepresentation>(node);
+        ProcessInput(node, 0, tBase);       // pointer or object
+        ProcessInput(node, 1, kMachInt32);  // index
+        ProcessInput(node, 2, kMachInt32);  // length
+        if (RepresentationOf(rep) == kRepFloat32x4) {
+          ProcessInput(node, 3, kMachInt32);  // partial
+          ProcessRemainingInputs(node, 4);
+        } else {
+          ProcessRemainingInputs(node, 3);
+        }
         SetOutput(node, rep);
         break;
       }
@@ -1094,25 +1114,6 @@ class RepresentationSelector {
         ProcessInput(node, 2, kMachInt32);
         ProcessInput(node, 3, kMachInt32);
         ProcessInput(node, 4, kMachInt32);
-        SetOutput(node, kMachFloat32x4);
-        break;
-      case IrOpcode::kGetFloat32x4X:
-      case IrOpcode::kGetFloat32x4XY:
-      case IrOpcode::kGetFloat32x4XYZ:
-      case IrOpcode::kGetFloat32x4XYZW:
-        DCHECK_EQ(2, node->InputCount());
-        ProcessInput(node, 0, kMachPtr);    // base
-        ProcessInput(node, 1, kMachInt32);  // index
-        SetOutput(node, kMachFloat32x4);
-        break;
-      case IrOpcode::kCheckedGetFloat32x4X:
-      case IrOpcode::kCheckedGetFloat32x4XY:
-      case IrOpcode::kCheckedGetFloat32x4XYZ:
-      case IrOpcode::kCheckedGetFloat32x4XYZW:
-        DCHECK_EQ(3, node->InputCount());
-        ProcessInput(node, 0, kMachPtr);    // base
-        ProcessInput(node, 1, kMachInt32);  // index
-        ProcessInput(node, 2, kMachInt32);  // length
         SetOutput(node, kMachFloat32x4);
         break;
       default:

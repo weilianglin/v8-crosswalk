@@ -947,125 +947,52 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ shufps(value_reg, value_reg, s);
       break;
     }
-    case kGetFloat32x4X: {
-      auto base = i.InputRegister(0);
-      if (instr->InputAt(1)->IsRegister()) {
-        auto index = i.InputRegister(1);
-        __ movd(i.OutputFloat32x4Register(), Operand(base, index, times_4, 0));
-      } else {
-        __ movd(i.OutputFloat32x4Register(),
-                Operand(base, i.InputInt32(1) * 0x4));
-      }
-      break;
-    }
-    case kGetFloat32x4XY: {
-      auto base = i.InputRegister(0);
-      if (instr->InputAt(1)->IsRegister()) {
-        auto index = i.InputRegister(1);
-        __ movq(i.OutputFloat32x4Register(), Operand(base, index, times_4, 0));
-      } else {
-        __ movq(i.OutputFloat32x4Register(),
-                Operand(base, i.InputInt32(1) * 0x4));
-      }
-      break;
-    }
-    case kGetFloat32x4XYZ: {
-      auto base = i.InputRegister(0);
+    case kLoadFloat32x4: {
+      int index = 0;
       auto result = i.OutputFloat32x4Register();
-      if (instr->InputAt(1)->IsRegister()) {
-        auto index = i.InputRegister(1);
-        __ movq(result, Operand(base, index, times_4, 0));
-        __ movd(xmm0, Operand(base, index, times_4, 0x8));
-      } else {
-        __ movq(result, Operand(base, i.InputInt32(1) * 0x4));
-        __ movd(xmm0, Operand(base, i.InputInt32(1) * 0x4 + 0x8));
-      }
-      __ movlhps(result, xmm0);
-      break;
-    }
-    case kGetFloat32x4XYZW: {
-      auto base = i.InputRegister(0);
-      if (instr->InputAt(1)->IsRegister()) {
-        auto index = i.InputRegister(1);
-        __ movups(i.OutputFloat32x4Register(),
-                  Operand(base, index, times_4, 0));
-      } else {
-        __ movups(i.OutputFloat32x4Register(),
-                  Operand(base, i.InputInt32(1) * 0x4));
+      auto operand = i.MemoryOperand(&index);
+      auto loaded_bytes = i.InputInt32(index);
+      if (loaded_bytes == 16) {
+        __ movups(result, operand);
+      } else if (loaded_bytes == 12) {
+        __ movq(result, operand);
+        __ movd(xmm0, Operand(operand, 0x8));
+        __ movlhps(result, xmm0);
+      } else if (loaded_bytes == 8) {
+        __ movq(result, operand);
+      } else if (loaded_bytes == 4) {
+        __ movd(result, operand);
       }
       break;
     }
-    case kCheckedGetFloat32x4X: {
-      auto base = i.InputRegister(0);
-      auto index = i.InputRegister(1);
+    case kCheckedLoadFloat32x4: {
       auto result = i.OutputFloat32x4Register();
+      auto buffer = i.InputRegister(0);
+      auto index1 = i.InputRegister(1);
+      auto index2 = i.InputInt32(2);
+      auto loaded_bytes = i.InputInt32(4);
       OutOfLineCode* ool = new (zone()) OutOfLineLoadNaN(this, result);
-      if (instr->InputAt(2)->IsRegister()) {
-        __ movl(kScratchRegister, i.InputRegister(2));
-        __ subl(kScratchRegister, Immediate(0x1));
-        __ cmpl(index, kScratchRegister);
+      if (instr->InputAt(3)->IsRegister()) {
+        auto length = i.InputRegister(3);
+        DCHECK_EQ(0, index2);
+        __ cmpl(index1, length);
       } else {
-        int length = i.InputInt32(2);
-        __ cmpl(index, Immediate(length - 0x1));
+        auto length = i.InputInt32(3);
+        DCHECK_LE(index2, length);
+        __ cmpl(index1, Immediate(length - index2));
       }
       __ j(above_equal, ool->entry());
-      __ movd(result, Operand(base, index, times_4, 0));
-      __ bind(ool->exit());
-      break;
-    }
-    case kCheckedGetFloat32x4XY: {
-      auto base = i.InputRegister(0);
-      auto index = i.InputRegister(1);
-      auto result = i.OutputFloat32x4Register();
-      OutOfLineCode* ool = new (zone()) OutOfLineLoadNaN(this, result);
-      if (instr->InputAt(2)->IsRegister()) {
-        __ movl(kScratchRegister, i.InputRegister(2));
-        __ subl(kScratchRegister, Immediate(0x2));
-        __ cmpl(index, kScratchRegister);
-      } else {
-        int length = i.InputInt32(2);
-        __ cmpl(index, Immediate(length - 0x2));
+      if (loaded_bytes == 16) {
+        __ movups(result, Operand(buffer, index1, times_1, index2));
+      } else if (loaded_bytes == 12) {
+        __ movq(result, Operand(buffer, index1, times_1, index2));
+        __ movd(xmm0, Operand(buffer, index1, times_1, index2 + 0x8));
+        __ movlhps(result, xmm0);
+      } else if (loaded_bytes == 8) {
+        __ movq(result, Operand(buffer, index1, times_1, index2));
+      } else if (loaded_bytes == 4) {
+        __ movd(result, Operand(buffer, index1, times_1, index2));
       }
-      __ j(above_equal, ool->entry());
-      __ movq(result, Operand(base, index, times_4, 0));
-      __ bind(ool->exit());
-      break;
-    }
-    case kCheckedGetFloat32x4XYZ: {
-      auto base = i.InputRegister(0);
-      auto index = i.InputRegister(1);
-      auto result = i.OutputFloat32x4Register();
-      OutOfLineCode* ool = new (zone()) OutOfLineLoadNaN(this, result);
-      if (instr->InputAt(2)->IsRegister()) {
-        __ movl(kScratchRegister, i.InputRegister(2));
-        __ subl(kScratchRegister, Immediate(0x3));
-        __ cmpl(index, kScratchRegister);
-      } else {
-        int length = i.InputInt32(2);
-        __ cmpl(index, Immediate(length - 0x3));
-      }
-      __ j(above_equal, ool->entry());
-      __ movq(result, Operand(base, index, times_4, 0));
-      __ movd(xmm0, Operand(base, index, times_4, 0x8));
-      __ movlhps(result, xmm0);
-      __ bind(ool->exit());
-      break;
-    }
-    case kCheckedGetFloat32x4XYZW: {
-      auto base = i.InputRegister(0);
-      auto index = i.InputRegister(1);
-      auto result = i.OutputFloat32x4Register();
-      OutOfLineCode* ool = new (zone()) OutOfLineLoadNaN(this, result);
-      if (instr->InputAt(2)->IsRegister()) {
-        __ movl(kScratchRegister, i.InputRegister(2));
-        __ subl(kScratchRegister, Immediate(0x4));
-        __ cmpl(index, kScratchRegister);
-      } else {
-        int length = i.InputInt32(2);
-        __ cmpl(index, Immediate(length - 0x4));
-      }
-      __ j(above_equal, ool->entry());
-      __ movups(result, Operand(base, index, times_4, 0));
       __ bind(ool->exit());
       break;
     }
