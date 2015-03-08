@@ -996,6 +996,58 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ bind(ool->exit());
       break;
     }
+    case kStoreFloat32x4: {
+      DCHECK(!instr->HasOutput());
+      int index = 0;
+      auto operand = i.MemoryOperand(&index);
+      auto val = i.InputFloat32x4Register(index++);
+      auto stored_bytes = i.InputInt32(index);
+      if (stored_bytes == 16) {
+        __ movups(operand, val);
+      } else if (stored_bytes == 12) {
+        __ movhlps(xmm0, val);
+        __ movq(operand, val);
+        __ movd(Operand(operand, 0x8), xmm0);
+      } else if (stored_bytes == 8) {
+        __ movq(operand, val);
+      } else if (stored_bytes == 4) {
+        __ movd(operand, val);
+      }
+      break;
+    }
+    case kCheckedStoreFloat32x4: {
+      DCHECK(!instr->HasOutput());
+      auto buffer = i.InputRegister(0);
+      auto index1 = i.InputRegister(1);
+      auto index2 = i.InputInt32(2);
+      auto val = i.InputFloat32x4Register(4);
+      auto stored_bytes = i.InputInt32(5);
+      Label done;
+      if (instr->InputAt(3)->IsRegister()) {
+        auto length = i.InputRegister(3);
+        DCHECK_EQ(0, index2);
+        __ cmpl(index1, length);
+      } else {
+        auto length = i.InputInt32(3);
+        DCHECK_LE(index2, length);
+        __ cmpl(index1, Immediate(length - index2));
+      }
+      __ j(above_equal, &done, Label::kNear);
+      Operand operand = Operand(buffer, index1, times_1, index2);
+      if (stored_bytes == 16) {
+        __ movups(operand, val);
+      } else if (stored_bytes == 12) {
+        __ movhlps(xmm0, val);
+        __ movq(operand, val);
+        __ movd(Operand(operand, 0x8), xmm0);
+      } else if (stored_bytes == 8) {
+        __ movq(operand, val);
+      } else if (stored_bytes == 4) {
+        __ movd(operand, val);
+      }
+      __ bind(&done);
+      break;
+    }
     case kX64Movzxbl:
       __ movzxbl(i.OutputRegister(), i.MemoryOperand());
       break;

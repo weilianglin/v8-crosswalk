@@ -152,6 +152,7 @@ void InstructionSelector::VisitLoad(Node* node) {
       g.GetEffectiveAddressMemoryOperand(node, inputs, &input_count);
   InstructionCode code = opcode | AddressingModeField::encode(mode);
   if (loaded_bytes != NULL) {
+    DCHECK(g.CanBeImmediate(loaded_bytes));
     inputs[input_count++] = g.UseImmediate(loaded_bytes);
   }
   Emit(code, 1, outputs, input_count, inputs);
@@ -201,13 +202,17 @@ void InstructionSelector::VisitStore(Node* node) {
       opcode = kX64Movq;
       break;
     case kRepFloat32x4:
-      opcode = kX64Movups;
+      opcode = kStoreFloat32x4;
       break;
     default:
       UNREACHABLE();
       return;
   }
-  InstructionOperand* inputs[4];
+  InstructionOperand* inputs[5];
+  Node* stored_bytes = NULL;
+  if (opcode == kStoreFloat32x4) {
+    stored_bytes = node->InputAt(3);
+  }
   size_t input_count = 0;
   AddressingMode mode =
       g.GetEffectiveAddressMemoryOperand(node, inputs, &input_count);
@@ -215,6 +220,10 @@ void InstructionSelector::VisitStore(Node* node) {
   InstructionOperand* value_operand =
       g.CanBeImmediate(value) ? g.UseImmediate(value) : g.UseRegister(value);
   inputs[input_count++] = value_operand;
+  if (stored_bytes != NULL) {
+    DCHECK(g.CanBeImmediate(stored_bytes));
+    inputs[input_count++] = g.UseImmediate(stored_bytes);
+  }
   Emit(code, 0, static_cast<InstructionOperand**>(NULL), input_count, inputs);
 }
 
@@ -314,29 +323,52 @@ void InstructionSelector::VisitCheckedStore(Node* node) {
     case kRepFloat64:
       opcode = kCheckedStoreFloat64;
       break;
+    case kRepFloat32x4:
+      opcode = kCheckedStoreFloat32x4;
+      break;
     default:
       UNREACHABLE();
       return;
   }
   InstructionOperand* value_operand =
       g.CanBeImmediate(value) ? g.UseImmediate(value) : g.UseRegister(value);
+  Node* stored_bytes = NULL;
+  if (opcode == kCheckedStoreFloat32x4) {
+    stored_bytes = node->InputAt(4);
+    DCHECK(g.CanBeImmediate(stored_bytes));
+  }
+
   if (offset->opcode() == IrOpcode::kInt32Add && CanCover(node, offset)) {
     Int32Matcher mlength(length);
     Int32BinopMatcher moffset(offset);
     if (mlength.HasValue() && moffset.right().HasValue() &&
         moffset.right().Value() >= 0 &&
         mlength.Value() >= moffset.right().Value()) {
-      Emit(opcode, nullptr, g.UseRegister(buffer),
-           g.UseRegister(moffset.left().node()),
-           g.UseImmediate(moffset.right().node()), g.UseImmediate(length),
-           value_operand);
+      if (stored_bytes != NULL) {
+        Emit(opcode, nullptr, g.UseRegister(buffer),
+             g.UseRegister(moffset.left().node()),
+             g.UseImmediate(moffset.right().node()), g.UseImmediate(length),
+             value_operand, g.UseImmediate(stored_bytes));
+      } else {
+        Emit(opcode, nullptr, g.UseRegister(buffer),
+             g.UseRegister(moffset.left().node()),
+             g.UseImmediate(moffset.right().node()), g.UseImmediate(length),
+             value_operand);
+      }
       return;
     }
   }
   InstructionOperand* length_operand =
       g.CanBeImmediate(length) ? g.UseImmediate(length) : g.UseRegister(length);
-  Emit(opcode, nullptr, g.UseRegister(buffer), g.UseRegister(offset),
-       g.TempImmediate(0), length_operand, value_operand);
+  if (stored_bytes != NULL) {
+    Emit(opcode, nullptr, g.UseRegister(buffer), g.UseRegister(offset),
+         g.TempImmediate(0), length_operand, value_operand,
+         g.UseImmediate(stored_bytes));
+
+  } else {
+    Emit(opcode, nullptr, g.UseRegister(buffer), g.UseRegister(offset),
+         g.TempImmediate(0), length_operand, value_operand);
+  }
 }
 
 

@@ -341,13 +341,13 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   return NoChange();
 }
 
-#define SIMD_LOAD_OPERATION(V)                                      \
-  V(Type::UntaggedFloat32(), 4, GetFloat32x4X, kRepFloat32x4)    \
-  V(Type::UntaggedFloat32(), 8, GetFloat32x4XY, kRepFloat32x4)   \
-  V(Type::UntaggedFloat32(), 12, GetFloat32x4XYZ, kRepFloat32x4) \
-  V(Type::UntaggedFloat32(), 16, GetFloat32x4XYZW, kRepFloat32x4)
+#define SIMD_LOAD_OPERATION(V)          \
+  V(4, GetFloat32x4X, kRepFloat32x4)    \
+  V(8, GetFloat32x4XY, kRepFloat32x4)   \
+  V(12, GetFloat32x4XYZ, kRepFloat32x4) \
+  V(16, GetFloat32x4XYZW, kRepFloat32x4)
 
-#define DECLARE_REDUCE_GET_FLOAT32X4(etype, partial, opcode, rep)            \
+#define DECLARE_REDUCE_GET_FLOAT32X4(partial, opcode, rep)                   \
   Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                   \
     JSCallReduction r(node);                                                 \
                                                                              \
@@ -402,6 +402,73 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
 
 
 SIMD_LOAD_OPERATION(DECLARE_REDUCE_GET_FLOAT32X4)
+
+
+#define SIMD_STORE_OPERATION(V)                     \
+  V(float32x4_, 4, SetFloat32x4X, kRepFloat32x4)    \
+  V(float32x4_, 8, SetFloat32x4XY, kRepFloat32x4)   \
+  V(float32x4_, 12, SetFloat32x4XYZ, kRepFloat32x4) \
+  V(float32x4_, 16, SetFloat32x4XYZW, kRepFloat32x4)
+
+#define DECLARE_REDUCE_SET_FLOAT32X4(vtype, partial, opcode, rep)             \
+  Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                    \
+    JSCallReduction r(node);                                                  \
+                                                                              \
+    if (r.GetJSCallArity() == 3) {                                            \
+      Node* base = r.GetJSCallInput(0);                                       \
+      Node* index = r.GetJSCallInput(1);                                      \
+      Node* value = r.GetJSCallInput(2);                                      \
+      Type* key_type = NodeProperties::GetBounds(index).upper;                \
+      Type* val_type = NodeProperties::GetBounds(value).upper;                \
+                                                                              \
+      HeapObjectMatcher<Object> mbase(base);                                  \
+      if (mbase.HasValue() && mbase.Value().handle()->IsJSTypedArray() &&     \
+          key_type->Is(Type::Integral32()) && val_type->Is(vtype)) {          \
+        Handle<JSTypedArray> const array =                                    \
+            Handle<JSTypedArray>::cast(mbase.Value().handle());               \
+        array->GetBuffer()->set_is_neuterable(false);                         \
+        BufferAccess const access(array->type());                             \
+        size_t const k = ElementSizeLog2Of(access.machine_type());            \
+        double const byte_length = array->byte_length()->Number();            \
+        Node* offset =                                                        \
+            graph()->NewNode(machine()->Word32Shl(), index,                   \
+                             jsgraph()->Int32Constant(static_cast<int>(k)));  \
+        Node* stored_bytes = jsgraph()->Int32Constant(partial);               \
+        if (IsExternalArrayElementsKind(array->map()->elements_kind()) &&     \
+            byte_length <= kMaxInt) {                                         \
+          Handle<ExternalArray> elements =                                    \
+              Handle<ExternalArray>::cast(handle(array->elements()));         \
+          Node* buffer =                                                      \
+              jsgraph()->PointerConstant(elements->external_pointer());       \
+          Node* length = jsgraph()->Int32Constant(byte_length - partial);     \
+          Node* effect = NodeProperties::GetEffectInput(node);                \
+          Node* control = NodeProperties::GetControlInput(node);              \
+          double const element_length = array->length()->Number();            \
+          if (key_type->Min() >= 0 &&                                         \
+              key_type->Max() < (element_length - partial / k)) {             \
+            StoreRepresentation srep =                                        \
+                StoreRepresentation(rep, kNoWriteBarrier);                    \
+            Node* store =                                                     \
+                graph()->NewNode(machine()->Store(srep), buffer, offset,      \
+                                 value, stored_bytes, effect, control);       \
+            NodeProperties::ReplaceWithValue(node, store, store);             \
+            return Changed(store);                                            \
+          }                                                                   \
+                                                                              \
+          Node* store =                                                       \
+              graph()->NewNode(machine()->CheckedStore(rep), buffer, offset,  \
+                               length, value, stored_bytes, effect, control); \
+          NodeProperties::ReplaceWithValue(node, store, store);               \
+          return Changed(store);                                              \
+        }                                                                     \
+      }                                                                       \
+    }                                                                         \
+                                                                              \
+    return NoChange();                                                        \
+  }
+
+
+SIMD_STORE_OPERATION(DECLARE_REDUCE_SET_FLOAT32X4)
 
 
 Reduction JSBuiltinReducer::Reduce(Node* node) {
@@ -471,6 +538,14 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceGetFloat32x4XYZ(node));
     case kGetFloat32x4XYZW:
       return ReplaceWithPureReduction(node, ReduceGetFloat32x4XYZW(node));
+    case kSetFloat32x4X:
+      return ReplaceWithPureReduction(node, ReduceSetFloat32x4X(node));
+    case kSetFloat32x4XY:
+      return ReplaceWithPureReduction(node, ReduceSetFloat32x4XY(node));
+    case kSetFloat32x4XYZ:
+      return ReplaceWithPureReduction(node, ReduceSetFloat32x4XYZ(node));
+    case kSetFloat32x4XYZW:
+      return ReplaceWithPureReduction(node, ReduceSetFloat32x4XYZW(node));
     default:
       break;
   }

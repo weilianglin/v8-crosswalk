@@ -295,8 +295,7 @@ struct MachineOperatorGlobalCache {
   Store##Type##NoWriteBarrier##Operator kStore##Type##NoWriteBarrier;          \
   Store##Type##FullWriteBarrier##Operator kStore##Type##FullWriteBarrier;      \
   CheckedStore##Type##Operator kCheckedStore##Type;
-// TODO(weiliang): enable store
-// MACHINE_SIMD_TYPE_LIST(STORE)
+  MACHINE_SIMD_TYPE_LIST(SIMD_STORE)
 #undef STORE
 };
 
@@ -349,6 +348,7 @@ const Operator* MachineOperatorBuilder::Store(StoreRepresentation rep) {
     }                                                    \
     break;
     MACHINE_TYPE_LIST(STORE)
+    MACHINE_SIMD_TYPE_LIST(STORE)
 #undef STORE
 
     default:
@@ -387,6 +387,7 @@ const Operator* MachineOperatorBuilder::CheckedStore(
   case k##Type:     \
     return &cache_.kCheckedStore##Type;
     MACHINE_TYPE_LIST(STORE)
+    MACHINE_SIMD_TYPE_LIST(STORE)
 #undef STORE
     default:
       break;

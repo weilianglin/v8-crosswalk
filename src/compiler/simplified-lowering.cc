@@ -925,7 +925,28 @@ class RepresentationSelector {
         ProcessInput(node, 0, tBase);   // pointer or object
         ProcessInput(node, 1, kMachInt32);  // index
         ProcessInput(node, 2, rep.machine_type());
-        ProcessRemainingInputs(node, 3);
+        if (rep.machine_type() == kRepFloat32x4) {
+          ProcessInput(node, 3, kMachInt32);  // partial
+          ProcessRemainingInputs(node, 4);
+        } else {
+          ProcessRemainingInputs(node, 3);
+        }
+        SetOutput(node, 0);
+        break;
+      }
+      case IrOpcode::kCheckedStore: {
+        MachineTypeUnion tBase = kRepTagged | kMachPtr;
+        StoreRepresentation rep = OpParameter<StoreRepresentation>(node);
+        ProcessInput(node, 0, tBase);       // pointer or object
+        ProcessInput(node, 1, kMachInt32);  // index
+        ProcessInput(node, 2, kMachInt32);  // length
+        ProcessInput(node, 3, rep.machine_type());
+        if (rep.machine_type() == kRepFloat32x4) {
+          ProcessInput(node, 4, kMachInt32);  // partial
+          ProcessRemainingInputs(node, 5);
+        } else {
+          ProcessRemainingInputs(node, 4);
+        }
         SetOutput(node, 0);
         break;
       }

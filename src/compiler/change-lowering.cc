@@ -110,10 +110,11 @@ Node* ChangeLowering::AllocateFloat32x4WithValue(Node* value, Node* control) {
   Node* val_obj =
       graph()->NewNode(machine()->Load(kRepTagged), float32x4_obj,
                        Float32x4ValueIndexConstant(), float32x4_obj, control);
+  Node* stored_bytes = jsgraph()->Int32Constant(16);
   Node* store = graph()->NewNode(
-      machine()->Store(StoreRepresentation(kMachFloat32x4, kNoWriteBarrier)),
+      machine()->Store(StoreRepresentation(kRepFloat32x4, kNoWriteBarrier)),
       val_obj, jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
-      value, val_obj, control);
+      value, stored_bytes, val_obj, control);
   return graph()->NewNode(common()->Finish(1), float32x4_obj, store);
 }
 

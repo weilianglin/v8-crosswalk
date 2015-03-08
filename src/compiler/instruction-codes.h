@@ -78,6 +78,8 @@ namespace compiler {
   V(Float32x4Swizzle)        \
   V(LoadFloat32x4)           \
   V(CheckedLoadFloat32x4)    \
+  V(StoreFloat32x4)          \
+  V(CheckedStoreFloat32x4)   \
   TARGET_ARCH_OPCODE_LIST(V)
 
 enum ArchOpcode {

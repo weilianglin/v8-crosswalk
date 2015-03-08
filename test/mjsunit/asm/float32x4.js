@@ -161,6 +161,10 @@ function asmModule2(stdlib, imports, buffer) {
   var f4loadX = f4.loadX;
   var f4loadXY = f4.loadXY;
   var f4loadXYZ = f4.loadXYZ;
+  var f4store = f4.store;
+  var f4storeX = f4.storeX;
+  var f4storeXY = f4.storeXY;
+  var f4storeXYZ = f4.storeXYZ;
   var f32array = new stdlib.Float32Array(buffer);
 
   function load(a) {
@@ -190,7 +194,35 @@ function asmModule2(stdlib, imports, buffer) {
     ret = f4loadXYZ(f32array, a);
     return f4(ret);
   }
-  return {load : load, loadX : loadX, loadXY : loadXY, loadXYZ : loadXYZ};
+
+  function store(a, v) {
+    a =  a | 0;
+    v = f4(v);
+    f4store(f32array, a, v);
+    return f4load(f32array, a);
+  }
+
+  function storeX(a, v) {
+    a =  a | 0;
+    v = f4(v);
+    f4storeX(f32array, a, v);
+    return f4loadX(f32array, a);
+  }
+
+  function storeXY(a, v) {
+    a =  a | 0;
+    v = f4(v);
+    f4storeXY(f32array, a, v);
+    return f4loadXY(f32array, a);
+  }
+
+  function storeXYZ(a, v) {
+    a =  a | 0;
+    v = f4(v);
+    f4storeXYZ(f32array, a, v);
+    return f4loadXYZ(f32array, a);
+  }
+  return {load : load, loadX : loadX, loadXY : loadXY, loadXYZ : loadXYZ, store : store, storeX : storeX, storeXY : storeXY, storeXYZ : storeXYZ};
 }
 
 
@@ -224,6 +256,35 @@ assertEquals(result.w, expected.w);
 
 var result = m.loadXYZ(4);
 var expected = SIMD.float32x4.loadXYZ(f32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var val = SIMD.float32x4(1, 2, 3, 4);
+var result = m.store(4, val);
+var expected = val;
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var expected = SIMD.float32x4(1, 0, 0, 0);
+var result = m.storeX(8, val);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var expected = SIMD.float32x4(1, 2, 0, 0);
+var result = m.storeXY(12, val);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var expected = SIMD.float32x4(1, 2, 3, 0);
+var result = m.storeXYZ(16, val);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);

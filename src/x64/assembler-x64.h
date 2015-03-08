@@ -1072,9 +1072,11 @@ class Assembler : public AssemblerBase {
   void movd(XMMRegister dst, Register src);
   void movd(XMMRegister dst, const Operand& src);
   void movd(Register dst, XMMRegister src);
+  void movd(const Operand& dst, XMMRegister src);
   void movq(XMMRegister dst, Register src);
   void movq(XMMRegister dst, const Operand& src);
   void movq(Register dst, XMMRegister src);
+  void movq(const Operand& dst, XMMRegister src);
   void movq(XMMRegister dst, XMMRegister src);
 
   // Don't use this unless it's important to keep the
