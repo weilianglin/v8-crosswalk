@@ -1109,6 +1109,22 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     case kFloat64x2Sqrt:
       __ sqrtpd(i.OutputFloat64x2Register(), i.InputFloat64x2Register(0));
       break;
+    case kFloat64x2Scale: {
+      XMMRegister scale = i.InputDoubleRegister(1);
+      __ shufpd(scale, scale, 0x0);
+      __ mulpd(i.InputFloat64x2Register(0), scale);
+      break;
+    }
+    case kFloat64x2WithY:
+      select++;
+    case kFloat64x2WithX: {
+      __ subq(rsp, Immediate(kFloat64x2Size));
+      __ movups(Operand(rsp, 0), i.InputFloat64x2Register(0));
+      __ movsd(Operand(rsp, select * kDoubleSize), i.InputDoubleRegister(1));
+      __ movups(i.InputFloat64x2Register(0), Operand(rsp, 0));
+      __ addq(rsp, Immediate(kFloat64x2Size));
+      break;
+    }
     case kX64Movsxbl:
       if (instr->addressing_mode() != kMode_None) {
         __ movsxbl(i.OutputRegister(), i.MemoryOperand());

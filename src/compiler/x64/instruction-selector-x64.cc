@@ -1377,21 +1377,21 @@ void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
   VisitFloat64Compare(this, node, &cont);
 }
 
-#define BINARY_SIMD_OPERATION_LIST(V) \
-  V(Float32x4Add)                     \
-  V(Float32x4Sub)                     \
-  V(Float32x4Mul)                     \
-  V(Float32x4Div)                     \
-  V(Float32x4Min)                     \
-  V(Float32x4Max)                     \
-  V(Float64x2Add)                     \
-  V(Float64x2Sub)                     \
-  V(Float64x2Mul)                     \
-  V(Float64x2Div)                     \
-  V(Float64x2Min)                     \
+#define BINARY_SIMD_OPERATION_LIST1(V) \
+  V(Float32x4Add)                      \
+  V(Float32x4Sub)                      \
+  V(Float32x4Mul)                      \
+  V(Float32x4Div)                      \
+  V(Float32x4Min)                      \
+  V(Float32x4Max)                      \
+  V(Float64x2Add)                      \
+  V(Float64x2Sub)                      \
+  V(Float64x2Mul)                      \
+  V(Float64x2Div)                      \
+  V(Float64x2Min)                      \
   V(Float64x2Max)
 
-#define DECLARE_VISIT_BINARY_SIMD_OPERATION(type)                              \
+#define DECLARE_VISIT_BINARY_SIMD_OPERATION1(type)                             \
   void InstructionSelector::Visit##type(Node* node) {                          \
     X64OperandGenerator g(this);                                               \
     InstructionOperand* output = IsSupported(AVX) ? g.DefineAsRegister(node)   \
@@ -1401,7 +1401,7 @@ void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
   }
 
 
-BINARY_SIMD_OPERATION_LIST(DECLARE_VISIT_BINARY_SIMD_OPERATION)
+BINARY_SIMD_OPERATION_LIST1(DECLARE_VISIT_BINARY_SIMD_OPERATION1)
 
 
 void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
@@ -1463,39 +1463,25 @@ UNARY_SIMD_OPERATION_LIST1(DECLARE_VISIT_UARY_SIMD_OPERATION1)
 UNARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_UARY_SIMD_OPERATION2)
 
 
-void InstructionSelector::VisitFloat32x4Scale(Node* node) {
-  X64OperandGenerator g(this);
-  Emit(kFloat32x4Scale, g.DefineSameAsFirst(node),
-       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
-}
+#define BINARY_SIMD_OPERATION_LIST2(V) \
+  V(Float32x4Scale)                    \
+  V(Float32x4WithX)                    \
+  V(Float32x4WithY)                    \
+  V(Float32x4WithZ)                    \
+  V(Float32x4WithW)                    \
+  V(Float64x2Scale)                    \
+  V(Float64x2WithX)                    \
+  V(Float64x2WithY)
+
+#define DECLARE_VISIT_BINARY_SIMD_OPERATION2(type)                            \
+  void InstructionSelector::Visit##type(Node* node) {                         \
+    X64OperandGenerator g(this);                                              \
+    Emit(k##type, g.DefineSameAsFirst(node), g.UseRegister(node->InputAt(0)), \
+         g.UseRegister(node->InputAt(1)));                                    \
+  }
 
 
-void InstructionSelector::VisitFloat32x4WithX(Node* node) {
-  X64OperandGenerator g(this);
-  Emit(kFloat32x4WithX, g.DefineSameAsFirst(node),
-       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
-}
-
-
-void InstructionSelector::VisitFloat32x4WithY(Node* node) {
-  X64OperandGenerator g(this);
-  Emit(kFloat32x4WithY, g.DefineSameAsFirst(node),
-       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
-}
-
-
-void InstructionSelector::VisitFloat32x4WithZ(Node* node) {
-  X64OperandGenerator g(this);
-  Emit(kFloat32x4WithZ, g.DefineSameAsFirst(node),
-       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
-}
-
-
-void InstructionSelector::VisitFloat32x4WithW(Node* node) {
-  X64OperandGenerator g(this);
-  Emit(kFloat32x4WithW, g.DefineSameAsFirst(node),
-       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
-}
+BINARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_BINARY_SIMD_OPERATION2)
 
 
 void InstructionSelector::VisitFloat32x4Clamp(Node* node) {

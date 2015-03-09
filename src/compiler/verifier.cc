@@ -777,6 +777,9 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat64x2Abs:
     case IrOpcode::kFloat64x2Neg:
     case IrOpcode::kFloat64x2Sqrt:
+    case IrOpcode::kFloat64x2Scale:
+    case IrOpcode::kFloat64x2WithX:
+    case IrOpcode::kFloat64x2WithY:
       // TODO(rossberg): Check.
       break;
   }
