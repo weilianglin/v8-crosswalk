@@ -35,12 +35,15 @@ const InstructionCode kSourcePositionInstruction = -3;
   V(DoubleStackSlot, DOUBLE_STACK_SLOT, 128)                         \
   V(Float32x4StackSlot, FLOAT32x4_STACK_SLOT, 128)                   \
   V(Int32x4StackSlot, INT32x4_STACK_SLOT, 128)                       \
+  V(Float64x2StackSlot, FLOAT64x2_STACK_SLOT, 128)                   \
   V(Register, REGISTER, RegisterConfiguration::kMaxGeneralRegisters) \
   V(DoubleRegister, DOUBLE_REGISTER,                                 \
     RegisterConfiguration::kMaxDoubleRegisters)                      \
   V(Float32x4Register, FLOAT32x4_REGISTER,                           \
     RegisterConfiguration::kMaxDoubleRegisters)                      \
   V(Int32x4Register, INT32x4_REGISTER,                               \
+    RegisterConfiguration::kMaxDoubleRegisters)                      \
+  V(Float64x2Register, FLOAT64x2_REGISTER,                           \
     RegisterConfiguration::kMaxDoubleRegisters)
 
 class InstructionOperand : public ZoneObject {
@@ -53,10 +56,12 @@ class InstructionOperand : public ZoneObject {
     DOUBLE_STACK_SLOT,
     FLOAT32x4_STACK_SLOT,
     INT32x4_STACK_SLOT,
+    FLOAT64x2_STACK_SLOT,
     REGISTER,
     DOUBLE_REGISTER,
     FLOAT32x4_REGISTER,
-    INT32x4_REGISTER
+    INT32x4_REGISTER,
+    FLOAT64x2_REGISTER
   };
 
   InstructionOperand(Kind kind, int index) { ConvertTo(kind, index); }
@@ -69,10 +74,12 @@ class InstructionOperand : public ZoneObject {
   INSTRUCTION_OPERAND_PREDICATE(Unallocated, UNALLOCATED, 0)
 #undef INSTRUCTION_OPERAND_PREDICATE
   bool IsSIMD128Register() const {
-    return kind() == FLOAT32x4_REGISTER || kind() == INT32x4_REGISTER;
+    return kind() == FLOAT32x4_REGISTER || kind() == INT32x4_REGISTER ||
+           kind() == FLOAT64x2_REGISTER;
   }
   bool IsSIMD128StackSlot() const {
-    return kind() == FLOAT32x4_STACK_SLOT || kind() == INT32x4_STACK_SLOT;
+    return kind() == FLOAT32x4_STACK_SLOT || kind() == INT32x4_STACK_SLOT ||
+           kind() == FLOAT64x2_STACK_SLOT;
   }
   bool Equals(const InstructionOperand* other) const {
     return value_ == other->value_ ||
@@ -84,7 +91,8 @@ class InstructionOperand : public ZoneObject {
 
   void ConvertTo(Kind kind, int index) {
     if (kind == REGISTER || kind == DOUBLE_REGISTER ||
-        kind == FLOAT32x4_REGISTER || kind == INT32x4_REGISTER)
+        kind == FLOAT32x4_REGISTER || kind == INT32x4_REGISTER ||
+        kind == FLOAT64x2_REGISTER)
       DCHECK(index >= 0);
     value_ = KindField::encode(kind);
     value_ |= bit_cast<unsigned>(index << KindField::kSize);
@@ -1001,11 +1009,13 @@ class InstructionSequence FINAL : public ZoneObject {
   bool IsDouble(int virtual_register) const;
   bool IsFloat32x4(int virtual_register) const;
   bool IsInt32x4(int virtual_register) const;
+  bool IsFloat64x2(int virtual_register) const;
 
   void MarkAsReference(int virtual_register);
   void MarkAsDouble(int virtual_register);
   void MarkAsFloat32x4(int virtual_register);
   void MarkAsInt32x4(int virtual_register);
+  void MarkAsFloat64x2(int virtual_register);
 
   void AddGapMove(int index, InstructionOperand* from, InstructionOperand* to);
 
@@ -1102,6 +1112,7 @@ class InstructionSequence FINAL : public ZoneObject {
   VirtualRegisterSet doubles_;
   VirtualRegisterSet float32x4_;
   VirtualRegisterSet int32x4_;
+  VirtualRegisterSet float64x2_;
   VirtualRegisterSet references_;
   DeoptimizationVector deoptimization_entries_;
 

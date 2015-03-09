@@ -18,6 +18,7 @@ enum RegisterKind {
   DOUBLE_REGISTERS,
   FLOAT32x4_REGISTERS,
   INT32x4_REGISTERS,
+  FLOAT64x2_REGISTERS,
 };
 
 
@@ -104,7 +105,8 @@ class LifetimePosition FINAL {
 
 
 inline bool IsSIMD128RegisterKind(RegisterKind kind) {
-  return kind == FLOAT32x4_REGISTERS || kind == INT32x4_REGISTERS;
+  return kind == FLOAT32x4_REGISTERS || kind == INT32x4_REGISTERS ||
+         kind == FLOAT64x2_REGISTERS;
 }
 
 

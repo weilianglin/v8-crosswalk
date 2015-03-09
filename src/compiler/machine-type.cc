@@ -27,6 +27,8 @@ std::ostream& operator<<(std::ostream& os, const MachineType& type) {
   PRINT(kRepFloat32);
   PRINT(kRepFloat64);
   PRINT(kRepFloat32x4);
+  PRINT(kRepInt32x4);
+  PRINT(kRepFloat64x2);
   PRINT(kRepTagged);
 
   PRINT(kTypeBool);

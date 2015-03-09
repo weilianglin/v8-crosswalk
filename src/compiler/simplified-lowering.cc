@@ -89,6 +89,12 @@ class RepresentationSelector {
                                         ->initial_map(),
                                     zone->isolate()),
                              zone);
+    float64x2_ = Type::Class(handle(zone->isolate()
+                                        ->native_context()
+                                        ->float64x2_function()
+                                        ->initial_map(),
+                                    zone->isolate()),
+                             zone);
   }
 
   void Run(SimplifiedLowering* lowering) {
@@ -337,6 +343,8 @@ class RepresentationSelector {
       return kRepFloat64;
     } else if (upper->Is(float32x4_)) {
       return kRepFloat32x4;
+    } else if (upper->Is(float64x2_)) {
+      return kRepFloat64x2;
     }
     return kRepTagged;
   }
@@ -894,7 +902,8 @@ class RepresentationSelector {
         LoadRepresentation rep = OpParameter<LoadRepresentation>(node);
         ProcessInput(node, 0, tBase);   // pointer or object
         ProcessInput(node, 1, kMachInt32);  // index
-        if (RepresentationOf(rep) == kRepFloat32x4) {
+        if (RepresentationOf(rep) == kRepFloat32x4 ||
+            RepresentationOf(rep) == kRepFloat64x2) {
           ProcessInput(node, 2, kMachInt32);  // partial
           ProcessRemainingInputs(node, 3);
         } else {
@@ -925,7 +934,8 @@ class RepresentationSelector {
         ProcessInput(node, 0, tBase);   // pointer or object
         ProcessInput(node, 1, kMachInt32);  // index
         ProcessInput(node, 2, rep.machine_type());
-        if (rep.machine_type() == kRepFloat32x4) {
+        if (rep.machine_type() == kRepFloat32x4 ||
+            rep.machine_type() == kRepFloat64x2) {
           ProcessInput(node, 3, kMachInt32);  // partial
           ProcessRemainingInputs(node, 4);
         } else {
@@ -1137,6 +1147,21 @@ class RepresentationSelector {
         ProcessInput(node, 4, kMachInt32);
         SetOutput(node, kMachFloat32x4);
         break;
+      case IrOpcode::kFloat64x2Add:
+      case IrOpcode::kFloat64x2Sub:
+      case IrOpcode::kFloat64x2Mul:
+      case IrOpcode::kFloat64x2Div:
+        DCHECK_EQ(2, node->InputCount());
+        ProcessInput(node, 0, kMachFloat64x2);
+        ProcessInput(node, 1, kMachFloat64x2);
+        SetOutput(node, kMachFloat64x2);
+        break;
+      case IrOpcode::kFloat64x2Constructor:
+        DCHECK_EQ(2, node->InputCount());
+        ProcessInput(node, 0, kMachFloat64);
+        ProcessInput(node, 1, kMachFloat64);
+        SetOutput(node, kMachFloat64x2);
+        break;
       default:
         VisitInputs(node);
         break;
@@ -1188,6 +1213,7 @@ class RepresentationSelector {
   Type* safe_bit_range_;
   Type* safe_int_additive_range_;
   Type* float32x4_;
+  Type* float64x2_;
 
   NodeInfo* GetInfo(Node* node) {
     DCHECK(node->id() >= 0);

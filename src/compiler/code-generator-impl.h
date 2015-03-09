@@ -43,6 +43,10 @@ class InstructionOperandConverter {
     return ToSIMD128Register(instr_->InputAt(index));
   }
 
+  DoubleRegister InputFloat64x2Register(int index) {
+    return ToSIMD128Register(instr_->InputAt(index));
+  }
+
   double InputDouble(int index) { return ToDouble(instr_->InputAt(index)); }
 
   int32_t InputInt32(int index) {
@@ -88,6 +92,10 @@ class InstructionOperandConverter {
   }
 
   DoubleRegister OutputInt32x4Register() {
+    return ToSIMD128Register(instr_->Output());
+  }
+
+  DoubleRegister OutputFloat64x2Register() {
     return ToSIMD128Register(instr_->Output());
   }
 

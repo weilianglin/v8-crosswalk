@@ -157,7 +157,12 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
   V(Float32x4WithZ, Operator::kNoProperties, 2, 0, 1)                         \
   V(Float32x4WithW, Operator::kNoProperties, 2, 0, 1)                         \
   V(Float32x4Clamp, Operator::kNoProperties, 3, 0, 1)                         \
-  V(Float32x4Swizzle, Operator::kNoProperties, 5, 0, 1)
+  V(Float32x4Swizzle, Operator::kNoProperties, 5, 0, 1)                       \
+  V(Float64x2Add, Operator::kCommutative, 2, 0, 1)                            \
+  V(Float64x2Sub, Operator::kNoProperties, 2, 0, 1)                           \
+  V(Float64x2Mul, Operator::kCommutative, 2, 0, 1)                            \
+  V(Float64x2Div, Operator::kNoProperties, 2, 0, 1)                           \
+  V(Float64x2Constructor, Operator::kNoProperties, 2, 0, 1)
 
 
 #define MACHINE_TYPE_LIST(V) \
@@ -183,7 +188,9 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
 
 #define MACHINE_SIMD_TYPE_LIST(V) \
   V(RepFloat32x4)                 \
-  V(MachFloat32x4)
+  V(MachFloat32x4)                \
+  V(RepFloat64x2)                 \
+  V(MachFloat64x2)
 
 struct MachineOperatorGlobalCache {
 #define PURE(Name, properties, value_input_count, control_input_count,         \

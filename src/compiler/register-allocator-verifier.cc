@@ -149,6 +149,8 @@ void RegisterAllocatorVerifier::BuildConstraint(const InstructionOperand* op,
             constraint->type_ = kNoneFloat32x4;
           } else if (sequence()->IsInt32x4(vreg)) {
             constraint->type_ = kNoneInt32x4;
+          } else if (sequence()->IsFloat64x2(vreg)) {
+            constraint->type_ = kNoneFloat64x2;
           } else {
             constraint->type_ = kNone;
           }
@@ -168,6 +170,8 @@ void RegisterAllocatorVerifier::BuildConstraint(const InstructionOperand* op,
             constraint->type_ = kFloat32x4Register;
           } else if (sequence()->IsInt32x4(vreg)) {
             constraint->type_ = kInt32x4Register;
+          } else if (sequence()->IsFloat64x2(vreg)) {
+            constraint->type_ = kFloat64x2Register;
           } else {
             constraint->type_ = kRegister;
           }
@@ -208,6 +212,9 @@ void RegisterAllocatorVerifier::CheckConstraint(
     case kInt32x4Register:
       CHECK(op->IsInt32x4Register());
       return;
+    case kFloat64x2Register:
+      CHECK(op->IsFloat64x2Register());
+      return;
     case kFixedDoubleRegister:
       CHECK(op->IsDoubleRegister());
       CHECK_EQ(op->index(), constraint->value_);
@@ -227,6 +234,9 @@ void RegisterAllocatorVerifier::CheckConstraint(
       return;
     case kNoneInt32x4:
       CHECK(op->IsInt32x4Register() || op->IsInt32x4StackSlot());
+      return;
+    case kNoneFloat64x2:
+      CHECK(op->IsFloat64x2Register() || op->IsFloat64x2StackSlot());
       return;
     case kSameAsFirst:
       CHECK(false);

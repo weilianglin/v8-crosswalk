@@ -659,6 +659,19 @@ Reduction JSTypedLowering::ReduceJSToFloat32x4Obj(Node* node) {
 }
 
 
+Reduction JSTypedLowering::ReduceJSToFloat64x2Obj(Node* node) {
+  Node* const input = node->InputAt(0);
+  if (input->opcode() == IrOpcode::kJSToFloat64x2Obj) {
+    // Recursively try to reduce the input first.
+    Reduction result = ReduceJSToFloat64x2Obj(input);
+    if (!result.Changed()) result = Changed(input);
+    NodeProperties::ReplaceWithValue(node, result.replacement());
+    return result;
+  }
+  return NoChange();
+}
+
+
 Reduction JSTypedLowering::ReduceJSToStringInput(Node* input) {
   if (input->opcode() == IrOpcode::kJSToString) {
     // Recursively try to reduce the input first.

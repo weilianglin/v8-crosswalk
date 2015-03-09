@@ -80,6 +80,13 @@ namespace compiler {
   V(CheckedLoadFloat32x4)    \
   V(StoreFloat32x4)          \
   V(CheckedStoreFloat32x4)   \
+  V(Float64x2Add)            \
+  V(Float64x2Mul)            \
+  V(Float64x2Sub)            \
+  V(Float64x2Div)            \
+  V(Float64x2Constructor)    \
+  V(LoadFloat64x2)           \
+  V(StoreFloat64x2)          \
   TARGET_ARCH_OPCODE_LIST(V)
 
 enum ArchOpcode {

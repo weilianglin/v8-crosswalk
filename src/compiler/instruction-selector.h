@@ -158,6 +158,12 @@ class InstructionSelector FINAL {
   // Inform the register allocator of a int32x4 result.
   void MarkAsInt32x4(Node* node);
 
+  // Checks if {node} is marked as float64x2.
+  bool IsFloat64x2(const Node* node) const;
+
+  // Inform the register allocator of a float64x2 result.
+  void MarkAsFloat64x2(Node* node);
+
   // Checks if {node} is marked as reference.
   bool IsReference(const Node* node) const;
 

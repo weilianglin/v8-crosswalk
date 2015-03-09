@@ -285,13 +285,13 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
   } while (0)
 
 
-#define ASSEMBLE_FLOAT32x4_BINOP_NOAVX(asm_instr)                             \
-  do {                                                                        \
-    if (instr->InputAt(1)->IsFloat32x4Register()) {                           \
-      __ asm_instr(i.InputFloat32x4Register(0), i.InputFloat32x4Register(1)); \
-    } else {                                                                  \
-      __ asm_instr(i.InputFloat32x4Register(0), i.InputOperand(1));           \
-    }                                                                         \
+#define ASSEMBLE_SIMD_BINOP_NOAVX(asm_instr, type)                          \
+  do {                                                                      \
+    if (instr->InputAt(1)->Is##type##Register()) {                          \
+      __ asm_instr(i.Input##type##Register(0), i.Input##type##Register(1)); \
+    } else {                                                                \
+      __ asm_instr(i.Input##type##Register(0), i.InputOperand(1));          \
+    }                                                                       \
   } while (0)
 
 
@@ -841,10 +841,10 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       ASSEMBLE_FLOAT32x4_BINOP(Divps);
       break;
     case kFloat32x4Min:
-      ASSEMBLE_FLOAT32x4_BINOP_NOAVX(minps);
+      ASSEMBLE_SIMD_BINOP_NOAVX(minps, Float32x4);
       break;
     case kFloat32x4Max:
-      ASSEMBLE_FLOAT32x4_BINOP_NOAVX(maxps);
+      ASSEMBLE_SIMD_BINOP_NOAVX(maxps, Float32x4);
       break;
     case kFloat32x4Constructor:
       __ leaq(rsp, Operand(rsp, -kFloat32x4Size));
@@ -854,16 +854,6 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ movss(Operand(rsp, 3 * kFloatSize), i.InputDoubleRegister(3));
       __ movups(i.OutputFloat32x4Register(), Operand(rsp, 0 * kFloatSize));
       __ leaq(rsp, Operand(rsp, kFloat32x4Size));
-      break;
-    case kX64Movsxbl:
-      if (instr->addressing_mode() != kMode_None) {
-        __ movsxbl(i.OutputRegister(), i.MemoryOperand());
-      } else if (instr->InputAt(0)->IsRegister()) {
-        __ movsxbl(i.OutputRegister(), i.InputRegister(0));
-      } else {
-        __ movsxbl(i.OutputRegister(), i.InputOperand(0));
-      }
-      __ AssertZeroExtended(i.OutputRegister());
       break;
     case kFloat32x4GetW:
       select++;
@@ -1048,6 +1038,60 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ bind(&done);
       break;
     }
+    case kFloat64x2Add:
+      ASSEMBLE_SIMD_BINOP_NOAVX(addpd, Float64x2);
+      break;
+    case kFloat64x2Sub:
+      ASSEMBLE_SIMD_BINOP_NOAVX(subpd, Float64x2);
+      break;
+    case kFloat64x2Mul:
+      ASSEMBLE_SIMD_BINOP_NOAVX(mulpd, Float64x2);
+      break;
+    case kFloat64x2Div:
+      ASSEMBLE_SIMD_BINOP_NOAVX(divpd, Float64x2);
+      break;
+    case kFloat64x2Constructor:
+      __ leaq(rsp, Operand(rsp, -kFloat64x2Size));
+      __ movsd(Operand(rsp, 0 * kDoubleSize), i.InputDoubleRegister(0));
+      __ movsd(Operand(rsp, 1 * kDoubleSize), i.InputDoubleRegister(1));
+      __ movups(i.OutputFloat64x2Register(), Operand(rsp, 0 * kDoubleSize));
+      __ leaq(rsp, Operand(rsp, kFloat64x2Size));
+      break;
+    case kLoadFloat64x2: {
+      int index = 0;
+      auto result = i.OutputFloat64x2Register();
+      auto operand = i.MemoryOperand(&index);
+      auto loaded_bytes = i.InputInt32(index);
+      if (loaded_bytes == 16) {
+        __ movups(result, operand);
+      } else if (loaded_bytes == 8) {
+        __ movq(result, operand);
+      }
+      break;
+    }
+    case kStoreFloat64x2: {
+      DCHECK(!instr->HasOutput());
+      int index = 0;
+      auto operand = i.MemoryOperand(&index);
+      auto val = i.InputFloat64x2Register(index++);
+      auto stored_bytes = i.InputInt32(index);
+      if (stored_bytes == 16) {
+        __ movups(operand, val);
+      } else if (stored_bytes == 8) {
+        __ movq(operand, val);
+      }
+      break;
+    }
+    case kX64Movsxbl:
+      if (instr->addressing_mode() != kMode_None) {
+        __ movsxbl(i.OutputRegister(), i.MemoryOperand());
+      } else if (instr->InputAt(0)->IsRegister()) {
+        __ movsxbl(i.OutputRegister(), i.InputRegister(0));
+      } else {
+        __ movsxbl(i.OutputRegister(), i.InputOperand(0));
+      }
+      __ AssertZeroExtended(i.OutputRegister());
+      break;
     case kX64Movzxbl:
       __ movzxbl(i.OutputRegister(), i.MemoryOperand());
       break;
@@ -1144,15 +1188,6 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
         int index = 0;
         Operand operand = i.MemoryOperand(&index);
         __ movsd(operand, i.InputDoubleRegister(index));
-      }
-      break;
-    case kX64Movups:
-      if (instr->HasOutput()) {
-        __ movups(i.OutputFloat32x4Register(), i.MemoryOperand());
-      } else {
-        int index = 0;
-        Operand operand = i.MemoryOperand(&index);
-        __ movups(operand, i.InputFloat32x4Register(index));
       }
       break;
     case kX64Lea32: {

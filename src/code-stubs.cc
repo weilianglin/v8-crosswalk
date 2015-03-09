@@ -707,6 +707,13 @@ void AllocateFloat32x4Stub::InitializeDescriptor(
 }
 
 
+void AllocateFloat64x2Stub::InitializeDescriptor(
+    CodeStubDescriptor* descriptor) {
+  descriptor->Initialize(
+      Runtime::FunctionForId(Runtime::kAllocateFloat64x2)->entry);
+}
+
+
 void CompareNilICStub::InitializeDescriptor(CodeStubDescriptor* descriptor) {
   descriptor->Initialize(FUNCTION_ADDR(CompareNilIC_Miss));
   descriptor->SetMissHandler(

@@ -252,6 +252,12 @@ void JSGenericLowering::LowerJSToFloat32x4Obj(Node* node) {
 }
 
 
+void JSGenericLowering::LowerJSToFloat64x2Obj(Node* node) {
+  Callable callable = CodeFactory::ToFloat64x2Obj(isolate());
+  ReplaceWithStubCall(node, callable, FlagsForNode(node));
+}
+
+
 void JSGenericLowering::LowerJSLoadProperty(Node* node) {
   const LoadPropertyParameters& p = LoadPropertyParametersOf(node->op());
   Callable callable = CodeFactory::KeyedLoadICInOptimizedCode(isolate());

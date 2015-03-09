@@ -267,6 +267,9 @@ InstructionOperand* LiveRange::CreateAssignedOperand(Zone* zone) const {
       case INT32x4_REGISTERS:
         op = Int32x4RegisterOperand::Create(assigned_register(), zone);
         break;
+      case FLOAT64x2_REGISTERS:
+        op = Float64x2RegisterOperand::Create(assigned_register(), zone);
+        break;
       default:
         UNREACHABLE();
     }
@@ -916,6 +919,8 @@ auto GetSpillSlotKind(RegisterKind kind) -> InstructionOperand::Kind {
       return InstructionOperand::FLOAT32x4_STACK_SLOT;
     case INT32x4_REGISTERS:
       return InstructionOperand::INT32x4_STACK_SLOT;
+    case FLOAT64x2_REGISTERS:
+      return InstructionOperand::FLOAT64x2_STACK_SLOT;
     default:
       UNREACHABLE();
       return InstructionOperand::UNALLOCATED;
@@ -944,7 +949,9 @@ void RegisterAllocator::ReuseSpillSlots() {
     // Allocate a new operand referring to the spill slot.
     auto kind = range->Kind();
     bool is_double = kind == DOUBLE_REGISTERS;
-    bool is_simd128 = kind == INT32x4_REGISTERS || kind == FLOAT32x4_REGISTERS;
+    bool is_simd128 = kind == INT32x4_REGISTERS ||
+                      kind == FLOAT32x4_REGISTERS ||
+                      kind == FLOAT64x2_REGISTERS;
     int index = frame()->AllocateSpillSlot(is_double, is_simd128);
     auto op_kind = GetSpillSlotKind(kind);
     auto op = new (code_zone()) InstructionOperand(op_kind, index);
@@ -2035,6 +2042,7 @@ RegisterKind RegisterAllocator::RequiredRegisterKind(
   if (code()->IsDouble(virtual_register)) return DOUBLE_REGISTERS;
   if (code()->IsFloat32x4(virtual_register)) return FLOAT32x4_REGISTERS;
   if (code()->IsInt32x4(virtual_register)) return INT32x4_REGISTERS;
+  if (code()->IsFloat64x2(virtual_register)) return FLOAT64x2_REGISTERS;
 
   return GENERAL_REGISTERS;
 }
@@ -2544,8 +2552,9 @@ void RegisterAllocator::Spill(LiveRange* range) {
         // Allocate a new operand referring to the spill slot.
         RegisterKind kind = range->Kind();
         bool is_double = kind == DOUBLE_REGISTERS;
-        bool is_simd128 =
-            kind == INT32x4_REGISTERS || kind == FLOAT32x4_REGISTERS;
+        bool is_simd128 = kind == FLOAT64x2_REGISTERS ||
+                          kind == INT32x4_REGISTERS ||
+                          kind == FLOAT32x4_REGISTERS;
         int index = frame()->AllocateSpillSlot(is_double, is_simd128);
         auto op_kind = GetSpillSlotKind(kind);
         op = new (code_zone()) InstructionOperand(op_kind, index);

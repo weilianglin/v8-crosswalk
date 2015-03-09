@@ -62,6 +62,12 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceSetFloat32x4XYZ(Node* node);
   Reduction ReduceSetFloat32x4XYZW(Node* node);
 
+  Reduction ReduceFloat64x2Add(Node* node);
+  Reduction ReduceFloat64x2Sub(Node* node);
+  Reduction ReduceFloat64x2Mul(Node* node);
+  Reduction ReduceFloat64x2Div(Node* node);
+  Reduction ReduceFloat64x2Constructor(Node* node);
+
   JSGraph* jsgraph() const { return jsgraph_; }
   Graph* graph() const;
   CommonOperatorBuilder* common() const;
@@ -71,6 +77,7 @@ class JSBuiltinReducer FINAL : public Reducer {
   JSGraph* jsgraph_;
   SimplifiedOperatorBuilder simplified_;
   Type* float32x4_;
+  Type* float64x2_;
 };
 
 }  // namespace compiler

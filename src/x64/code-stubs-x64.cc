@@ -3181,6 +3181,20 @@ void ToFloat32x4Stub::Generate(MacroAssembler* masm) {
 }
 
 
+void ToFloat64x2Stub::Generate(MacroAssembler* masm) {
+  // The ToFloat64x2Obj stub takes one argument in rax.
+  Label non_float64x2;
+  __ JumpIfSmi(rax, &non_float64x2, Label::kNear);
+  __ CmpObjectType(rax, FLOAT64x2_TYPE, rdi);
+  __ j(not_equal, &non_float64x2, Label::kNear);
+  __ Ret();
+
+  __ bind(&non_float64x2);
+  __ TailCallRuntime(Runtime::kAllocateFloat64x2, 0, 1);
+  __ Ret();
+}
+
+
 void ToNumberStub::Generate(MacroAssembler* masm) {
   // The ToNumber stub takes one argument in rax.
   Label not_smi;

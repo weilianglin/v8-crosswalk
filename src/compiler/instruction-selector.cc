@@ -273,6 +273,21 @@ void InstructionSelector::MarkAsInt32x4(Node* node) {
 }
 
 
+bool InstructionSelector::IsFloat64x2(const Node* node) const {
+  DCHECK_NOT_NULL(node);
+  int virtual_register = GetMappedVirtualRegister(node);
+  if (virtual_register == kNodeUnmapped) return false;
+  return sequence()->IsFloat64x2(virtual_register);
+}
+
+
+void InstructionSelector::MarkAsFloat64x2(Node* node) {
+  DCHECK_NOT_NULL(node);
+  DCHECK(!IsReference(node));
+  sequence()->MarkAsFloat64x2(GetVirtualRegister(node));
+}
+
+
 bool InstructionSelector::IsReference(const Node* node) const {
   DCHECK_NOT_NULL(node);
   int virtual_register = GetMappedVirtualRegister(node);
@@ -305,6 +320,9 @@ void InstructionSelector::MarkAsRepresentation(MachineType rep,
     case kRepInt32x4:
       sequence()->MarkAsInt32x4(unalloc->virtual_register());
       break;
+    case kRepFloat64x2:
+      sequence()->MarkAsFloat64x2(unalloc->virtual_register());
+      break;
     default:
       break;
   }
@@ -326,6 +344,9 @@ void InstructionSelector::MarkAsRepresentation(MachineType rep, Node* node) {
       break;
     case kRepInt32x4:
       MarkAsInt32x4(node);
+      break;
+    case kRepFloat64x2:
+      MarkAsFloat64x2(node);
       break;
     default:
       break;
@@ -935,6 +956,16 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsFloat32x4(node), VisitFloat32x4Clamp(node);
     case IrOpcode::kFloat32x4Swizzle:
       return MarkAsFloat32x4(node), VisitFloat32x4Swizzle(node);
+    case IrOpcode::kFloat64x2Add:
+      return MarkAsFloat64x2(node), VisitFloat64x2Add(node);
+    case IrOpcode::kFloat64x2Sub:
+      return MarkAsFloat64x2(node), VisitFloat64x2Sub(node);
+    case IrOpcode::kFloat64x2Mul:
+      return MarkAsFloat64x2(node), VisitFloat64x2Mul(node);
+    case IrOpcode::kFloat64x2Div:
+      return MarkAsFloat64x2(node), VisitFloat64x2Div(node);
+    case IrOpcode::kFloat64x2Constructor:
+      return MarkAsFloat64x2(node), VisitFloat64x2Constructor(node);
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());

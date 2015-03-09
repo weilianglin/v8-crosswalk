@@ -87,7 +87,8 @@
   V(JSToString)                    \
   V(JSToName)                      \
   V(JSToObject)                    \
-  V(JSToFloat32x4Obj)
+  V(JSToFloat32x4Obj)              \
+  V(JSToFloat64x2Obj)
 
 #define JS_OTHER_UNOP_LIST(V) \
   V(JSTypeOf)
@@ -159,6 +160,8 @@
   V(ChangeFloat64ToTagged)    \
   V(ChangeFloat32x4ToTagged)  \
   V(ChangeTaggedToFloat32x4)  \
+  V(ChangeFloat64x2ToTagged)  \
+  V(ChangeTaggedToFloat64x2)  \
   V(ChangeBoolToBit)          \
   V(ChangeBitToBool)          \
   V(LoadField)                \
@@ -265,7 +268,12 @@
   V(Float32x4WithZ)           \
   V(Float32x4WithW)           \
   V(Float32x4Clamp)           \
-  V(Float32x4Swizzle)
+  V(Float32x4Swizzle)         \
+  V(Float64x2Add)             \
+  V(Float64x2Mul)             \
+  V(Float64x2Sub)             \
+  V(Float64x2Div)             \
+  V(Float64x2Constructor)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \

@@ -1417,6 +1417,9 @@ void Genesis::InitializeExperimentalGlobal() {
                         Float64x2::kSize,
                         isolate()->initial_object_prototype(),
                         Builtins::kIllegal);
+    Handle<String> float64x2 = factory()->InternalizeUtf8String("float64x2");
+    JSObject::SetOwnPropertyIgnoreAttributes(simd_object, float64x2,
+                                             float64x2_fun, attributes).Check();
     native_context()->set_float64x2_function(*float64x2_fun);
 
     // --- i n t 3 2 x 4 ---
@@ -1425,6 +1428,9 @@ void Genesis::InitializeExperimentalGlobal() {
                         Int32x4::kSize,
                         isolate()->initial_object_prototype(),
                         Builtins::kIllegal);
+    Handle<String> int32x4 = factory()->InternalizeUtf8String("int32x4");
+    JSObject::SetOwnPropertyIgnoreAttributes(simd_object, int32x4, int32x4_fun,
+                                             attributes).Check();
     native_context()->set_int32x4_function(*int32x4_fun);
 
     // --- F l o a t 3 2 x 4 A r r a y---

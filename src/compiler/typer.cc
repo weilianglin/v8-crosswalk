@@ -42,6 +42,9 @@ enum LazyCachedType {
   kFloat32x4Func3,
   kFloat32x4Func4f,
   kFloat32x4Func1_4i,
+  kFloat64x2Tagged,
+  kFloat64x2Func2,
+  kFloat64x2Func2n,
 #define TYPED_ARRAY_CASE(Type, type, TYPE, ctype, size) \
   k##Type, k##Type##Array, k##Type##ArrayFunc,
   TYPED_ARRAYS(TYPED_ARRAY_CASE)
@@ -136,8 +139,17 @@ class LazyTypeCache FINAL : public ZoneObject {
         return Type::Function(Get(kFloat32x4), Get(kFloat32x4),
                               Type::Integral32(), Type::Integral32(),
                               Type::Integral32(), Type::Integral32(), zone());
-      case kInt32x4:
+      case kFloat64x2Tagged:
+        return CreateFloat64x2Tagged();
       case kFloat64x2:
+        return CreateFloat64x2();
+      case kFloat64x2Func2:
+        return Type::Function(Get(kFloat64x2), Get(kFloat64x2), Get(kFloat64x2),
+                              zone());
+      case kFloat64x2Func2n:
+        return Type::Function(Get(kFloat32x4), Type::Number(), Type::Number(),
+                              zone());
+      case kInt32x4:
         // TODO(huningxin): fix this workaround.
         return NULL;
     }
@@ -184,6 +196,22 @@ class LazyTypeCache FINAL : public ZoneObject {
         handle(isolate()->native_context()->float32x4_function()->initial_map(),
                isolate());
     return Type::Intersect(Type::Class(float32x4_map, zone()), Type::Tagged(),
+                           zone());
+  }
+
+  Type* CreateFloat64x2() {
+    Handle<Map> float64x2_map =
+        handle(isolate()->native_context()->float64x2_function()->initial_map(),
+               isolate());
+    return Type::Intersect(Type::Class(float64x2_map, zone()), Type::Untagged(),
+                           zone());
+  }
+
+  Type* CreateFloat64x2Tagged() {
+    Handle<Map> float64x2_map =
+        handle(isolate()->native_context()->float64x2_function()->initial_map(),
+               isolate());
+    return Type::Intersect(Type::Class(float64x2_map, zone()), Type::Tagged(),
                            zone());
   }
 
@@ -276,6 +304,11 @@ Typer::Typer(Graph* graph, MaybeHandle<Context> context)
       handle(isolate()->native_context()->float32x4_function()->initial_map(),
              isolate());
   float32x4_ = Type::Class(float32x4_map, zone);
+
+  Handle<Map> float64x2_map =
+      handle(isolate()->native_context()->float64x2_function()->initial_map(),
+             isolate());
+  float64x2_ = Type::Class(float64x2_map, zone);
 
   decorator_ = new (zone) Decorator(this);
   graph_->AddDecorator(decorator_);
@@ -1279,6 +1312,11 @@ Bounds Typer::Visitor::TypeJSToFloat32x4Obj(Node* node) {
 }
 
 
+Bounds Typer::Visitor::TypeJSToFloat64x2Obj(Node* node) {
+  return Bounds(Type::Intersect(typer_->float64x2_, Type::Tagged(), zone()));
+}
+
+
 // JS object operators.
 
 
@@ -1672,6 +1710,20 @@ Bounds Typer::Visitor::TypeChangeTaggedToFloat32x4(Node* node) {
   Bounds arg = Operand(node, 0);
   return Bounds(ChangeRepresentation(arg.lower, typer_->float32x4_, zone()),
                 ChangeRepresentation(arg.upper, typer_->float32x4_, zone()));
+}
+
+
+Bounds Typer::Visitor::TypeChangeFloat64x2ToTagged(Node* node) {
+  Bounds arg = Operand(node, 0);
+  return Bounds(ChangeRepresentation(arg.lower, Type::Tagged(), zone()),
+                ChangeRepresentation(arg.upper, Type::Tagged(), zone()));
+}
+
+
+Bounds Typer::Visitor::TypeChangeTaggedToFloat64x2(Node* node) {
+  Bounds arg = Operand(node, 0);
+  return Bounds(ChangeRepresentation(arg.lower, typer_->float64x2_, zone()),
+                ChangeRepresentation(arg.upper, typer_->float64x2_, zone()));
 }
 
 
@@ -2136,7 +2188,12 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(float32x4_, Float32x4WithZ)          \
   V(float32x4_, Float32x4WithW)          \
   V(float32x4_, Float32x4Clamp)          \
-  V(float32x4_, Float32x4Swizzle)
+  V(float32x4_, Float32x4Swizzle)        \
+  V(float64x2_, Float64x2Add)            \
+  V(float64x2_, Float64x2Sub)            \
+  V(float64x2_, Float64x2Mul)            \
+  V(float64x2_, Float64x2Div)            \
+  V(float64x2_, Float64x2Constructor)
 
 
 #define DECLARE_TYPE_SIMD_OPERATION(type, opcode)                         \
@@ -2249,6 +2306,15 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kGetFloat32x4XYZ:
         case kGetFloat32x4XYZW:
           return typer_->cache_->Get(kFloat32x4FuncA);
+        case kFloat64x2Add:
+        case kFloat64x2Sub:
+        case kFloat64x2Mul:
+        case kFloat64x2Div:
+        case kFloat64x2Max:
+        case kFloat64x2Min:
+          return typer_->cache_->Get(kFloat64x2Func2);
+        case kFloat64x2Constructor:
+          return typer_->cache_->Get(kFloat64x2Func2n);
         default:
           break;
       }
@@ -2285,6 +2351,8 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
     }
   } else if (value->IsFloat32x4()) {
     return typer_->cache_->Get(kFloat32x4Tagged);
+  } else if (value->IsFloat64x2()) {
+    return typer_->cache_->Get(kFloat64x2Tagged);
   }
   return Type::Constant(value, zone());
 }

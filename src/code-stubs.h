@@ -52,9 +52,11 @@ namespace internal {
   V(SubString)                              \
   V(ToNumber)                               \
   V(ToFloat32x4)                            \
+  V(ToFloat64x2)                            \
   /* HydrogenCodeStubs */                   \
   V(AllocateHeapNumber)                     \
   V(AllocateFloat32x4)                      \
+  V(AllocateFloat64x2)                      \
   V(ArrayNArgumentsConstructor)             \
   V(ArrayNoArgumentConstructor)             \
   V(ArraySingleArgumentConstructor)         \
@@ -2162,6 +2164,17 @@ class AllocateFloat32x4Stub FINAL : public HydrogenCodeStub {
 };
 
 
+class AllocateFloat64x2Stub FINAL : public HydrogenCodeStub {
+ public:
+  explicit AllocateFloat64x2Stub(Isolate* isolate)
+      : HydrogenCodeStub(isolate) {}
+
+ private:
+  DEFINE_CALL_INTERFACE_DESCRIPTOR(AllocateFloat64x2);
+  DEFINE_HYDROGEN_CODE_STUB(AllocateFloat64x2, HydrogenCodeStub);
+};
+
+
 class ArrayConstructorStubBase : public HydrogenCodeStub {
  public:
   ArrayConstructorStubBase(Isolate* isolate,
@@ -2585,6 +2598,15 @@ class ToFloat32x4Stub FINAL : public PlatformCodeStub {
 
   DEFINE_CALL_INTERFACE_DESCRIPTOR(ToFloat32x4);
   DEFINE_PLATFORM_CODE_STUB(ToFloat32x4, PlatformCodeStub);
+};
+
+
+class ToFloat64x2Stub FINAL : public PlatformCodeStub {
+ public:
+  explicit ToFloat64x2Stub(Isolate* isolate) : PlatformCodeStub(isolate) {}
+
+  DEFINE_CALL_INTERFACE_DESCRIPTOR(ToFloat64x2);
+  DEFINE_PLATFORM_CODE_STUB(ToFloat64x2, PlatformCodeStub);
 };
 
 

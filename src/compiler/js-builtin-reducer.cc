@@ -100,9 +100,14 @@ class JSCallReduction {
 JSBuiltinReducer::JSBuiltinReducer(JSGraph* jsgraph)
     : jsgraph_(jsgraph), simplified_(jsgraph->zone()) {
   Isolate* isolate = jsgraph_->isolate();
+
   Handle<Map> float32x4_map = handle(
       isolate->native_context()->float32x4_function()->initial_map(), isolate);
   float32x4_ = Type::Class(float32x4_map, jsgraph_->zone());
+
+  Handle<Map> float64x2_map = handle(
+      isolate->native_context()->float64x2_function()->initial_map(), isolate);
+  float64x2_ = Type::Class(float64x2_map, jsgraph_->zone());
 }
 
 
@@ -227,7 +232,11 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
   V(float32x4_, Type::Number(), Float32x4WithX) \
   V(float32x4_, Type::Number(), Float32x4WithY) \
   V(float32x4_, Type::Number(), Float32x4WithZ) \
-  V(float32x4_, Type::Number(), Float32x4WithW)
+  V(float32x4_, Type::Number(), Float32x4WithW) \
+  V(float64x2_, float64x2_, Float64x2Add)       \
+  V(float64x2_, float64x2_, Float64x2Sub)       \
+  V(float64x2_, float64x2_, Float64x2Mul)       \
+  V(float64x2_, float64x2_, Float64x2Div)
 
 
 #define DECLARE_REDUCE_BINARY_SIMD_OPERATION(type1, type2, opcode)    \
@@ -273,6 +282,39 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
       Node* const control = NodeProperties::GetControlInput(node);
       Node* value =
           graph()->NewNode(jsgraph()->javascript()->ToFloat32x4Obj(), object,
+                           jsgraph()->NoContextConstant(), effect, control);
+      return Replace(value);
+    }
+  }
+
+  return NoChange();
+}
+
+
+Reduction JSBuiltinReducer::ReduceFloat64x2Constructor(Node* node) {
+  // SIMD.float64x2(x, y) ->
+  // Float64x2(x:float64, y:float64)
+  JSCallReduction r(node);
+  if (r.InputsMatchZero()) {
+    // SIMD.float64x2() -> SIMD.float64x2(0, 0);
+    Node* value =
+        graph()->NewNode(machine()->Float64x2Constructor(),
+                         jsgraph()->ZeroConstant(), jsgraph()->ZeroConstant());
+    return Replace(value);
+  } else if (r.InputsMatchTwo(Type::Number(), Type::Number())) {
+    Node* value = graph()->NewNode(machine()->Float64x2Constructor(),
+                                   r.GetJSCallInput(0), r.GetJSCallInput(1));
+    return Replace(value);
+  } else if (r.GetJSCallArity() == 1) {
+    // SIMD.float64x2(...) -> type annotation
+    if (r.InputsMatchOne(float64x2_)) {
+      return Replace(r.GetJSCallInput(0));
+    } else {
+      Node* const object = r.GetJSCallInput(0);
+      Node* const effect = NodeProperties::GetEffectInput(node);
+      Node* const control = NodeProperties::GetControlInput(node);
+      Node* value =
+          graph()->NewNode(jsgraph()->javascript()->ToFloat64x2Obj(), object,
                            jsgraph()->NoContextConstant(), effect, control);
       return Replace(value);
     }
@@ -546,6 +588,16 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceSetFloat32x4XYZ(node));
     case kSetFloat32x4XYZW:
       return ReplaceWithPureReduction(node, ReduceSetFloat32x4XYZW(node));
+    case kFloat64x2Add:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
+    case kFloat64x2Sub:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Sub(node));
+    case kFloat64x2Mul:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Mul(node));
+    case kFloat64x2Div:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Div(node));
+    case kFloat64x2Constructor:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Constructor(node));
     default:
       break;
   }

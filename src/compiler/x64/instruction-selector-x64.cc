@@ -134,6 +134,9 @@ void InstructionSelector::VisitLoad(Node* node) {
     case kRepFloat32x4:
       opcode = kLoadFloat32x4;
       break;
+    case kRepFloat64x2:
+      opcode = kLoadFloat64x2;
+      break;
     default:
       UNREACHABLE();
       return;
@@ -143,7 +146,7 @@ void InstructionSelector::VisitLoad(Node* node) {
   outputs[0] = g.DefineAsRegister(node);
   InstructionOperand* inputs[4];
   Node* loaded_bytes = NULL;
-  if (opcode == kLoadFloat32x4) {
+  if (opcode == kLoadFloat32x4 || opcode == kLoadFloat64x2) {
     loaded_bytes = node->InputAt(2);
   }
 
@@ -204,13 +207,16 @@ void InstructionSelector::VisitStore(Node* node) {
     case kRepFloat32x4:
       opcode = kStoreFloat32x4;
       break;
+    case kRepFloat64x2:
+      opcode = kStoreFloat64x2;
+      break;
     default:
       UNREACHABLE();
       return;
   }
   InstructionOperand* inputs[5];
   Node* stored_bytes = NULL;
-  if (opcode == kStoreFloat32x4) {
+  if (opcode == kStoreFloat32x4 || opcode == kStoreFloat64x2) {
     stored_bytes = node->InputAt(3);
   }
   size_t input_count = 0;
@@ -1377,7 +1383,11 @@ void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
   V(Float32x4Mul)                     \
   V(Float32x4Div)                     \
   V(Float32x4Min)                     \
-  V(Float32x4Max)
+  V(Float32x4Max)                     \
+  V(Float64x2Add)                     \
+  V(Float64x2Sub)                     \
+  V(Float64x2Mul)                     \
+  V(Float64x2Div)
 
 #define DECLARE_VISIT_BINARY_SIMD_OPERATION(type)                              \
   void InstructionSelector::Visit##type(Node* node) {                          \
@@ -1397,6 +1407,13 @@ void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
   Emit(kFloat32x4Constructor, g.DefineAsRegister(node),
        g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
        g.UseRegister(node->InputAt(2)), g.UseRegister(node->InputAt(3)));
+}
+
+
+void InstructionSelector::VisitFloat64x2Constructor(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat64x2Constructor, g.DefineAsRegister(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)));
 }
 
 

@@ -417,6 +417,7 @@ void Verifier::Visitor::Pre(Node* node) {
       break;
     case IrOpcode::kJSToObject:
     case IrOpcode::kJSToFloat32x4Obj:
+    case IrOpcode::kJSToFloat64x2Obj:
       // Type is Receiver.
       CheckUpperIs(node, Type::Receiver());
       break;
@@ -761,6 +762,13 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4WithW:
     case IrOpcode::kFloat32x4Clamp:
     case IrOpcode::kFloat32x4Swizzle:
+    case IrOpcode::kFloat64x2Add:
+    case IrOpcode::kFloat64x2Sub:
+    case IrOpcode::kFloat64x2Mul:
+    case IrOpcode::kFloat64x2Div:
+    case IrOpcode::kFloat64x2Constructor:
+    case IrOpcode::kChangeFloat64x2ToTagged:
+    case IrOpcode::kChangeTaggedToFloat64x2:
       // TODO(rossberg): Check.
       break;
   }
