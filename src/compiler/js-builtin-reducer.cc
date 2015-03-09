@@ -236,7 +236,9 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
   V(float64x2_, float64x2_, Float64x2Add)       \
   V(float64x2_, float64x2_, Float64x2Sub)       \
   V(float64x2_, float64x2_, Float64x2Mul)       \
-  V(float64x2_, float64x2_, Float64x2Div)
+  V(float64x2_, float64x2_, Float64x2Div)       \
+  V(float64x2_, float64x2_, Float64x2Min)       \
+  V(float64x2_, float64x2_, Float64x2Max)
 
 
 #define DECLARE_REDUCE_BINARY_SIMD_OPERATION(type1, type2, opcode)    \
@@ -598,6 +600,10 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat64x2Div(node));
     case kFloat64x2Constructor:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Constructor(node));
+    case kFloat64x2Min:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Min(node));
+    case kFloat64x2Max:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Max(node));
     default:
       break;
   }

@@ -1050,6 +1050,12 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     case kFloat64x2Div:
       ASSEMBLE_SIMD_BINOP_NOAVX(divpd, Float64x2);
       break;
+    case kFloat64x2Max:
+      ASSEMBLE_SIMD_BINOP_NOAVX(maxpd, Float64x2);
+      break;
+    case kFloat64x2Min:
+      ASSEMBLE_SIMD_BINOP_NOAVX(minpd, Float64x2);
+      break;
     case kFloat64x2Constructor:
       __ leaq(rsp, Operand(rsp, -kFloat64x2Size));
       __ movsd(Operand(rsp, 0 * kDoubleSize), i.InputDoubleRegister(0));

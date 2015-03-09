@@ -273,7 +273,9 @@
   V(Float64x2Mul)             \
   V(Float64x2Sub)             \
   V(Float64x2Div)             \
-  V(Float64x2Constructor)
+  V(Float64x2Constructor)     \
+  V(Float64x2Min)             \
+  V(Float64x2Max)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \

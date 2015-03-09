@@ -766,6 +766,8 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat64x2Sub:
     case IrOpcode::kFloat64x2Mul:
     case IrOpcode::kFloat64x2Div:
+    case IrOpcode::kFloat64x2Min:
+    case IrOpcode::kFloat64x2Max:
     case IrOpcode::kFloat64x2Constructor:
     case IrOpcode::kChangeFloat64x2ToTagged:
     case IrOpcode::kChangeTaggedToFloat64x2:

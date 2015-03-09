@@ -84,6 +84,8 @@ namespace compiler {
   V(Float64x2Mul)            \
   V(Float64x2Sub)            \
   V(Float64x2Div)            \
+  V(Float64x2Max)            \
+  V(Float64x2Min)            \
   V(Float64x2Constructor)    \
   V(LoadFloat64x2)           \
   V(StoreFloat64x2)          \

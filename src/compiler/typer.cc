@@ -2193,7 +2193,9 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(float64x2_, Float64x2Sub)            \
   V(float64x2_, Float64x2Mul)            \
   V(float64x2_, Float64x2Div)            \
-  V(float64x2_, Float64x2Constructor)
+  V(float64x2_, Float64x2Constructor)    \
+  V(float64x2_, Float64x2Min)            \
+  V(float64x2_, Float64x2Max)
 
 
 #define DECLARE_TYPE_SIMD_OPERATION(type, opcode)                         \

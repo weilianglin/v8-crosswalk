@@ -208,7 +208,9 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   V(Float64x2Mul)            \
   V(Float64x2Sub)            \
   V(Float64x2Div)            \
-  V(Float64x2Constructor)
+  V(Float64x2Constructor)    \
+  V(Float64x2Min)            \
+  V(Float64x2Max)
 
 #define DECLARE_SIMD_OPERATORS(opcode) const Operator* opcode();
 

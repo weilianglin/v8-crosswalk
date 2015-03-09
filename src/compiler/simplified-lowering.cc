@@ -1151,6 +1151,8 @@ class RepresentationSelector {
       case IrOpcode::kFloat64x2Sub:
       case IrOpcode::kFloat64x2Mul:
       case IrOpcode::kFloat64x2Div:
+      case IrOpcode::kFloat64x2Min:
+      case IrOpcode::kFloat64x2Max:
         DCHECK_EQ(2, node->InputCount());
         ProcessInput(node, 0, kMachFloat64x2);
         ProcessInput(node, 1, kMachFloat64x2);
