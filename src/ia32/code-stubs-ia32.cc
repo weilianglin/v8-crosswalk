@@ -3225,6 +3225,20 @@ void SubStringStub::Generate(MacroAssembler* masm) {
 }
 
 
+void ToFloat32x4Stub::Generate(MacroAssembler* masm) {
+  // The ToFloat32x4Obj stub takes one argument in rax.
+  Label non_float32x4;
+  __ JumpIfSmi(eax, &non_float32x4, Label::kNear);
+  __ CmpObjectType(eax, FLOAT32x4_TYPE, edi);
+  __ j(not_equal, &non_float32x4, Label::kNear);
+  __ Ret();
+
+  __ bind(&non_float32x4);
+  __ TailCallRuntime(Runtime::kAllocateFloat32x4, 0, 1);
+  __ Ret();
+}
+
+
 void ToNumberStub::Generate(MacroAssembler* masm) {
   // The ToNumber stub takes one argument in eax.
   Label not_smi;

@@ -75,6 +75,12 @@ void ToNumberDescriptor::Initialize(CallInterfaceDescriptorData* data) {
 }
 
 
+void ToFloat32x4Descriptor::Initialize(CallInterfaceDescriptorData* data) {
+  Register registers[] = {esi, eax};
+  data->Initialize(arraysize(registers), registers, NULL);
+}
+
+
 void NumberToStringDescriptor::Initialize(CallInterfaceDescriptorData* data) {
   Register registers[] = {esi, eax};
   data->Initialize(arraysize(registers), registers, NULL);
@@ -156,6 +162,15 @@ void TransitionElementsKindDescriptor::Initialize(
 
 
 void AllocateHeapNumberDescriptor::Initialize(
+    CallInterfaceDescriptorData* data) {
+  // register state
+  // esi -- context
+  Register registers[] = {esi};
+  data->Initialize(arraysize(registers), registers, nullptr);
+}
+
+
+void AllocateFloat32x4Descriptor::Initialize(
     CallInterfaceDescriptorData* data) {
   // register state
   // esi -- context
