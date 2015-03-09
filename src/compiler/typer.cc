@@ -2168,74 +2168,51 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   return Bounds();
 }
 
-#define SIMD_OPERATIONS(V)               \
-  V(float32x4_, Float32x4Add)            \
-  V(float32x4_, Float32x4Sub)            \
-  V(float32x4_, Float32x4Mul)            \
-  V(float32x4_, Float32x4Div)            \
-  V(float32x4_, Float32x4Constructor)    \
-  V(float32x4_, Float32x4Min)            \
-  V(float32x4_, Float32x4Max)            \
-  V(float32x4_, Float32x4Abs)            \
-  V(float32x4_, Float32x4Neg)            \
-  V(float32x4_, Float32x4Reciprocal)     \
-  V(float32x4_, Float32x4ReciprocalSqrt) \
-  V(float32x4_, Float32x4Splat)          \
-  V(float32x4_, Float32x4Sqrt)           \
-  V(float32x4_, Float32x4Scale)          \
-  V(float32x4_, Float32x4WithX)          \
-  V(float32x4_, Float32x4WithY)          \
-  V(float32x4_, Float32x4WithZ)          \
-  V(float32x4_, Float32x4WithW)          \
-  V(float32x4_, Float32x4Clamp)          \
-  V(float32x4_, Float32x4Swizzle)        \
-  V(float64x2_, Float64x2Add)            \
-  V(float64x2_, Float64x2Sub)            \
-  V(float64x2_, Float64x2Mul)            \
-  V(float64x2_, Float64x2Div)            \
-  V(float64x2_, Float64x2Constructor)    \
-  V(float64x2_, Float64x2Min)            \
-  V(float64x2_, Float64x2Max)
+#define SIMD_OPERATIONS(V)                                            \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Add)               \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Sub)               \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Mul)               \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Div)               \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Constructor)       \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Min)               \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Max)               \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Abs)               \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Neg)               \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Reciprocal)        \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4ReciprocalSqrt)    \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Splat)             \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Sqrt)              \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Scale)             \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4WithX)             \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4WithY)             \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4WithZ)             \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4WithW)             \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Clamp)             \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Swizzle)           \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetX)           \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetY)           \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetZ)           \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetW)           \
+  V(Type::Signed32(), Type::UntaggedSigned32(), Float32x4GetSignMask) \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Add)               \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Sub)               \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Mul)               \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Div)               \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Constructor)       \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Min)               \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Max)               \
+  V(Type::Number(), Type::UntaggedFloat64(), Float64x2GetX)           \
+  V(Type::Number(), Type::UntaggedFloat64(), Float64x2GetY)           \
+  V(Type::Signed32(), Type::UntaggedSigned32(), Float64x2GetSignMask)
 
 
-#define DECLARE_TYPE_SIMD_OPERATION(type, opcode)                         \
-  Bounds Typer::Visitor::Type##opcode(Node* node) {                       \
-    return Bounds(                                                        \
-        Type::Intersect(typer_->type, Type::Untagged(), typer_->zone())); \
+#define DECLARE_TYPE_SIMD_OPERATION(type1, type2, opcode) \
+  Bounds Typer::Visitor::Type##opcode(Node* node) {       \
+    return Bounds(Type::Intersect(type1, type2, zone())); \
   }
 
 
 SIMD_OPERATIONS(DECLARE_TYPE_SIMD_OPERATION)
-
-
-Bounds Typer::Visitor::TypeFloat32x4GetX(Node* node) {
-  return Bounds(
-      Type::Intersect(Type::Number(), Type::UntaggedFloat32(), zone()));
-}
-
-
-Bounds Typer::Visitor::TypeFloat32x4GetY(Node* node) {
-  return Bounds(
-      Type::Intersect(Type::Number(), Type::UntaggedFloat32(), zone()));
-}
-
-
-Bounds Typer::Visitor::TypeFloat32x4GetZ(Node* node) {
-  return Bounds(
-      Type::Intersect(Type::Number(), Type::UntaggedFloat32(), zone()));
-}
-
-
-Bounds Typer::Visitor::TypeFloat32x4GetW(Node* node) {
-  return Bounds(
-      Type::Intersect(Type::Number(), Type::UntaggedFloat32(), zone()));
-}
-
-
-Bounds Typer::Visitor::TypeFloat32x4GetSignMask(Node* node) {
-  return Bounds(
-      Type::Intersect(Type::Signed32(), Type::UntaggedSigned32(), zone()));
-}
 
 
 // Heap constants.

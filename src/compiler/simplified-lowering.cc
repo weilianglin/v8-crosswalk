@@ -1164,6 +1164,17 @@ class RepresentationSelector {
         ProcessInput(node, 1, kMachFloat64);
         SetOutput(node, kMachFloat64x2);
         break;
+      case IrOpcode::kFloat64x2GetX:
+      case IrOpcode::kFloat64x2GetY:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachFloat64x2);
+        SetOutput(node, kMachFloat64);
+        break;
+      case IrOpcode::kFloat64x2GetSignMask:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachFloat64x2);
+        SetOutput(node, kMachInt32);
+        break;
       default:
         VisitInputs(node);
         break;

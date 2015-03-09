@@ -42,6 +42,9 @@ JSTypedLowering::JSTypedLowering(JSGraph* jsgraph, Zone* zone)
   Handle<Map> float32x4_map = handle(
       isolate->native_context()->float32x4_function()->initial_map(), isolate);
   float32x4_ = Type::Class(float32x4_map, jsgraph_->zone());
+  Handle<Map> float64x2_map = handle(
+      isolate->native_context()->float64x2_function()->initial_map(), isolate);
+  float64x2_ = Type::Class(float64x2_map, jsgraph_->zone());
 
   // TODO(jarin): Can we have a correctification of the stupid type system?
   // These stupid work-arounds are just stupid!
@@ -767,6 +770,21 @@ Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
       value = graph()->NewNode(machine()->Float32x4GetW(), obj);
     } else if (name->Equals(isolate->heap()->signMask())) {
       value = graph()->NewNode(machine()->Float32x4GetSignMask(), obj);
+    }
+
+    if (value != NULL) {
+      NodeProperties::ReplaceWithValue(node, value);
+      return Replace(value);
+    }
+  } else if (NodeProperties::GetBounds(obj).upper->Is(float64x2_)) {
+    Node* value = NULL;
+    Handle<Name> name = p.name().handle();
+    if (name->Equals(isolate->heap()->x())) {
+      value = graph()->NewNode(machine()->Float64x2GetX(), obj);
+    } else if (name->Equals(isolate->heap()->y())) {
+      value = graph()->NewNode(machine()->Float64x2GetY(), obj);
+    } else if (name->Equals(isolate->heap()->signMask())) {
+      value = graph()->NewNode(machine()->Float64x2GetSignMask(), obj);
     }
 
     if (value != NULL) {

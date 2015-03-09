@@ -275,7 +275,10 @@
   V(Float64x2Div)             \
   V(Float64x2Constructor)     \
   V(Float64x2Min)             \
-  V(Float64x2Max)
+  V(Float64x2Max)             \
+  V(Float64x2GetX)            \
+  V(Float64x2GetY)            \
+  V(Float64x2GetSignMask)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \

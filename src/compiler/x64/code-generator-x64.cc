@@ -1088,6 +1088,18 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       }
       break;
     }
+    case kFloat64x2GetY:
+      select++;
+    case kFloat64x2GetX: {
+      XMMRegister dst = i.OutputDoubleRegister();
+      XMMRegister input = i.InputFloat64x2Register(0);
+      if (!dst.is(input)) __ movaps(dst, input);
+      if (select != 0) __ shufpd(dst, input, select);
+      break;
+    }
+    case kFloat64x2GetSignMask:
+      __ movmskpd(i.OutputRegister(), i.InputFloat64x2Register(0));
+      break;
     case kX64Movsxbl:
       if (instr->addressing_mode() != kMode_None) {
         __ movsxbl(i.OutputRegister(), i.MemoryOperand());

@@ -164,7 +164,10 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
   V(Float64x2Div, Operator::kNoProperties, 2, 0, 1)                           \
   V(Float64x2Constructor, Operator::kNoProperties, 2, 0, 1)                   \
   V(Float64x2Min, Operator::kCommutative, 2, 0, 1)                            \
-  V(Float64x2Max, Operator::kCommutative, 2, 0, 1)
+  V(Float64x2Max, Operator::kCommutative, 2, 0, 1)                            \
+  V(Float64x2GetX, Operator::kNoProperties, 1, 0, 1)                          \
+  V(Float64x2GetY, Operator::kNoProperties, 1, 0, 1)                          \
+  V(Float64x2GetSignMask, Operator::kNoProperties, 1, 0, 1)
 
 
 #define MACHINE_TYPE_LIST(V) \

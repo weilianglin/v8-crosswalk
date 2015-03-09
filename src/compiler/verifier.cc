@@ -771,6 +771,9 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat64x2Constructor:
     case IrOpcode::kChangeFloat64x2ToTagged:
     case IrOpcode::kChangeTaggedToFloat64x2:
+    case IrOpcode::kFloat64x2GetX:
+    case IrOpcode::kFloat64x2GetY:
+    case IrOpcode::kFloat64x2GetSignMask:
       // TODO(rossberg): Check.
       break;
   }

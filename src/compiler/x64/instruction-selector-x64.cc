@@ -1425,7 +1425,10 @@ void InstructionSelector::VisitFloat64x2Constructor(Node* node) {
   V(Float32x4GetZ)                    \
   V(Float32x4GetW)                    \
   V(Float32x4GetSignMask)             \
-  V(Float32x4Splat)
+  V(Float32x4Splat)                   \
+  V(Float64x2GetX)                    \
+  V(Float64x2GetY)                    \
+  V(Float64x2GetSignMask)
 
 #define DECLARE_VISIT_UARY_SIMD_OPERATION1(opcode)      \
   void InstructionSelector::Visit##opcode(Node* node) { \

@@ -77,6 +77,7 @@ class JSTypedLowering FINAL : public Reducer {
   Type* one_range_;
   Type* zero_thirtyone_range_;
   Type* float32x4_;
+  Type* float64x2_;
   Type* shifted_int32_ranges_[4];
 };
 
