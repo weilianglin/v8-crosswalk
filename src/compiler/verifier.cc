@@ -780,6 +780,7 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat64x2Scale:
     case IrOpcode::kFloat64x2WithX:
     case IrOpcode::kFloat64x2WithY:
+    case IrOpcode::kFloat64x2Clamp:
       // TODO(rossberg): Check.
       break;
   }

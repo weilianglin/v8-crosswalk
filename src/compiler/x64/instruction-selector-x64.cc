@@ -1492,6 +1492,14 @@ void InstructionSelector::VisitFloat32x4Clamp(Node* node) {
 }
 
 
+void InstructionSelector::VisitFloat64x2Clamp(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat64x2Clamp, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseRegister(node->InputAt(2)));
+}
+
+
 void InstructionSelector::VisitFloat32x4Swizzle(Node* node) {
   X64OperandGenerator g(this);
   Emit(kFloat32x4Swizzle, g.DefineSameAsFirst(node),

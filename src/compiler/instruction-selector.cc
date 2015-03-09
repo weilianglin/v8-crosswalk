@@ -988,6 +988,8 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsFloat64x2(node), VisitFloat64x2WithX(node);
     case IrOpcode::kFloat64x2WithY:
       return MarkAsFloat64x2(node), VisitFloat64x2WithY(node);
+    case IrOpcode::kFloat64x2Clamp:
+      return MarkAsFloat64x2(node), VisitFloat64x2Clamp(node);
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());

@@ -1125,6 +1125,14 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ addq(rsp, Immediate(kFloat64x2Size));
       break;
     }
+    case kFloat64x2Clamp: {
+      XMMRegister value_reg = i.InputFloat64x2Register(0);
+      XMMRegister lower_reg = i.InputFloat64x2Register(1);
+      XMMRegister upper_reg = i.InputFloat64x2Register(2);
+      __ minpd(value_reg, upper_reg);
+      __ maxpd(value_reg, lower_reg);
+      break;
+    }
     case kX64Movsxbl:
       if (instr->addressing_mode() != kMode_None) {
         __ movsxbl(i.OutputRegister(), i.MemoryOperand());

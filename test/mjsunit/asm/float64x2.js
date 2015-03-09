@@ -42,6 +42,7 @@ function asmModule(stdlib, imports, buffer) {
   var f2scale = f2.scale;
   var f2withX = f2.withX;
   var f2withY = f2.withY;
+  var f2clamp = f2.clamp;
   var a = f2(imports.a);
   var b = f2(imports.b);
 
@@ -338,18 +339,30 @@ function asmModule(stdlib, imports, buffer) {
     ret = f2scale(a, b);
     return f2(ret);
   }
+
   function withXImports(b) {
     b = +b;
     var ret = f2();
     ret = f2withX(a, b);
     return f2(ret);
   }
+
   function withYImports(b) {
     b = +b;
     var ret = f2();
     ret = f2withY(a, b);
     return f2(ret);
   }
+
+  function clamp(a, b, c) {
+    a = f2(a);
+    b = f2(b);
+    c = f2(c);
+    var ret = f2();
+    ret = f2clamp(a, b, c);
+    return f2(ret);
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -364,7 +377,8 @@ function asmModule(stdlib, imports, buffer) {
           sqrt : sqrt, sqrtLocal : sqrtLocal, sqrtImports : sqrtImports,
           scale : scale, scaleLocal : scaleLocal, scaleImports : scaleImports,
           withX : withX, withXLocal : withXLocal, withXImports : withXImports,
-          withY : withY, withYLocal : withYLocal, withYImports : withYImports}
+          withY : withY, withYLocal : withYLocal, withYImports : withYImports,
+          clamp : clamp}
 }
 
 
@@ -555,5 +569,13 @@ assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 
 var result = m.withYImports(20);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var a = SIMD.float64x2(3.0, -2.0);
+var b = SIMD.float64x2(0, 0);
+var c = SIMD.float64x2(1.0, 1.0);
+var result = m.clamp(a, b, c);
+var expected = SIMD.float64x2.clamp(a, b, c);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);

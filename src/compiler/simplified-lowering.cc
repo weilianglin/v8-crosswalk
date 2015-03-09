@@ -1190,6 +1190,13 @@ class RepresentationSelector {
         ProcessInput(node, 1, kMachFloat64);
         SetOutput(node, kMachFloat64x2);
         break;
+      case IrOpcode::kFloat64x2Clamp:
+        DCHECK_EQ(3, node->InputCount());
+        ProcessInput(node, 0, kMachFloat64x2);
+        ProcessInput(node, 1, kMachFloat64x2);
+        ProcessInput(node, 2, kMachFloat64x2);
+        SetOutput(node, kMachFloat64x2);
+        break;
       default:
         VisitInputs(node);
         break;

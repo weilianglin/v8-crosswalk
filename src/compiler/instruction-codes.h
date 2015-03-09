@@ -98,6 +98,7 @@ namespace compiler {
   V(Float64x2Scale)          \
   V(Float64x2WithX)          \
   V(Float64x2WithY)          \
+  V(Float64x2Clamp)          \
   TARGET_ARCH_OPCODE_LIST(V)
 
 enum ArchOpcode {

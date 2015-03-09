@@ -369,6 +369,19 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Clamp(Node* node) {
 }
 
 
+Reduction JSBuiltinReducer::ReduceFloat64x2Clamp(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(float64x2_)) {
+    Node* value =
+        graph()->NewNode(machine()->Float64x2Clamp(), r.GetJSCallInput(0),
+                         r.GetJSCallInput(1), r.GetJSCallInput(2));
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
 Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   JSCallReduction r(node);
   if (r.GetJSCallArity() == 5) {
@@ -622,6 +635,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat64x2WithX(node));
     case kFloat64x2WithY:
       return ReplaceWithPureReduction(node, ReduceFloat64x2WithY(node));
+    case kFloat64x2Clamp:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Clamp(node));
     default:
       break;
   }

@@ -284,7 +284,8 @@
   V(Float64x2Sqrt)            \
   V(Float64x2Scale)           \
   V(Float64x2WithX)           \
-  V(Float64x2WithY)
+  V(Float64x2WithY)           \
+  V(Float64x2Clamp)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \
