@@ -2203,7 +2203,10 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->float64x2_, Type::Untagged(), Float64x2Max)               \
   V(Type::Number(), Type::UntaggedFloat64(), Float64x2GetX)           \
   V(Type::Number(), Type::UntaggedFloat64(), Float64x2GetY)           \
-  V(Type::Signed32(), Type::UntaggedSigned32(), Float64x2GetSignMask)
+  V(Type::Signed32(), Type::UntaggedSigned32(), Float64x2GetSignMask) \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Abs)               \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Neg)               \
+  V(typer_->float64x2_, Type::Untagged(), Float64x2Sqrt)
 
 
 #define DECLARE_TYPE_SIMD_OPERATION(type1, type2, opcode) \

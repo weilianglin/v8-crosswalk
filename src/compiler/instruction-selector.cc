@@ -976,6 +976,12 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsDouble(node), VisitFloat64x2GetY(node);
     case IrOpcode::kFloat64x2GetSignMask:
       return VisitFloat64x2GetSignMask(node);
+    case IrOpcode::kFloat64x2Abs:
+      return MarkAsFloat64x2(node), VisitFloat64x2Abs(node);
+    case IrOpcode::kFloat64x2Neg:
+      return MarkAsFloat64x2(node), VisitFloat64x2Neg(node);
+    case IrOpcode::kFloat64x2Sqrt:
+      return MarkAsFloat64x2(node), VisitFloat64x2Sqrt(node);
     default:
       V8_Fatal(__FILE__, __LINE__, "Unexpected operator #%d:%s @ node #%d",
                node->opcode(), node->op()->mnemonic(), node->id());

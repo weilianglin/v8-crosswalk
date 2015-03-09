@@ -1446,8 +1446,12 @@ UNARY_SIMD_OPERATION_LIST1(DECLARE_VISIT_UARY_SIMD_OPERATION1)
   V(Float32x4Neg)                     \
   V(Float32x4Reciprocal)              \
   V(Float32x4ReciprocalSqrt)          \
-  V(Float32x4Sqrt)
+  V(Float32x4Sqrt)                    \
+  V(Float64x2Abs)                     \
+  V(Float64x2Neg)                     \
+  V(Float64x2Sqrt)
 
+// TODO(weiliang): free Sqrt SameAsFirst constraint.
 #define DECLARE_VISIT_UARY_SIMD_OPERATION2(opcode)      \
   void InstructionSelector::Visit##opcode(Node* node) { \
     X64OperandGenerator g(this);                        \

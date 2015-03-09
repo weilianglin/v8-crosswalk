@@ -92,6 +92,9 @@ namespace compiler {
   V(Float64x2GetX)           \
   V(Float64x2GetY)           \
   V(Float64x2GetSignMask)    \
+  V(Float64x2Abs)            \
+  V(Float64x2Neg)            \
+  V(Float64x2Sqrt)           \
   TARGET_ARCH_OPCODE_LIST(V)
 
 enum ArchOpcode {

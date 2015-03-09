@@ -36,6 +36,9 @@ function asmModule(stdlib, imports, buffer) {
   var f2div = f2.div;
   var f2min = f2.min;
   var f2max = f2.max;
+  var f2abs = f2.abs;
+  var f2neg = f2.neg;
+  var f2sqrt = f2.sqrt;
   var a = f2(imports.a);
   var b = f2(imports.b);
 
@@ -189,6 +192,27 @@ function asmModule(stdlib, imports, buffer) {
     return s | 0;
   }
 
+  function abs(a) {
+    a = f2(a);
+    var ret = f2();
+    ret = f2abs(a);
+    return f2(ret);
+  }
+
+  function neg(a) {
+    a = f2(a);
+    var ret = f2();
+    ret = f2neg(a);
+    return f2(ret);
+  }
+
+  function sqrt(a) {
+    a = f2(a);
+    var ret = f2();
+    ret = f2sqrt(a);
+    return f2(ret);
+  }
+
   function getxLocal() {
     var a = f2(+1.1, +2.2);
     var x = a.x;
@@ -207,22 +231,58 @@ function asmModule(stdlib, imports, buffer) {
     return s | 0;
   }
 
-  function getxImports() {
+  function absLocal() {
     var a = f2(+1.1, +2.2);
+    var ret  =f2();
+    ret = f2abs(a);
+    return f2(ret);
+  }
+
+  function negLocal() {
+    var a = f2(+1.1, +2.2);
+    var ret  =f2();
+    ret = f2neg(a);
+    return f2(ret);
+  }
+
+  function sqrtLocal() {
+    var a = f2(+1.1, +2.2);
+    var ret  =f2();
+    ret = f2sqrt(a);
+    return f2(ret);
+  }
+
+  function getxImports() {
     var x = a.x;
     return +x;
   }
 
-  function getyImports(a) {
-    var a = f2(+1.1, +2.2);
+  function getyImports() {
     var y = a.y;
     return +y;
   }
 
-  function getSignMaskImports(a) {
-    var a = f2(+1.1, +2.2);
+  function getSignMaskImports() {
     var s = a.signMask;
     return s | 0;
+  }
+
+  function absImports() {
+    var ret  =f2();
+    ret = f2abs(a);
+    return f2(ret);
+  }
+
+  function negImports() {
+    var ret  =f2();
+    ret = f2neg(a);
+    return f2(ret);
+  }
+
+  function sqrtImports() {
+    var ret  =f2();
+    ret = f2sqrt(a);
+    return f2(ret);
   }
 
   return {add : add, addLocal : addLocal, addImports : addImports,
@@ -233,7 +293,10 @@ function asmModule(stdlib, imports, buffer) {
           max : max, maxLocal : maxLocal, maxImports : maxImports,
           getx : getx, getxLocal : getxLocal, getxImports : getxImports,
           gety : gety, getyLocal : getyLocal, getyImports : getyImports,
-          getSignMask : getSignMask, getSignMaskLocal : getSignMaskLocal, getSignMaskImports : getSignMaskImports};
+          getSignMask : getSignMask, getSignMaskLocal : getSignMaskLocal, getSignMaskImports : getSignMaskImports,
+          abs : abs, absLocal : absLocal, absImports : absImports,
+          neg : neg, negLocal : negLocal, negImports : negImports,
+          sqrt : sqrt, sqrtLocal : sqrtLocal, sqrtImports : sqrtImports}
 }
 
 
@@ -348,3 +411,42 @@ assertEquals(result, expected);
 
 var result = m.getSignMaskImports();
 assertEquals(result, expected);
+
+var result = m.abs(a);
+var expected = SIMD.float64x2.abs(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.absLocal();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.absImports();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.neg(a);
+var expected = SIMD.float64x2.neg(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.negLocal();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.negImports();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.sqrt(a);
+var expected = SIMD.float64x2.sqrt(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.sqrtLocal();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.sqrtImports();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);

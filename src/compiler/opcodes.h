@@ -278,7 +278,10 @@
   V(Float64x2Max)             \
   V(Float64x2GetX)            \
   V(Float64x2GetY)            \
-  V(Float64x2GetSignMask)
+  V(Float64x2GetSignMask)     \
+  V(Float64x2Abs)             \
+  V(Float64x2Neg)             \
+  V(Float64x2Sqrt)
 
 #define VALUE_OP_LIST(V) \
   COMMON_OP_LIST(V)      \

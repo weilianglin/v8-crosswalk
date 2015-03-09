@@ -1100,6 +1100,15 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     case kFloat64x2GetSignMask:
       __ movmskpd(i.OutputRegister(), i.InputFloat64x2Register(0));
       break;
+    case kFloat64x2Abs:
+      __ abspd(i.InputFloat64x2Register(0));
+      break;
+    case kFloat64x2Neg:
+      __ negatepd(i.InputFloat64x2Register(0));
+      break;
+    case kFloat64x2Sqrt:
+      __ sqrtpd(i.OutputFloat64x2Register(), i.InputFloat64x2Register(0));
+      break;
     case kX64Movsxbl:
       if (instr->addressing_mode() != kMode_None) {
         __ movsxbl(i.OutputRegister(), i.MemoryOperand());
