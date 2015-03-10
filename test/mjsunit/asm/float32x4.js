@@ -232,7 +232,6 @@ for (var i = 0; i < 0x4000; i = i + 4) {
   f32array[i>>2] = i;
 }
 var m = asmModule2(this, {}, heap);
-var f32x4a_length = 0x4000/16;
 var result = m.load(4);
 var expected = SIMD.float32x4.load(f32array, 4);
 assertEquals(result.x, expected.x);

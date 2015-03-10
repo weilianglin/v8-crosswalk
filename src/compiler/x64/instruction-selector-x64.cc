@@ -110,6 +110,7 @@ void InstructionSelector::VisitLoad(Node* node) {
   X64OperandGenerator g(this);
 
   ArchOpcode opcode;
+  Node* loaded_bytes = NULL;
   switch (rep) {
     case kRepFloat32:
       opcode = kX64Movss;
@@ -132,30 +133,25 @@ void InstructionSelector::VisitLoad(Node* node) {
       opcode = kX64Movq;
       break;
     case kRepFloat32x4:
-      opcode = kLoadFloat32x4;
-      break;
     case kRepFloat64x2:
-      opcode = kLoadFloat64x2;
+      opcode = kLoadSIMD128;
+      loaded_bytes = node->InputAt(2);
       break;
     default:
       UNREACHABLE();
       return;
   }
+  DCHECK(loaded_bytes == NULL || g.CanBeImmediate(loaded_bytes));
 
   InstructionOperand* outputs[1];
   outputs[0] = g.DefineAsRegister(node);
   InstructionOperand* inputs[4];
-  Node* loaded_bytes = NULL;
-  if (opcode == kLoadFloat32x4 || opcode == kLoadFloat64x2) {
-    loaded_bytes = node->InputAt(2);
-  }
 
   size_t input_count = 0;
   AddressingMode mode =
       g.GetEffectiveAddressMemoryOperand(node, inputs, &input_count);
   InstructionCode code = opcode | AddressingModeField::encode(mode);
   if (loaded_bytes != NULL) {
-    DCHECK(g.CanBeImmediate(loaded_bytes));
     inputs[input_count++] = g.UseImmediate(loaded_bytes);
   }
   Emit(code, 1, outputs, input_count, inputs);
@@ -182,6 +178,7 @@ void InstructionSelector::VisitStore(Node* node) {
     return;
   }
   DCHECK_EQ(kNoWriteBarrier, store_rep.write_barrier_kind());
+  Node* stored_bytes = NULL;
   ArchOpcode opcode;
   switch (rep) {
     case kRepFloat32:
@@ -205,20 +202,17 @@ void InstructionSelector::VisitStore(Node* node) {
       opcode = kX64Movq;
       break;
     case kRepFloat32x4:
-      opcode = kStoreFloat32x4;
-      break;
     case kRepFloat64x2:
-      opcode = kStoreFloat64x2;
+      opcode = kStoreSIMD128;
+      stored_bytes = node->InputAt(3);
       break;
     default:
       UNREACHABLE();
       return;
   }
+  DCHECK(stored_bytes == NULL || g.CanBeImmediate(stored_bytes));
+
   InstructionOperand* inputs[5];
-  Node* stored_bytes = NULL;
-  if (opcode == kStoreFloat32x4 || opcode == kStoreFloat64x2) {
-    stored_bytes = node->InputAt(3);
-  }
   size_t input_count = 0;
   AddressingMode mode =
       g.GetEffectiveAddressMemoryOperand(node, inputs, &input_count);
@@ -242,6 +236,8 @@ void InstructionSelector::VisitCheckedLoad(Node* node) {
   Node* const offset = node->InputAt(1);
   Node* const length = node->InputAt(2);
   ArchOpcode opcode;
+  // To support simd.js partial load.
+  Node* loaded_bytes = NULL;
   switch (rep) {
     case kRepWord8:
       opcode = typ == kTypeInt32 ? kCheckedLoadInt8 : kCheckedLoadUint8;
@@ -259,18 +255,15 @@ void InstructionSelector::VisitCheckedLoad(Node* node) {
       opcode = kCheckedLoadFloat64;
       break;
     case kRepFloat32x4:
-      opcode = kCheckedLoadFloat32x4;
+    case kRepFloat64x2:
+      opcode = kCheckedLoadSIMD128;
+      loaded_bytes = node->InputAt(3);
       break;
     default:
       UNREACHABLE();
       return;
   }
-  // To support simd.js partial load.
-  Node* loaded_bytes = NULL;
-  if (opcode == kCheckedLoadFloat32x4) {
-    loaded_bytes = node->InputAt(3);
-    DCHECK(g.CanBeImmediate(loaded_bytes));
-  }
+  DCHECK(loaded_bytes == NULL || g.CanBeImmediate(loaded_bytes));
 
   if (offset->opcode() == IrOpcode::kInt32Add && CanCover(node, offset)) {
     Int32Matcher mlength(length);
@@ -313,6 +306,7 @@ void InstructionSelector::VisitCheckedStore(Node* node) {
   Node* const length = node->InputAt(2);
   Node* const value = node->InputAt(3);
   ArchOpcode opcode;
+  Node* stored_bytes = NULL;
   switch (rep) {
     case kRepWord8:
       opcode = kCheckedStoreWord8;
@@ -330,19 +324,18 @@ void InstructionSelector::VisitCheckedStore(Node* node) {
       opcode = kCheckedStoreFloat64;
       break;
     case kRepFloat32x4:
-      opcode = kCheckedStoreFloat32x4;
+    case kRepFloat64x2:
+      opcode = kCheckedStoreSIMD128;
+      stored_bytes = node->InputAt(4);
       break;
     default:
       UNREACHABLE();
       return;
   }
+  DCHECK(stored_bytes == NULL || g.CanBeImmediate(stored_bytes));
+
   InstructionOperand* value_operand =
       g.CanBeImmediate(value) ? g.UseImmediate(value) : g.UseRegister(value);
-  Node* stored_bytes = NULL;
-  if (opcode == kCheckedStoreFloat32x4) {
-    stored_bytes = node->InputAt(4);
-    DCHECK(g.CanBeImmediate(stored_bytes));
-  }
 
   if (offset->opcode() == IrOpcode::kInt32Add && CanCover(node, offset)) {
     Int32Matcher mlength(length);

@@ -43,8 +43,12 @@ enum LazyCachedType {
   kFloat32x4Func4f,
   kFloat32x4Func1_4i,
   kFloat64x2Tagged,
+  kFloat64x2Func1,
   kFloat64x2Func2,
   kFloat64x2Func2n,
+  kFloat64x2Func1_1n,
+  kFloat64x2Func3,
+  kFloat64x2FuncA,
 #define TYPED_ARRAY_CASE(Type, type, TYPE, ctype, size) \
   k##Type, k##Type##Array, k##Type##ArrayFunc,
   TYPED_ARRAYS(TYPED_ARRAY_CASE)
@@ -143,12 +147,22 @@ class LazyTypeCache FINAL : public ZoneObject {
         return CreateFloat64x2Tagged();
       case kFloat64x2:
         return CreateFloat64x2();
+      case kFloat64x2Func1:
+        return Type::Function(Get(kFloat64x2), Get(kFloat64x2), zone());
       case kFloat64x2Func2:
         return Type::Function(Get(kFloat64x2), Get(kFloat64x2), Get(kFloat64x2),
                               zone());
       case kFloat64x2Func2n:
         return Type::Function(Get(kFloat32x4), Type::Number(), Type::Number(),
                               zone());
+      case kFloat64x2Func1_1n:
+        return Type::Function(Get(kFloat64x2), Get(kFloat64x2), Type::Number(),
+                              zone());
+      case kFloat64x2Func3:
+        return Type::Function(Get(kFloat64x2), Get(kFloat64x2), Get(kFloat64x2),
+                              Get(kFloat64x2), zone());
+      case kFloat64x2FuncA:
+        return Type::Function(Get(kFloat64x2), zone());
       case kInt32x4:
         // TODO(huningxin): fix this workaround.
         return NULL;
@@ -1803,7 +1817,10 @@ Bounds Typer::Visitor::TypeObjectIsNonNegativeSmi(Node* node) {
 Bounds Typer::Visitor::TypeLoad(Node* node) {
   if (OpParameter<MachineType>(node) == kRepFloat32x4) {
     return Bounds(
-        Type::Intersect(typer_->float32x4_, Type::Untagged(), typer_->zone()));
+        Type::Intersect(typer_->float32x4_, Type::Untagged(), zone()));
+  } else if (OpParameter<MachineType>(node) == kRepFloat64x2) {
+    return Bounds(
+        Type::Intersect(typer_->float64x2_, Type::Untagged(), zone()));
   } else {
     return Bounds::Unbounded(zone());
   }
@@ -2156,7 +2173,10 @@ Bounds Typer::Visitor::TypeLoadStackPointer(Node* node) {
 Bounds Typer::Visitor::TypeCheckedLoad(Node* node) {
   if (OpParameter<MachineType>(node) == kRepFloat32x4) {
     return Bounds(
-        Type::Intersect(typer_->float32x4_, Type::Untagged(), typer_->zone()));
+        Type::Intersect(typer_->float32x4_, Type::Untagged(), zone()));
+  } else if (OpParameter<MachineType>(node) == kRepFloat64x2) {
+    return Bounds(
+        Type::Intersect(typer_->float64x2_, Type::Untagged(), zone()));
   } else {
     return Bounds::Unbounded(zone());
   }
@@ -2301,6 +2321,19 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
           return typer_->cache_->Get(kFloat64x2Func2);
         case kFloat64x2Constructor:
           return typer_->cache_->Get(kFloat64x2Func2n);
+        case kFloat64x2Abs:
+        case kFloat64x2Neg:
+        case kFloat64x2Sqrt:
+          return typer_->cache_->Get(kFloat64x2Func1);
+        case kFloat64x2Scale:
+        case kFloat64x2WithX:
+        case kFloat64x2WithY:
+          return typer_->cache_->Get(kFloat64x2Func1_1n);
+        case kFloat64x2Clamp:
+          return typer_->cache_->Get(kFloat64x2Func3);
+        case kGetFloat64x2X:
+        case kGetFloat64x2XY:
+          return typer_->cache_->Get(kFloat64x2FuncA);
         default:
           break;
       }

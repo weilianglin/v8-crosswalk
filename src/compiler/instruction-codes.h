@@ -76,10 +76,10 @@ namespace compiler {
   V(Float32x4WithW)          \
   V(Float32x4Clamp)          \
   V(Float32x4Swizzle)        \
-  V(LoadFloat32x4)           \
-  V(CheckedLoadFloat32x4)    \
-  V(StoreFloat32x4)          \
-  V(CheckedStoreFloat32x4)   \
+  V(LoadSIMD128)             \
+  V(CheckedLoadSIMD128)      \
+  V(StoreSIMD128)            \
+  V(CheckedStoreSIMD128)     \
   V(Float64x2Add)            \
   V(Float64x2Mul)            \
   V(Float64x2Sub)            \
@@ -87,8 +87,6 @@ namespace compiler {
   V(Float64x2Max)            \
   V(Float64x2Min)            \
   V(Float64x2Constructor)    \
-  V(LoadFloat64x2)           \
-  V(StoreFloat64x2)          \
   V(Float64x2GetX)           \
   V(Float64x2GetY)           \
   V(Float64x2GetSignMask)    \

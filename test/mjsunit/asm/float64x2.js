@@ -579,3 +579,72 @@ var result = m.clamp(a, b, c);
 var expected = SIMD.float64x2.clamp(a, b, c);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
+
+
+function asmModule2(stdlib, imports, buffer) {
+  "use asm"
+  var f2 = stdlib.SIMD.float64x2;
+  var f2load = f2.load;
+  var f2loadX = f2.loadX;
+  var f2store = f2.store;
+  var f2storeX = f2.storeX;
+  var f64array = new stdlib.Float64Array(buffer);
+
+  function load(a) {
+    a = a | 0;
+    var ret = f2(0, 0);
+    ret = f2load(f64array, a | 0);
+    return f2(ret);
+  }
+
+  function loadX(a) {
+    a = a | 0;
+    var ret = f2(0, 0);
+    ret = f2loadX(f64array, a | 0);
+    return f2(ret);
+  }
+
+  function store(a, v) {
+    a =  a | 0;
+    v = f2(v);
+    f2store(f64array, a, v);
+    return f2load(f64array, a);
+  }
+
+  function storeX(a, v) {
+    a =  a | 0;
+    v = f2(v);
+    f2storeX(f64array, a, v);
+    return f2loadX(f64array, a);
+  }
+
+  return {load : load, loadX : loadX, store : store, storeX : storeX};
+}
+
+
+var heap = new ArrayBuffer(0x4000);
+var f64array = new Float64Array(heap);
+for (var i = 0; i < 0x4000; i = i + 8) {
+  f64array[i>>3] = i;
+}
+var m = asmModule2(this, {}, heap);
+var result = m.load(8);
+var expected = SIMD.float64x2.load(f64array, 8);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var result = m.loadX(8);
+var expected = SIMD.float64x2.loadX(f64array, 8);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var val = SIMD.float64x2(1, 2);
+var result = m.store(8, val);
+var expected = val;
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+
+var expected = SIMD.float64x2(1, 0);
+var result = m.storeX(8, val);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);

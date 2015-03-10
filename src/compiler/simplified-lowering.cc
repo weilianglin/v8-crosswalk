@@ -918,7 +918,8 @@ class RepresentationSelector {
         ProcessInput(node, 0, tBase);       // pointer or object
         ProcessInput(node, 1, kMachInt32);  // index
         ProcessInput(node, 2, kMachInt32);  // length
-        if (RepresentationOf(rep) == kRepFloat32x4) {
+        if (RepresentationOf(rep) == kRepFloat32x4 ||
+            RepresentationOf(rep) == kRepFloat64x2) {
           ProcessInput(node, 3, kMachInt32);  // partial
           ProcessRemainingInputs(node, 4);
         } else {
@@ -951,7 +952,8 @@ class RepresentationSelector {
         ProcessInput(node, 1, kMachInt32);  // index
         ProcessInput(node, 2, kMachInt32);  // length
         ProcessInput(node, 3, rep.machine_type());
-        if (rep.machine_type() == kRepFloat32x4) {
+        if (rep.machine_type() == kRepFloat32x4 ||
+            rep.machine_type() == kRepFloat64x2) {
           ProcessInput(node, 4, kMachInt32);  // partial
           ProcessRemainingInputs(node, 5);
         } else {

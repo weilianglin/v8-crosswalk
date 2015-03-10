@@ -937,9 +937,9 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ shufps(value_reg, value_reg, s);
       break;
     }
-    case kLoadFloat32x4: {
+    case kLoadSIMD128: {
       int index = 0;
-      auto result = i.OutputFloat32x4Register();
+      auto result = i.OutputSIMD128Register();
       auto operand = i.MemoryOperand(&index);
       auto loaded_bytes = i.InputInt32(index);
       if (loaded_bytes == 16) {
@@ -955,8 +955,8 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       }
       break;
     }
-    case kCheckedLoadFloat32x4: {
-      auto result = i.OutputFloat32x4Register();
+    case kCheckedLoadSIMD128: {
+      auto result = i.OutputSIMD128Register();
       auto buffer = i.InputRegister(0);
       auto index1 = i.InputRegister(1);
       auto index2 = i.InputInt32(2);
@@ -986,11 +986,11 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ bind(ool->exit());
       break;
     }
-    case kStoreFloat32x4: {
+    case kStoreSIMD128: {
       DCHECK(!instr->HasOutput());
       int index = 0;
       auto operand = i.MemoryOperand(&index);
-      auto val = i.InputFloat32x4Register(index++);
+      auto val = i.InputSIMD128Register(index++);
       auto stored_bytes = i.InputInt32(index);
       if (stored_bytes == 16) {
         __ movups(operand, val);
@@ -1005,12 +1005,12 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       }
       break;
     }
-    case kCheckedStoreFloat32x4: {
+    case kCheckedStoreSIMD128: {
       DCHECK(!instr->HasOutput());
       auto buffer = i.InputRegister(0);
       auto index1 = i.InputRegister(1);
       auto index2 = i.InputInt32(2);
-      auto val = i.InputFloat32x4Register(4);
+      auto val = i.InputSIMD128Register(4);
       auto stored_bytes = i.InputInt32(5);
       Label done;
       if (instr->InputAt(3)->IsRegister()) {
@@ -1063,31 +1063,6 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ movups(i.OutputFloat64x2Register(), Operand(rsp, 0 * kDoubleSize));
       __ leaq(rsp, Operand(rsp, kFloat64x2Size));
       break;
-    case kLoadFloat64x2: {
-      int index = 0;
-      auto result = i.OutputFloat64x2Register();
-      auto operand = i.MemoryOperand(&index);
-      auto loaded_bytes = i.InputInt32(index);
-      if (loaded_bytes == 16) {
-        __ movups(result, operand);
-      } else if (loaded_bytes == 8) {
-        __ movq(result, operand);
-      }
-      break;
-    }
-    case kStoreFloat64x2: {
-      DCHECK(!instr->HasOutput());
-      int index = 0;
-      auto operand = i.MemoryOperand(&index);
-      auto val = i.InputFloat64x2Register(index++);
-      auto stored_bytes = i.InputInt32(index);
-      if (stored_bytes == 16) {
-        __ movups(operand, val);
-      } else if (stored_bytes == 8) {
-        __ movq(operand, val);
-      }
-      break;
-    }
     case kFloat64x2GetY:
       select++;
     case kFloat64x2GetX: {

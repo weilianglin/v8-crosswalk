@@ -404,13 +404,15 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   return NoChange();
 }
 
-#define SIMD_LOAD_OPERATION(V)          \
-  V(4, GetFloat32x4X, kRepFloat32x4)    \
-  V(8, GetFloat32x4XY, kRepFloat32x4)   \
-  V(12, GetFloat32x4XYZ, kRepFloat32x4) \
-  V(16, GetFloat32x4XYZW, kRepFloat32x4)
+#define SIMD_LOAD_OPERATION(V)           \
+  V(4, GetFloat32x4X, kRepFloat32x4)     \
+  V(8, GetFloat32x4XY, kRepFloat32x4)    \
+  V(12, GetFloat32x4XYZ, kRepFloat32x4)  \
+  V(16, GetFloat32x4XYZW, kRepFloat32x4) \
+  V(8, GetFloat64x2X, kRepFloat64x2)     \
+  V(16, GetFloat64x2XY, kRepFloat64x2)
 
-#define DECLARE_REDUCE_GET_FLOAT32X4(partial, opcode, rep)                   \
+#define DECLARE_REDUCE_SIMD_LOAD(partial, opcode, rep)                       \
   Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                   \
     JSCallReduction r(node);                                                 \
                                                                              \
@@ -464,16 +466,18 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   }
 
 
-SIMD_LOAD_OPERATION(DECLARE_REDUCE_GET_FLOAT32X4)
+SIMD_LOAD_OPERATION(DECLARE_REDUCE_SIMD_LOAD)
 
 
-#define SIMD_STORE_OPERATION(V)                     \
-  V(float32x4_, 4, SetFloat32x4X, kRepFloat32x4)    \
-  V(float32x4_, 8, SetFloat32x4XY, kRepFloat32x4)   \
-  V(float32x4_, 12, SetFloat32x4XYZ, kRepFloat32x4) \
-  V(float32x4_, 16, SetFloat32x4XYZW, kRepFloat32x4)
+#define SIMD_STORE_OPERATION(V)                      \
+  V(float32x4_, 4, SetFloat32x4X, kRepFloat32x4)     \
+  V(float32x4_, 8, SetFloat32x4XY, kRepFloat32x4)    \
+  V(float32x4_, 12, SetFloat32x4XYZ, kRepFloat32x4)  \
+  V(float32x4_, 16, SetFloat32x4XYZW, kRepFloat32x4) \
+  V(float64x2_, 8, SetFloat64x2X, kRepFloat64x2)     \
+  V(float64x2_, 16, SetFloat64x2XY, kRepFloat64x2)
 
-#define DECLARE_REDUCE_SET_FLOAT32X4(vtype, partial, opcode, rep)             \
+#define DECLARE_REDUCE_SIMD_STORE(vtype, partial, opcode, rep)                \
   Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                    \
     JSCallReduction r(node);                                                  \
                                                                               \
@@ -531,7 +535,7 @@ SIMD_LOAD_OPERATION(DECLARE_REDUCE_GET_FLOAT32X4)
   }
 
 
-SIMD_STORE_OPERATION(DECLARE_REDUCE_SET_FLOAT32X4)
+SIMD_STORE_OPERATION(DECLARE_REDUCE_SIMD_STORE)
 
 
 Reduction JSBuiltinReducer::Reduce(Node* node) {
@@ -637,6 +641,14 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat64x2WithY(node));
     case kFloat64x2Clamp:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Clamp(node));
+    case kGetFloat64x2X:
+      return ReplaceWithPureReduction(node, ReduceGetFloat64x2X(node));
+    case kGetFloat64x2XY:
+      return ReplaceWithPureReduction(node, ReduceGetFloat64x2XY(node));
+    case kSetFloat64x2X:
+      return ReplaceWithPureReduction(node, ReduceSetFloat64x2X(node));
+    case kSetFloat64x2XY:
+      return ReplaceWithPureReduction(node, ReduceSetFloat64x2XY(node));
     default:
       break;
   }
