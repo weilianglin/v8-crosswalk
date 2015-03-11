@@ -939,49 +939,38 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     }
     // For Int32x4 operation.
     case kInt32x4And:
+      ASSEMBLE_SIMD_BINOP_NOAVX(andps, Int32x4);
+      break;
     case kInt32x4Or:
+      ASSEMBLE_SIMD_BINOP_NOAVX(orps, Int32x4);
+       break;
     case kInt32x4Xor:
+      ASSEMBLE_SIMD_BINOP_NOAVX(xorps, Int32x4);
+      break;
     case kInt32x4Sub:
-    case kInt32x4Mul:
-    case kInt32x4Add: {
+      ASSEMBLE_SIMD_BINOP_NOAVX(psubd, Int32x4);
+      break;
+    case kInt32x4Add:
+      ASSEMBLE_SIMD_BINOP_NOAVX(paddd, Int32x4);
+      break;
+    case kInt32x4Mul: {
       DCHECK(i.InputInt32x4Register(0).is(i.OutputInt32x4Register()));
       XMMRegister left_reg = i.InputInt32x4Register(0);
       XMMRegister right_reg = i.InputInt32x4Register(1);
-      switch (ArchOpcodeField::decode(instr->opcode())) {
-        case kInt32x4And:
-          __ andps(left_reg, right_reg);
-          break;
-        case kInt32x4Or:
-          __ orps(left_reg, right_reg);
-          break;
-        case kInt32x4Xor:
-          __ xorps(left_reg, right_reg);
-          break;
-        case kInt32x4Add:
-          __ paddd(left_reg, right_reg);
-          break;
-        case kInt32x4Sub:
-          __ psubd(left_reg, right_reg);
-          break;
-        case kInt32x4Mul:
-          if (CpuFeatures::IsSupported(SSE4_1)) {
-             CpuFeatureScope scope(masm(), SSE4_1);
-             __ pmulld(left_reg, right_reg);
-          } else {
-            // The algorithm is from http://stackoverflow.com/questions/10500766/sse-multiplication-of-4-32-bit-integers
-            XMMRegister xmm_scratch = xmm0;
-            __ movaps(xmm_scratch, left_reg);
-            __ pmuludq(left_reg, right_reg);
-            __ psrldq(xmm_scratch, 4);
-            __ psrldq(right_reg, 4);
-            __ pmuludq(xmm_scratch, right_reg);
-            __ pshufd(left_reg, left_reg, 8);
-            __ pshufd(xmm_scratch, xmm_scratch, 8);
-            __ punpackldq(left_reg, xmm_scratch);
-          }
-          break;
-        default:
-          break;
+      if (CpuFeatures::IsSupported(SSE4_1)) {
+        CpuFeatureScope scope(masm(), SSE4_1);
+        __ pmulld(left_reg, right_reg);
+      } else {
+        // The algorithm is from http://stackoverflow.com/questions/10500766/sse-multiplication-of-4-32-bit-integers
+        XMMRegister xmm_scratch = xmm0;
+        __ movaps(xmm_scratch, left_reg);
+        __ pmuludq(left_reg, right_reg);
+        __ psrldq(xmm_scratch, 4);
+        __ psrldq(right_reg, 4);
+        __ pmuludq(xmm_scratch, right_reg);
+        __ pshufd(left_reg, left_reg, 8);
+        __ pshufd(xmm_scratch, xmm_scratch, 8);
+        __ punpackldq(left_reg, xmm_scratch);
       }
       break;
     }

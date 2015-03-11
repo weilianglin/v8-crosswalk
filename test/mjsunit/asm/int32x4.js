@@ -41,8 +41,8 @@ function asmModule(stdlib, imports, buffer) {
   var b = i4(imports.b);
 
   function add(a, b) {
-    a = i4(a);
-    b = i4(b);
+    var a = i4(a);
+    var b = i4(b);
     var ret = i4();
     ret = i4add(a, b);
     return i4(ret);
@@ -63,8 +63,8 @@ function asmModule(stdlib, imports, buffer) {
   }
 
   function sub(a, b) {
-    a = i4(a);
-    b = i4(b);
+    var a = i4(a);
+    var b = i4(b);
     var ret = i4();
     ret = i4sub(a, b);
     return i4(ret);
@@ -85,8 +85,8 @@ function asmModule(stdlib, imports, buffer) {
   }
 
   function mul(a, b) {
-    a = i4(a);
-    b = i4(b);
+    var a = i4(a);
+    var b = i4(b);
     var ret = i4();
     ret = i4mul(a, b);
     return i4(ret);
@@ -107,8 +107,8 @@ function asmModule(stdlib, imports, buffer) {
   }
 
   function and(a, b) {
-    a = i4(a);
-    b = i4(b);
+    var a = i4(a);
+    var b = i4(b);
     var ret = i4();
     ret = i4and(a, b);
     return i4(ret);
@@ -129,8 +129,8 @@ function asmModule(stdlib, imports, buffer) {
   }
 
   function or(a, b) {
-    a = i4(a);
-    b = i4(b);
+    var a = i4(a);
+    var b = i4(b);
     var ret = i4();
     ret = i4or(a, b);
     return i4(ret);
@@ -151,8 +151,8 @@ function asmModule(stdlib, imports, buffer) {
   }
 
   function xor(a, b) {
-    a = i4(a);
-    b = i4(b);
+    var a = i4(a);
+    var b = i4(b);
     var ret = i4();
     ret = i4xor(a, b);
     return i4(ret);
@@ -173,25 +173,25 @@ function asmModule(stdlib, imports, buffer) {
   }
 
   function getx(a) {
-    a = i4(a);
+    var a = i4(a);
     var x = a.x;
     return x | 0;
   }
 
   function gety(a) {
-    a = i4(a);
+    var a = i4(a);
     var y = a.y;
     return y | 0;
   }
 
   function getz(a) {
-    a = i4(a);
+    var a = i4(a);
     var z = a.z;
     return z | 0;
   }
 
   function getw(a) {
-    a = i4(a);
+    var a = i4(a);
     var w = a.w;
     return w | 0;
   }

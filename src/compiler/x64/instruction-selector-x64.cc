@@ -1373,23 +1373,22 @@ void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
 }
 
 #define BINARY_SIMD_OPERATION_LIST1(V) \
-  V(Float32x4Add)                     \
-  V(Float32x4Sub)                     \
-  V(Float32x4Mul)                     \
-  V(Float32x4Div)                     \
-  V(Float32x4Min)                     \
-  V(Float32x4Max)                     \
-  V(Int32x4Add)                       \
-  V(Int32x4And)                       \
-  V(Int32x4Sub)                       \
-  V(Int32x4Mul)                       \
-  V(Int32x4Or)                        \
-  V(Int32x4Xor)                       \
-  V(Float64x2Add)                     \
-  V(Float64x2Sub)                     \
-  V(Float64x2Mul)                     \
-  V(Float64x2Div)                     \
-  V(Float64x2Min)                     \
+  V(Float32x4Add)                      \
+  V(Float32x4Sub)                      \
+  V(Float32x4Mul)                      \
+  V(Float32x4Div)                      \
+  V(Float32x4Min)                      \
+  V(Float32x4Max)                      \
+  V(Int32x4Add)                        \
+  V(Int32x4And)                        \
+  V(Int32x4Sub)                        \
+  V(Int32x4Or)                         \
+  V(Int32x4Xor)                        \
+  V(Float64x2Add)                      \
+  V(Float64x2Sub)                      \
+  V(Float64x2Mul)                      \
+  V(Float64x2Div)                      \
+  V(Float64x2Min)                      \
   V(Float64x2Max)
 
 #define DECLARE_VISIT_BINARY_SIMD_OPERATION1(type)                             \
@@ -1410,6 +1409,17 @@ void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
   Emit(kFloat32x4Constructor, g.DefineAsRegister(node),
        g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
        g.UseRegister(node->InputAt(2)), g.UseRegister(node->InputAt(3)));
+}
+
+
+// TODO(chunyang): current code generation for int32x4 requires register for
+// both input parameters. We can optimize it later.
+void InstructionSelector::VisitInt32x4Mul(Node* node) {
+  X64OperandGenerator g(this);
+  InstructionOperand* output = IsSupported(AVX) ? g.DefineAsRegister(node)
+                                                : g.DefineSameAsFirst(node);
+  Emit(kInt32x4Mul, output, g.UseRegister(node->InputAt(0)),
+       g.UseRegister(node->InputAt(1)));
 }
 
 

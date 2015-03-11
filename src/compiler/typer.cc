@@ -44,7 +44,7 @@ enum LazyCachedType {
   kFloat32x4Func1_4i,
   kInt32x4Tagged,
   kInt32x4Func2,
-  kInt32x4Func2n,
+  kInt32x4Func4i,
   kFloat64x2Tagged,
   kFloat64x2Func1,
   kFloat64x2Func2,
@@ -154,7 +154,7 @@ class LazyTypeCache FINAL : public ZoneObject {
       case kInt32x4Func2:
         return Type::Function(Get(kInt32x4), Get(kInt32x4), Get(kInt32x4),
                               zone());
-      case kInt32x4Func2n:
+      case kInt32x4Func4i:
         return Type::Function(Get(kFloat32x4), Type::Integral32(),
                               Type::Integral32(), Type::Integral32(),
                               Type::Integral32(), zone());
@@ -2385,7 +2385,7 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kInt32x4Xor:
           return typer_->cache_->Get(kInt32x4Func2);
         case kInt32x4Constructor:
-          return typer_->cache_->Get(kInt32x4Func2n);
+          return typer_->cache_->Get(kInt32x4Func4i);
         // Float64x2
         case kFloat64x2Add:
         case kFloat64x2Sub:

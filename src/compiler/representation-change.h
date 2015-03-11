@@ -231,7 +231,7 @@ class RepresentationChanger {
 
   Node* GetInt32x4RepresentationFor(Node* node,
                                     MachineTypeUnion output_type) {
-    // Select the correct X -> Float32x4 operator.
+    // Select the correct X -> Int32x4 operator.
     if (output_type & kRepTagged) {
       return jsgraph()->graph()->NewNode(
           simplified()->ChangeTaggedToInt32x4(), node);

@@ -212,8 +212,8 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
 #define MACHINE_SIMD_TYPE_LIST(V) \
   V(RepFloat32x4)                 \
   V(MachFloat32x4)                \
-  V(RepInt32x4)                 \
-  V(MachInt32x4)                \
+  V(RepInt32x4)                   \
+  V(MachInt32x4)                  \
   V(RepFloat64x2)                 \
   V(MachFloat64x2)
 
