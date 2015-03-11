@@ -63,6 +63,7 @@ class Typer {
   Type* weakint_fun1_;
   Type* random_fun_;
   Type* float32x4_;
+  Type* int32x4_;
   Type* float64x2_;
   LazyTypeCache* cache_;
 

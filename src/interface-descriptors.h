@@ -25,6 +25,7 @@ class PlatformInterfaceDescriptor;
   V(FastNewContext)                           \
   V(ToNumber)                                 \
   V(ToFloat32x4)                              \
+  V(ToInt32x4)                                \
   V(ToFloat64x2)                              \
   V(NumberToString)                           \
   V(FastCloneShallowArray)                    \
@@ -37,6 +38,7 @@ class PlatformInterfaceDescriptor;
   V(TransitionElementsKind)                   \
   V(AllocateHeapNumber)                       \
   V(AllocateFloat32x4)                        \
+  V(AllocateInt32x4)                          \
   V(AllocateFloat64x2)                        \
   V(ArrayConstructorConstantArgCount)         \
   V(ArrayConstructor)                         \
@@ -302,6 +304,12 @@ class ToFloat32x4Descriptor : public CallInterfaceDescriptor {
 };
 
 
+class ToInt32x4Descriptor : public CallInterfaceDescriptor {
+ public:
+  DECLARE_DESCRIPTOR(ToInt32x4Descriptor, CallInterfaceDescriptor)
+};
+
+
 class ToFloat64x2Descriptor : public CallInterfaceDescriptor {
  public:
   DECLARE_DESCRIPTOR(ToFloat64x2Descriptor, CallInterfaceDescriptor)
@@ -372,6 +380,12 @@ class AllocateHeapNumberDescriptor : public CallInterfaceDescriptor {
 class AllocateFloat32x4Descriptor : public CallInterfaceDescriptor {
  public:
   DECLARE_DESCRIPTOR(AllocateFloat32x4Descriptor, CallInterfaceDescriptor)
+};
+
+
+class AllocateInt32x4Descriptor : public CallInterfaceDescriptor {
+ public:
+  DECLARE_DESCRIPTOR(AllocateInt32x4Descriptor, CallInterfaceDescriptor)
 };
 
 

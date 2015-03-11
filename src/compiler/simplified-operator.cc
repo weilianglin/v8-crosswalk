@@ -188,6 +188,8 @@ const ElementAccess& ElementAccessOf(const Operator* op) {
   V(ChangeFloat64ToTagged, Operator::kNoProperties, 1)   \
   V(ChangeFloat32x4ToTagged, Operator::kNoProperties, 1) \
   V(ChangeTaggedToFloat32x4, Operator::kNoProperties, 1) \
+  V(ChangeInt32x4ToTagged, Operator::kNoProperties, 1)   \
+  V(ChangeTaggedToInt32x4, Operator::kNoProperties, 1)   \
   V(ChangeFloat64x2ToTagged, Operator::kNoProperties, 1) \
   V(ChangeTaggedToFloat64x2, Operator::kNoProperties, 1) \
   V(ChangeBoolToBit, Operator::kNoProperties, 1)         \

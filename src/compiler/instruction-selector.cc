@@ -956,6 +956,28 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsFloat32x4(node), VisitFloat32x4Clamp(node);
     case IrOpcode::kFloat32x4Swizzle:
       return MarkAsFloat32x4(node), VisitFloat32x4Swizzle(node);
+    case IrOpcode::kInt32x4Add:
+      return MarkAsInt32x4(node), VisitInt32x4Add(node);
+    case IrOpcode::kInt32x4And:
+      return MarkAsInt32x4(node), VisitInt32x4And(node);
+    case IrOpcode::kInt32x4Sub:
+      return MarkAsInt32x4(node), VisitInt32x4Sub(node);
+    case IrOpcode::kInt32x4Mul:
+      return MarkAsInt32x4(node), VisitInt32x4Mul(node);
+    case IrOpcode::kInt32x4Or:
+      return MarkAsInt32x4(node), VisitInt32x4Or(node);
+    case IrOpcode::kInt32x4Xor:
+      return MarkAsInt32x4(node), VisitInt32x4Xor(node);
+    case IrOpcode::kInt32x4Constructor:
+      return MarkAsInt32x4(node), VisitInt32x4Constructor(node);
+    case IrOpcode::kInt32x4GetX:
+      return VisitInt32x4GetX(node);
+    case IrOpcode::kInt32x4GetY:
+      return VisitInt32x4GetY(node);
+    case IrOpcode::kInt32x4GetZ:
+      return VisitInt32x4GetZ(node);
+    case IrOpcode::kInt32x4GetW:
+      return VisitInt32x4GetW(node);
     case IrOpcode::kFloat64x2Add:
       return MarkAsFloat64x2(node), VisitFloat64x2Add(node);
     case IrOpcode::kFloat64x2Sub:

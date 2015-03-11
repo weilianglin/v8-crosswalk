@@ -61,7 +61,13 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceSetFloat32x4XY(Node* node);
   Reduction ReduceSetFloat32x4XYZ(Node* node);
   Reduction ReduceSetFloat32x4XYZW(Node* node);
-
+  Reduction ReduceInt32x4Add(Node* node);
+  Reduction ReduceInt32x4And(Node* node);
+  Reduction ReduceInt32x4Sub(Node* node);
+  Reduction ReduceInt32x4Mul(Node* node);
+  Reduction ReduceInt32x4Or(Node* node);
+  Reduction ReduceInt32x4Xor(Node* node);
+  Reduction ReduceInt32x4Constructor(Node* node);
   Reduction ReduceFloat64x2Add(Node* node);
   Reduction ReduceFloat64x2Sub(Node* node);
   Reduction ReduceFloat64x2Mul(Node* node);
@@ -90,6 +96,7 @@ class JSBuiltinReducer FINAL : public Reducer {
   JSGraph* jsgraph_;
   SimplifiedOperatorBuilder simplified_;
   Type* float32x4_;
+  Type* int32x4_;
   Type* float64x2_;
 };
 

@@ -204,6 +204,17 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   V(Float32x4WithW)          \
   V(Float32x4Clamp)          \
   V(Float32x4Swizzle)        \
+  V(Int32x4Add)              \
+  V(Int32x4And)              \
+  V(Int32x4Mul)              \
+  V(Int32x4Sub)              \
+  V(Int32x4Or)               \
+  V(Int32x4Xor)              \
+  V(Int32x4Constructor)      \
+  V(Int32x4GetX)             \
+  V(Int32x4GetY)             \
+  V(Int32x4GetZ)             \
+  V(Int32x4GetW)             \
   V(Float64x2Add)            \
   V(Float64x2Mul)            \
   V(Float64x2Sub)            \

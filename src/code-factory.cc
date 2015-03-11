@@ -103,6 +103,13 @@ Callable CodeFactory::ToFloat32x4Obj(Isolate* isolate) {
 
 
 // static
+Callable CodeFactory::ToInt32x4Obj(Isolate* isolate) {
+  ToInt32x4Stub stub(isolate);
+  return Callable(stub.GetCode(), stub.GetCallInterfaceDescriptor());
+}
+
+
+// static
 Callable CodeFactory::ToFloat64x2Obj(Isolate* isolate) {
   ToFloat64x2Stub stub(isolate);
   return Callable(stub.GetCode(), stub.GetCallInterfaceDescriptor());
@@ -127,6 +134,13 @@ Callable CodeFactory::AllocateHeapNumber(Isolate* isolate) {
 // static
 Callable CodeFactory::AllocateFloat32x4(Isolate* isolate) {
   AllocateFloat32x4Stub stub(isolate);
+  return Callable(stub.GetCode(), stub.GetCallInterfaceDescriptor());
+}
+
+
+// static
+Callable CodeFactory::AllocateInt32x4(Isolate* isolate) {
+  AllocateInt32x4Stub stub(isolate);
   return Callable(stub.GetCode(), stub.GetCallInterfaceDescriptor());
 }
 
