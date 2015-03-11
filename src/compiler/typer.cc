@@ -153,7 +153,7 @@ class LazyTypeCache FINAL : public ZoneObject {
         return Type::Function(Get(kFloat64x2), Get(kFloat64x2), Get(kFloat64x2),
                               zone());
       case kFloat64x2Func2n:
-        return Type::Function(Get(kFloat32x4), Type::Number(), Type::Number(),
+        return Type::Function(Get(kFloat64x2), Type::Number(), Type::Number(),
                               zone());
       case kFloat64x2Func1_1n:
         return Type::Function(Get(kFloat64x2), Get(kFloat64x2), Type::Number(),
