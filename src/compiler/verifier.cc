@@ -417,6 +417,7 @@ void Verifier::Visitor::Pre(Node* node) {
       break;
     case IrOpcode::kJSToObject:
     case IrOpcode::kJSToFloat32x4Obj:
+    case IrOpcode::kJSToInt32x4Obj:
     case IrOpcode::kJSToFloat64x2Obj:
       // Type is Receiver.
       CheckUpperIs(node, Type::Receiver());
@@ -762,6 +763,21 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4WithW:
     case IrOpcode::kFloat32x4Clamp:
     case IrOpcode::kFloat32x4Swizzle:
+    // Int32x4
+    case IrOpcode::kInt32x4Add:
+    case IrOpcode::kInt32x4And:
+    case IrOpcode::kInt32x4Sub:
+    case IrOpcode::kInt32x4Mul:
+    case IrOpcode::kInt32x4Or:
+    case IrOpcode::kInt32x4Xor:
+    case IrOpcode::kInt32x4Constructor:
+    case IrOpcode::kChangeInt32x4ToTagged:
+    case IrOpcode::kChangeTaggedToInt32x4:
+    case IrOpcode::kInt32x4GetX:
+    case IrOpcode::kInt32x4GetY:
+    case IrOpcode::kInt32x4GetZ:
+    case IrOpcode::kInt32x4GetW:
+    // Float64x2
     case IrOpcode::kFloat64x2Add:
     case IrOpcode::kFloat64x2Sub:
     case IrOpcode::kFloat64x2Mul:

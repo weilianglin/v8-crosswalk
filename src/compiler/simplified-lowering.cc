@@ -89,6 +89,12 @@ class RepresentationSelector {
                                         ->initial_map(),
                                     zone->isolate()),
                              zone);
+    int32x4_ = Type::Class(handle(zone->isolate()
+                                        ->native_context()
+                                        ->int32x4_function()
+                                        ->initial_map(),
+                                    zone->isolate()),
+                             zone);
     float64x2_ = Type::Class(handle(zone->isolate()
                                         ->native_context()
                                         ->float64x2_function()
@@ -343,6 +349,8 @@ class RepresentationSelector {
       return kRepFloat64;
     } else if (upper->Is(float32x4_)) {
       return kRepFloat32x4;
+    } else if (upper->Is(int32x4_)) {
+      return kRepInt32x4;
     } else if (upper->Is(float64x2_)) {
       return kRepFloat64x2;
     }
@@ -903,6 +911,7 @@ class RepresentationSelector {
         ProcessInput(node, 0, tBase);   // pointer or object
         ProcessInput(node, 1, kMachInt32);  // index
         if (RepresentationOf(rep) == kRepFloat32x4 ||
+            RepresentationOf(rep) == kRepInt32x4 ||
             RepresentationOf(rep) == kRepFloat64x2) {
           ProcessInput(node, 2, kMachInt32);  // partial
           ProcessRemainingInputs(node, 3);
@@ -919,6 +928,7 @@ class RepresentationSelector {
         ProcessInput(node, 1, kMachInt32);  // index
         ProcessInput(node, 2, kMachInt32);  // length
         if (RepresentationOf(rep) == kRepFloat32x4 ||
+            RepresentationOf(rep) == kRepInt32x4 ||
             RepresentationOf(rep) == kRepFloat64x2) {
           ProcessInput(node, 3, kMachInt32);  // partial
           ProcessRemainingInputs(node, 4);
@@ -936,6 +946,7 @@ class RepresentationSelector {
         ProcessInput(node, 1, kMachInt32);  // index
         ProcessInput(node, 2, rep.machine_type());
         if (rep.machine_type() == kRepFloat32x4 ||
+            rep.machine_type() == kRepInt32x4 ||
             rep.machine_type() == kRepFloat64x2) {
           ProcessInput(node, 3, kMachInt32);  // partial
           ProcessRemainingInputs(node, 4);
@@ -1149,6 +1160,35 @@ class RepresentationSelector {
         ProcessInput(node, 4, kMachInt32);
         SetOutput(node, kMachFloat32x4);
         break;
+      // Int32x4
+      case IrOpcode::kInt32x4Add:
+      case IrOpcode::kInt32x4And:
+      case IrOpcode::kInt32x4Sub:
+      case IrOpcode::kInt32x4Mul:
+      case IrOpcode::kInt32x4Or:
+      case IrOpcode::kInt32x4Xor:
+        DCHECK_EQ(2, node->InputCount());
+        ProcessInput(node, 0, kMachInt32x4);
+        ProcessInput(node, 1, kMachInt32x4);
+        SetOutput(node, kMachInt32x4);
+        break;
+      case IrOpcode::kInt32x4Constructor:
+        DCHECK_EQ(4, node->InputCount());
+        ProcessInput(node, 0, kMachInt32);
+        ProcessInput(node, 1, kMachInt32);
+        ProcessInput(node, 2, kMachInt32);
+        ProcessInput(node, 3, kMachInt32);
+        SetOutput(node, kMachInt32x4);
+        break;
+      case IrOpcode::kInt32x4GetX:
+      case IrOpcode::kInt32x4GetY:
+      case IrOpcode::kInt32x4GetZ:
+      case IrOpcode::kInt32x4GetW:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachInt32x4);
+        SetOutput(node, kMachInt32);
+        break;
+      // Float64x2
       case IrOpcode::kFloat64x2Add:
       case IrOpcode::kFloat64x2Sub:
       case IrOpcode::kFloat64x2Mul:
@@ -1250,6 +1290,7 @@ class RepresentationSelector {
   Type* safe_bit_range_;
   Type* safe_int_additive_range_;
   Type* float32x4_;
+  Type* int32x4_;
   Type* float64x2_;
 
   NodeInfo* GetInfo(Node* node) {

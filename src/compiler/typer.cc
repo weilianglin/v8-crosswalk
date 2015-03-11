@@ -42,6 +42,9 @@ enum LazyCachedType {
   kFloat32x4Func3,
   kFloat32x4Func4f,
   kFloat32x4Func1_4i,
+  kInt32x4Tagged,
+  kInt32x4Func2,
+  kInt32x4Func2n,
   kFloat64x2Tagged,
   kFloat64x2Func1,
   kFloat64x2Func2,
@@ -143,6 +146,19 @@ class LazyTypeCache FINAL : public ZoneObject {
         return Type::Function(Get(kFloat32x4), Get(kFloat32x4),
                               Type::Integral32(), Type::Integral32(),
                               Type::Integral32(), Type::Integral32(), zone());
+      // Int32x4
+      case kInt32x4:
+        return CreateInt32x4();
+      case kInt32x4Tagged:
+        return CreateInt32x4Tagged();
+      case kInt32x4Func2:
+        return Type::Function(Get(kInt32x4), Get(kInt32x4), Get(kInt32x4),
+                              zone());
+      case kInt32x4Func2n:
+        return Type::Function(Get(kFloat32x4), Type::Integral32(),
+                              Type::Integral32(), Type::Integral32(),
+                              Type::Integral32(), zone());
+      // Float64x2
       case kFloat64x2Tagged:
         return CreateFloat64x2Tagged();
       case kFloat64x2:
@@ -163,9 +179,6 @@ class LazyTypeCache FINAL : public ZoneObject {
                               Get(kFloat64x2), zone());
       case kFloat64x2FuncA:
         return Type::Function(Get(kFloat64x2), zone());
-      case kInt32x4:
-        // TODO(huningxin): fix this workaround.
-        return NULL;
     }
     UNREACHABLE();
     return NULL;
@@ -210,6 +223,22 @@ class LazyTypeCache FINAL : public ZoneObject {
         handle(isolate()->native_context()->float32x4_function()->initial_map(),
                isolate());
     return Type::Intersect(Type::Class(float32x4_map, zone()), Type::Tagged(),
+                           zone());
+  }
+
+  Type* CreateInt32x4() {
+    Handle<Map> int32x4_map =
+        handle(isolate()->native_context()->int32x4_function()->initial_map(),
+               isolate());
+    return Type::Intersect(Type::Class(int32x4_map, zone()), Type::Untagged(),
+                           zone());
+  }
+
+  Type* CreateInt32x4Tagged() {
+    Handle<Map> int32x4_map =
+        handle(isolate()->native_context()->int32x4_function()->initial_map(),
+               isolate());
+    return Type::Intersect(Type::Class(int32x4_map, zone()), Type::Tagged(),
                            zone());
   }
 
@@ -318,6 +347,11 @@ Typer::Typer(Graph* graph, MaybeHandle<Context> context)
       handle(isolate()->native_context()->float32x4_function()->initial_map(),
              isolate());
   float32x4_ = Type::Class(float32x4_map, zone);
+
+  Handle<Map> int32x4_map =
+      handle(isolate()->native_context()->int32x4_function()->initial_map(),
+             isolate());
+  int32x4_ = Type::Class(int32x4_map, zone);
 
   Handle<Map> float64x2_map =
       handle(isolate()->native_context()->float64x2_function()->initial_map(),
@@ -1326,6 +1360,11 @@ Bounds Typer::Visitor::TypeJSToFloat32x4Obj(Node* node) {
 }
 
 
+Bounds Typer::Visitor::TypeJSToInt32x4Obj(Node* node) {
+  return Bounds(Type::Intersect(typer_->int32x4_, Type::Tagged(), zone()));
+}
+
+
 Bounds Typer::Visitor::TypeJSToFloat64x2Obj(Node* node) {
   return Bounds(Type::Intersect(typer_->float64x2_, Type::Tagged(), zone()));
 }
@@ -1724,6 +1763,20 @@ Bounds Typer::Visitor::TypeChangeTaggedToFloat32x4(Node* node) {
   Bounds arg = Operand(node, 0);
   return Bounds(ChangeRepresentation(arg.lower, typer_->float32x4_, zone()),
                 ChangeRepresentation(arg.upper, typer_->float32x4_, zone()));
+}
+
+
+Bounds Typer::Visitor::TypeChangeInt32x4ToTagged(Node* node) {
+  Bounds arg = Operand(node, 0);
+  return Bounds(ChangeRepresentation(arg.lower, Type::Tagged(), zone()),
+                ChangeRepresentation(arg.upper, Type::Tagged(), zone()));
+}
+
+
+Bounds Typer::Visitor::TypeChangeTaggedToInt32x4(Node* node) {
+  Bounds arg = Operand(node, 0);
+  return Bounds(ChangeRepresentation(arg.lower, typer_->int32x4_, zone()),
+                ChangeRepresentation(arg.upper, typer_->int32x4_, zone()));
 }
 
 
@@ -2209,6 +2262,17 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->float32x4_, Type::Untagged(), Float32x4WithW)             \
   V(typer_->float32x4_, Type::Untagged(), Float32x4Clamp)             \
   V(typer_->float32x4_, Type::Untagged(), Float32x4Swizzle)           \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Add)                   \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Sub)                   \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Mul)                   \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4And)                   \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Or)                    \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Xor)                   \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Constructor)           \
+  V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetX)          \
+  V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetY)          \
+  V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetZ)          \
+  V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetW)          \
   V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetX)           \
   V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetY)           \
   V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetZ)           \
@@ -2312,6 +2376,17 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kGetFloat32x4XYZ:
         case kGetFloat32x4XYZW:
           return typer_->cache_->Get(kFloat32x4FuncA);
+        // Int32x4
+        case kInt32x4Add:
+        case kInt32x4And:
+        case kInt32x4Sub:
+        case kInt32x4Mul:
+        case kInt32x4Or:
+        case kInt32x4Xor:
+          return typer_->cache_->Get(kInt32x4Func2);
+        case kInt32x4Constructor:
+          return typer_->cache_->Get(kInt32x4Func2n);
+        // Float64x2
         case kFloat64x2Add:
         case kFloat64x2Sub:
         case kFloat64x2Mul:
@@ -2370,6 +2445,8 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
     }
   } else if (value->IsFloat32x4()) {
     return typer_->cache_->Get(kFloat32x4Tagged);
+  } else if (value->IsInt32x4()) {
+    return typer_->cache_->Get(kInt32x4Tagged);
   } else if (value->IsFloat64x2()) {
     return typer_->cache_->Get(kFloat64x2Tagged);
   }

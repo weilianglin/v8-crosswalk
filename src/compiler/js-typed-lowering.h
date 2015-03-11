@@ -47,6 +47,7 @@ class JSTypedLowering FINAL : public Reducer {
   Reduction ReduceJSToNumberInput(Node* input);
   Reduction ReduceJSToNumber(Node* node);
   Reduction ReduceJSToFloat32x4Obj(Node* node);
+  Reduction ReduceJSToInt32x4Obj(Node* node);
   Reduction ReduceJSToFloat64x2Obj(Node* node);
   Reduction ReduceJSToStringInput(Node* input);
   Reduction ReduceJSToString(Node* node);
@@ -77,6 +78,7 @@ class JSTypedLowering FINAL : public Reducer {
   Type* one_range_;
   Type* zero_thirtyone_range_;
   Type* float32x4_;
+  Type* int32x4_;
   Type* float64x2_;
   Type* shifted_int32_ranges_[4];
 };

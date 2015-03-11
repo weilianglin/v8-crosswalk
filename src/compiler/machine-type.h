@@ -55,7 +55,7 @@ enum MachineType {
   kMachInt64 = kRepWord64 | kTypeInt64,
   kMachUint64 = kRepWord64 | kTypeUint64,
   kMachFloat32x4 = kRepFloat32x4 | kTypeVector,
-  kMachInt32x4 = kRepFloat32x4 | kTypeVector,
+  kMachInt32x4 = kRepInt32x4 | kTypeVector,
   kMachFloat64x2 = kRepFloat64x2 | kTypeVector,
   kMachIntPtr = (kPointerSize == 4) ? kMachInt32 : kMachInt64,
   kMachUintPtr = (kPointerSize == 4) ? kMachUint32 : kMachUint64,
@@ -70,7 +70,7 @@ typedef uint32_t MachineTypeUnion;
 // Globally useful machine types and constants.
 const MachineTypeUnion kRepMask =
     kRepBit | kRepWord8 | kRepWord16 | kRepWord32 | kRepWord64 | kRepFloat32 |
-    kRepFloat64 | kRepFloat32x4 | kRepFloat64x2 | kRepTagged;
+    kRepFloat64 | kRepFloat32x4 | kRepInt32x4 | kRepFloat64x2 | kRepTagged;
 const MachineTypeUnion kTypeMask = kTypeBool | kTypeInt32 | kTypeUint32 |
                                    kTypeInt64 | kTypeUint64 | kTypeNumber |
                                    kTypeVector | kTypeAny;

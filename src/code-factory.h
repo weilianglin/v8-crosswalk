@@ -54,6 +54,8 @@ class CodeFactory FINAL {
 
   static Callable ToFloat32x4Obj(Isolate* isolate);
 
+  static Callable ToInt32x4Obj(Isolate* isolate);
+
   static Callable ToFloat64x2Obj(Isolate* isolate);
 
   static Callable StringAdd(Isolate* isolate, StringAddFlags flags,
@@ -62,6 +64,8 @@ class CodeFactory FINAL {
   static Callable AllocateHeapNumber(Isolate* isolate);
 
   static Callable AllocateFloat32x4(Isolate* isolate);
+
+  static Callable AllocateInt32x4(Isolate* isolate);
 
   static Callable AllocateFloat64x2(Isolate* isolate);
 

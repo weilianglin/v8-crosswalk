@@ -133,6 +133,7 @@ void InstructionSelector::VisitLoad(Node* node) {
       opcode = kX64Movq;
       break;
     case kRepFloat32x4:
+    case kRepInt32x4:
     case kRepFloat64x2:
       opcode = kLoadSIMD128;
       loaded_bytes = node->InputAt(2);
@@ -202,6 +203,7 @@ void InstructionSelector::VisitStore(Node* node) {
       opcode = kX64Movq;
       break;
     case kRepFloat32x4:
+    case kRepInt32x4:
     case kRepFloat64x2:
       opcode = kStoreSIMD128;
       stored_bytes = node->InputAt(3);
@@ -1371,17 +1373,23 @@ void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
 }
 
 #define BINARY_SIMD_OPERATION_LIST1(V) \
-  V(Float32x4Add)                      \
-  V(Float32x4Sub)                      \
-  V(Float32x4Mul)                      \
-  V(Float32x4Div)                      \
-  V(Float32x4Min)                      \
-  V(Float32x4Max)                      \
-  V(Float64x2Add)                      \
-  V(Float64x2Sub)                      \
-  V(Float64x2Mul)                      \
-  V(Float64x2Div)                      \
-  V(Float64x2Min)                      \
+  V(Float32x4Add)                     \
+  V(Float32x4Sub)                     \
+  V(Float32x4Mul)                     \
+  V(Float32x4Div)                     \
+  V(Float32x4Min)                     \
+  V(Float32x4Max)                     \
+  V(Int32x4Add)                       \
+  V(Int32x4And)                       \
+  V(Int32x4Sub)                       \
+  V(Int32x4Mul)                       \
+  V(Int32x4Or)                        \
+  V(Int32x4Xor)                       \
+  V(Float64x2Add)                     \
+  V(Float64x2Sub)                     \
+  V(Float64x2Mul)                     \
+  V(Float64x2Div)                     \
+  V(Float64x2Min)                     \
   V(Float64x2Max)
 
 #define DECLARE_VISIT_BINARY_SIMD_OPERATION1(type)                             \
@@ -1405,6 +1413,14 @@ void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
 }
 
 
+void InstructionSelector::VisitInt32x4Constructor(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kInt32x4Constructor, g.DefineAsRegister(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseRegister(node->InputAt(2)), g.UseRegister(node->InputAt(3)));
+}
+
+
 void InstructionSelector::VisitFloat64x2Constructor(Node* node) {
   X64OperandGenerator g(this);
   Emit(kFloat64x2Constructor, g.DefineAsRegister(node),
@@ -1419,6 +1435,10 @@ void InstructionSelector::VisitFloat64x2Constructor(Node* node) {
   V(Float32x4GetW)                    \
   V(Float32x4GetSignMask)             \
   V(Float32x4Splat)                   \
+  V(Int32x4GetX)                      \
+  V(Int32x4GetY)                      \
+  V(Int32x4GetZ)                      \
+  V(Int32x4GetW)                      \
   V(Float64x2GetX)                    \
   V(Float64x2GetY)                    \
   V(Float64x2GetSignMask)

@@ -937,6 +937,87 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ shufps(value_reg, value_reg, s);
       break;
     }
+    // For Int32x4 operation.
+    case kInt32x4And:
+    case kInt32x4Or:
+    case kInt32x4Xor:
+    case kInt32x4Sub:
+    case kInt32x4Mul:
+    case kInt32x4Add: {
+      DCHECK(i.InputInt32x4Register(0).is(i.OutputInt32x4Register()));
+      XMMRegister left_reg = i.InputInt32x4Register(0);
+      XMMRegister right_reg = i.InputInt32x4Register(1);
+      switch (ArchOpcodeField::decode(instr->opcode())) {
+        case kInt32x4And:
+          __ andps(left_reg, right_reg);
+          break;
+        case kInt32x4Or:
+          __ orps(left_reg, right_reg);
+          break;
+        case kInt32x4Xor:
+          __ xorps(left_reg, right_reg);
+          break;
+        case kInt32x4Add:
+          __ paddd(left_reg, right_reg);
+          break;
+        case kInt32x4Sub:
+          __ psubd(left_reg, right_reg);
+          break;
+        case kInt32x4Mul:
+          if (CpuFeatures::IsSupported(SSE4_1)) {
+             CpuFeatureScope scope(masm(), SSE4_1);
+             __ pmulld(left_reg, right_reg);
+          } else {
+            // The algorithm is from http://stackoverflow.com/questions/10500766/sse-multiplication-of-4-32-bit-integers
+            XMMRegister xmm_scratch = xmm0;
+            __ movaps(xmm_scratch, left_reg);
+            __ pmuludq(left_reg, right_reg);
+            __ psrldq(xmm_scratch, 4);
+            __ psrldq(right_reg, 4);
+            __ pmuludq(xmm_scratch, right_reg);
+            __ pshufd(left_reg, left_reg, 8);
+            __ pshufd(xmm_scratch, xmm_scratch, 8);
+            __ punpackldq(left_reg, xmm_scratch);
+          }
+          break;
+        default:
+          break;
+      }
+      break;
+    }
+    case kInt32x4Constructor:
+      __ leaq(rsp, Operand(rsp, -kInt32x4Size));
+      __ movl(Operand(rsp, 0 * kIntSize), i.InputRegister(0));
+      __ movl(Operand(rsp, 1 * kIntSize), i.InputRegister(1));
+      __ movl(Operand(rsp, 2 * kIntSize), i.InputRegister(2));
+      __ movl(Operand(rsp, 3 * kIntSize), i.InputRegister(3));
+      __ movups(i.OutputInt32x4Register(), Operand(rsp, 0 * kIntSize));
+      __ leaq(rsp, Operand(rsp, kInt32x4Size));
+      break;
+    case kInt32x4GetW:
+      select++;
+    case kInt32x4GetZ:
+      select++;
+    case kInt32x4GetY:
+      select++;
+    case kInt32x4GetX: {
+      Register dst = i.OutputRegister();
+      XMMRegister input = i.InputInt32x4Register(0);
+      if (select == 0x0) {
+        __ movd(dst, input);
+      } else {
+        if (CpuFeatures::IsSupported(SSE4_1)) {
+          CpuFeatureScope scope(masm(), SSE4_1);
+            __ extractps(dst, input, select);
+        } else {
+          XMMRegister xmm_scratch = xmm0;
+          __ pshufd(xmm_scratch, input, select);
+          __ movd(dst, xmm_scratch);
+        }
+      }
+      break;
+    }
+    // Int32x4 Operation end.
     case kLoadSIMD128: {
       int index = 0;
       auto result = i.OutputSIMD128Register();

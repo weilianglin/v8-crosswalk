@@ -105,6 +105,10 @@ JSBuiltinReducer::JSBuiltinReducer(JSGraph* jsgraph)
       isolate->native_context()->float32x4_function()->initial_map(), isolate);
   float32x4_ = Type::Class(float32x4_map, jsgraph_->zone());
 
+  Handle<Map> int32x4_map = handle(
+      isolate->native_context()->int32x4_function()->initial_map(), isolate);
+  int32x4_ = Type::Class(int32x4_map, jsgraph_->zone());
+
   Handle<Map> float64x2_map = handle(
       isolate->native_context()->float64x2_function()->initial_map(), isolate);
   float64x2_ = Type::Class(float64x2_map, jsgraph_->zone());
@@ -233,6 +237,12 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
   V(float32x4_, Type::Number(), Float32x4WithY) \
   V(float32x4_, Type::Number(), Float32x4WithZ) \
   V(float32x4_, Type::Number(), Float32x4WithW) \
+  V(int32x4_, int32x4_, Int32x4Add)             \
+  V(int32x4_, int32x4_, Int32x4And)             \
+  V(int32x4_, int32x4_, Int32x4Sub)             \
+  V(int32x4_, int32x4_, Int32x4Mul)             \
+  V(int32x4_, int32x4_, Int32x4Or)              \
+  V(int32x4_, int32x4_, Int32x4Xor)             \
   V(float64x2_, float64x2_, Float64x2Add)       \
   V(float64x2_, float64x2_, Float64x2Sub)       \
   V(float64x2_, float64x2_, Float64x2Mul)       \
@@ -287,6 +297,42 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
       Node* const control = NodeProperties::GetControlInput(node);
       Node* value =
           graph()->NewNode(jsgraph()->javascript()->ToFloat32x4Obj(), object,
+                           jsgraph()->NoContextConstant(), effect, control);
+      return Replace(value);
+    }
+  }
+
+  return NoChange();
+}
+
+
+
+Reduction JSBuiltinReducer::ReduceInt32x4Constructor(Node* node) {
+  // SIMD.int32x4(x, y, z, w) ->
+  // Int32x4(x:int32, y:int32, z:int32, w:int32)
+  JSCallReduction r(node);
+  if (r.InputsMatchZero()) {
+    // SIMD.Int32x4() -> SIMD.Int32x4(0, 0, 0, 0);
+    Node* value =
+        graph()->NewNode(machine()->Int32x4Constructor(),
+                         jsgraph()->ZeroConstant(), jsgraph()->ZeroConstant(),
+                         jsgraph()->ZeroConstant(), jsgraph()->ZeroConstant());
+    return Replace(value);
+  } else if (r.GetJSCallArity() == 4 && r.InputsMatchAll(Type::Number())) {
+    Node* value = graph()->NewNode(machine()->Int32x4Constructor(),
+                                   r.GetJSCallInput(0), r.GetJSCallInput(1),
+                                   r.GetJSCallInput(2), r.GetJSCallInput(3));
+    return Replace(value);
+  } else if (r.GetJSCallArity() == 1) {
+    // SIMD.int32x4(...) -> type annotation
+    if (r.InputsMatchOne(int32x4_)) {
+      return Replace(r.GetJSCallInput(0));
+    } else {
+      Node* const object = r.GetJSCallInput(0);
+      Node* const effect = NodeProperties::GetEffectInput(node);
+      Node* const control = NodeProperties::GetControlInput(node);
+      Node* value =
+          graph()->NewNode(jsgraph()->javascript()->ToInt32x4Obj(), object,
                            jsgraph()->NoContextConstant(), effect, control);
       return Replace(value);
     }
@@ -613,6 +659,20 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceSetFloat32x4XYZ(node));
     case kSetFloat32x4XYZW:
       return ReplaceWithPureReduction(node, ReduceSetFloat32x4XYZW(node));
+    case kInt32x4Add:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Add(node));
+    case kInt32x4And:
+      return ReplaceWithPureReduction(node, ReduceInt32x4And(node));
+    case kInt32x4Sub:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Sub(node));
+    case kInt32x4Mul:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Mul(node));
+    case kInt32x4Or:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Or(node));
+    case kInt32x4Xor:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Xor(node));
+    case kInt32x4Constructor:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Constructor(node));
     case kFloat64x2Add:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
     case kFloat64x2Sub:

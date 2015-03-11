@@ -66,6 +66,8 @@ class RepresentationChanger {
       return GetWord64RepresentationFor(node, output_type);
     } else if (use_type & kRepFloat32x4) {
       return GetFloat32x4RepresentationFor(node, output_type);
+    } else if (use_type & kRepInt32x4) {
+      return GetInt32x4RepresentationFor(node, output_type);
     } else if (use_type & kRepFloat64x2) {
       return GetFloat64x2RepresentationFor(node, output_type);
     } else {
@@ -118,6 +120,8 @@ class RepresentationChanger {
       op = simplified()->ChangeFloat64ToTagged();
     } else if (output_type & kRepFloat32x4) {
       op = simplified()->ChangeFloat32x4ToTagged();
+    } else if (output_type & kRepInt32x4) {
+      op = simplified()->ChangeInt32x4ToTagged();
     } else if (output_type & kRepFloat64x2) {
       op = simplified()->ChangeFloat64x2ToTagged();
     } else {
@@ -222,6 +226,19 @@ class RepresentationChanger {
       return node;
     } else {
       return TypeError(node, output_type, kRepFloat32x4);
+    }
+  }
+
+  Node* GetInt32x4RepresentationFor(Node* node,
+                                    MachineTypeUnion output_type) {
+    // Select the correct X -> Float32x4 operator.
+    if (output_type & kRepTagged) {
+      return jsgraph()->graph()->NewNode(
+          simplified()->ChangeTaggedToInt32x4(), node);
+    } else if (output_type & kRepInt32x4) {
+      return node;
+    } else {
+      return TypeError(node, output_type, kRepInt32x4);
     }
   }
 

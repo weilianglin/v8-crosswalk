@@ -81,6 +81,12 @@ void ToFloat32x4Descriptor::Initialize(CallInterfaceDescriptorData* data) {
 }
 
 
+void ToInt32x4Descriptor::Initialize(CallInterfaceDescriptorData* data) {
+    Register registers[] = {rsi, rax};
+  data->Initialize(arraysize(registers), registers, NULL);
+}
+
+
 void ToFloat64x2Descriptor::Initialize(CallInterfaceDescriptorData* data) {
   Register registers[] = {rsi, rax};
   data->Initialize(arraysize(registers), registers, NULL);
@@ -177,6 +183,15 @@ void AllocateHeapNumberDescriptor::Initialize(
 
 
 void AllocateFloat32x4Descriptor::Initialize(
+    CallInterfaceDescriptorData* data) {
+  // register state
+  // rsi -- context
+  Register registers[] = {rsi};
+  data->Initialize(arraysize(registers), registers, nullptr);
+}
+
+
+void AllocateInt32x4Descriptor::Initialize(
     CallInterfaceDescriptorData* data) {
   // register state
   // rsi -- context

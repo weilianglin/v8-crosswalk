@@ -42,6 +42,11 @@ JSTypedLowering::JSTypedLowering(JSGraph* jsgraph, Zone* zone)
   Handle<Map> float32x4_map = handle(
       isolate->native_context()->float32x4_function()->initial_map(), isolate);
   float32x4_ = Type::Class(float32x4_map, jsgraph_->zone());
+
+  Handle<Map> int32x4_map = handle(
+      isolate->native_context()->int32x4_function()->initial_map(), isolate);
+  int32x4_ = Type::Class(int32x4_map, jsgraph_->zone());
+
   Handle<Map> float64x2_map = handle(
       isolate->native_context()->float64x2_function()->initial_map(), isolate);
   float64x2_ = Type::Class(float64x2_map, jsgraph_->zone());
@@ -662,6 +667,19 @@ Reduction JSTypedLowering::ReduceJSToFloat32x4Obj(Node* node) {
 }
 
 
+Reduction JSTypedLowering::ReduceJSToInt32x4Obj(Node* node) {
+  Node* const input = node->InputAt(0);
+  if (input->opcode() == IrOpcode::kJSToInt32x4Obj) {
+    // Recursively try to reduce the input first.
+    Reduction result = ReduceJSToInt32x4Obj(input);
+    if (!result.Changed()) result = Changed(input);
+    NodeProperties::ReplaceWithValue(node, result.replacement());
+    return result;
+  }
+  return NoChange();
+}
+
+
 Reduction JSTypedLowering::ReduceJSToFloat64x2Obj(Node* node) {
   Node* const input = node->InputAt(0);
   if (input->opcode() == IrOpcode::kJSToFloat64x2Obj) {
@@ -770,6 +788,23 @@ Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
       value = graph()->NewNode(machine()->Float32x4GetW(), obj);
     } else if (name->Equals(isolate->heap()->signMask())) {
       value = graph()->NewNode(machine()->Float32x4GetSignMask(), obj);
+    }
+
+    if (value != NULL) {
+      NodeProperties::ReplaceWithValue(node, value);
+      return Replace(value);
+    }
+  } else if (NodeProperties::GetBounds(obj).upper->Is(int32x4_)) {
+    Node* value = NULL;
+    Handle<Name> name = p.name().handle();
+    if (name->Equals(isolate->heap()->x())) {
+      value = graph()->NewNode(machine()->Int32x4GetX(), obj);
+    } else if (name->Equals(isolate->heap()->y())) {
+      value = graph()->NewNode(machine()->Int32x4GetY(), obj);
+    } else if (name->Equals(isolate->heap()->z())) {
+      value = graph()->NewNode(machine()->Int32x4GetZ(), obj);
+    } else if (name->Equals(isolate->heap()->w())) {
+      value = graph()->NewNode(machine()->Int32x4GetW(), obj);
     }
 
     if (value != NULL) {

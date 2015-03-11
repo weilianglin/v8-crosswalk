@@ -707,6 +707,12 @@ void AllocateFloat32x4Stub::InitializeDescriptor(
 }
 
 
+void AllocateInt32x4Stub::InitializeDescriptor(
+    CodeStubDescriptor* descriptor) {
+  descriptor->Initialize(
+      Runtime::FunctionForId(Runtime::kAllocateInt32x4)->entry);
+}
+
 void AllocateFloat64x2Stub::InitializeDescriptor(
     CodeStubDescriptor* descriptor) {
   descriptor->Initialize(
