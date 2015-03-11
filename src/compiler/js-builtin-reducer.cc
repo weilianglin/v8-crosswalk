@@ -306,7 +306,6 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
 }
 
 
-
 Reduction JSBuiltinReducer::ReduceInt32x4Constructor(Node* node) {
   // SIMD.int32x4(x, y, z, w) ->
   // Int32x4(x:int32, y:int32, z:int32, w:int32)

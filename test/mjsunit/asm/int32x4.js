@@ -36,7 +36,7 @@ function asmModule(stdlib, imports, buffer) {
   var i4mul = i4.mul;
   var i4or = i4.or;
   var i4xor = i4.xor;
-  
+
   var a = i4(imports.a);
   var b = i4(imports.b);
 
@@ -202,7 +202,7 @@ function asmModule(stdlib, imports, buffer) {
     return x | 0;
   }
 
-  function getyLocal(a) {
+  function getyLocal() {
     var a = i4(+1, +2, +3, +4);
     var y = a.y;
     return y | 0;
@@ -214,7 +214,7 @@ function asmModule(stdlib, imports, buffer) {
     return z | 0;
   }
 
-  function getwLocal(a) {
+  function getwLocal() {
     var a = i4(+1, +2, +3, +4);
     var w = a.w;
     return w | 0;
