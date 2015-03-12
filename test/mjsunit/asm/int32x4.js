@@ -196,6 +196,36 @@ function asmModule(stdlib, imports, buffer) {
     return w | 0;
   }
 
+  function getSignMask(a) {
+    a = i4(a);
+    var s = a.signMask;
+    return s | 0;
+  }
+
+  function getflagX(a) {
+    a = i4(a);
+    var fx = a.flagX;
+    return fx;
+  }
+
+  function getflagY(a) {
+    a = i4(a);
+    var fy = a.flagY;
+    return fy;
+  }
+
+  function getflagZ(a) {
+    a = i4(a);
+    var fz = a.flagZ;
+    return fz;
+  }
+
+  function getflagW(a) {
+    a = i4(a);
+    var fw = a.flagW;
+    return fw;
+  }
+
   function getxLocal() {
     var a = i4(+1, +2, +3, +4);
     var x = a.x;
@@ -220,6 +250,36 @@ function asmModule(stdlib, imports, buffer) {
     return w | 0;
   }
 
+  function getSignMaskLocal() {
+    var a = i4(+1, +2, +3, +4);
+    var s = a.signMask;
+    return s | 0;
+  }
+
+  function getflagXLocal() {
+    var a = i4(+1, +2, +3, +4);
+    var fx = a.flagX;
+    return fx;
+  }
+
+  function getflagYLocal() {
+    var a = i4(+1, +2, +3, +4);
+    var fy = a.flagY;
+    return fy;
+  }
+
+  function getflagZLocal() {
+    var a = i4(+1, +2, +3, +4);
+    var fz = a.flagZ;
+    return fz;
+  }
+
+  function getflagWLocal() {
+    var a = i4(+1, +2, +3, +4);
+    var fw = a.flagW;
+    return fw;
+  }
+
   function getxImports() {
     var x = a.x;
     return x | 0;
@@ -240,6 +300,31 @@ function asmModule(stdlib, imports, buffer) {
     return w | 0;
   }
 
+  function getSignMaskImports() {
+    var s = a.signMask;
+    return s | 0;
+  }
+
+  function getflagXImports() {
+    var fx = a.flagX;
+    return fx;
+  }
+
+  function getflagYImports() {
+    var fy = a.flagY;
+    return fy;
+  }
+
+  function getflagZImports() {
+    var fz = a.flagZ;
+    return fz;
+  }
+
+  function getflagWImports() {
+    var fw = a.flagW;
+    return fw;
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -249,7 +334,12 @@ function asmModule(stdlib, imports, buffer) {
           getx : getx, getxLocal : getxLocal, getxImports : getxImports,
           gety : gety, getyLocal : getyLocal, getyImports : getyImports,
           getz : getz, getzLocal : getzLocal, getzImports : getzImports,
-          getw : getw, getwLocal : getwLocal, getwImports : getwImports}
+          getw : getw, getwLocal : getwLocal, getwImports : getwImports,
+          getSignMask : getSignMask, getSignMaskLocal : getSignMaskLocal, getSignMaskImports : getSignMaskImports,
+          getflagX : getflagX, getflagXLocal : getflagXLocal, getflagXImports : getflagXImports,
+          getflagY : getflagY, getflagYLocal : getflagYLocal, getflagYImports : getflagYImports,
+          getflagZ : getflagZ, getflagZLocal : getflagZLocal, getflagZImports : getflagZImports,
+          getflagW : getflagW, getflagWLocal : getflagWLocal, getflagWImports : getflagWImports}
 }
 
 
@@ -376,7 +466,7 @@ assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
 
-
+// getx
 var result = m.getx(a);
 var expected = a.x;
 assertEquals(result, expected);
@@ -387,6 +477,7 @@ assertEquals(result, expected);
 var result = m.getxImports();
 assertEquals(result, expected);
 
+// gety
 var result = m.gety(a);
 var expected = a.y;
 assertEquals(result, expected);
@@ -397,6 +488,7 @@ assertEquals(result, expected);
 var result = m.getyImports();
 assertEquals(result, expected);
 
+// getz
 var result = m.getz(a);
 var expected = a.z;
 assertEquals(result, expected);
@@ -407,6 +499,7 @@ assertEquals(result, expected);
 var result = m.getzImports();
 assertEquals(result, expected);
 
+// getw
 var result = m.getw(a);
 var expected = a.w;
 assertEquals(result, expected);
@@ -415,4 +508,59 @@ var result = m.getwLocal();
 assertEquals(result, expected);
 
 var result = m.getwImports();
+assertEquals(result, expected);
+
+// getsignmask
+var result = m.getSignMask(a);
+var expected = a.signMask;
+assertEquals(result, expected);
+
+var result = m.getSignMaskLocal();
+assertEquals(result, expected);
+
+var result = m.getSignMaskImports();
+assertEquals(result, expected);
+
+// getFlagX
+var result = m.getflagX(a);
+var expected = a.flagX;
+assertEquals(result, expected);
+
+var result = m.getflagXLocal();
+assertEquals(result, expected);
+
+var result = m.getflagXImports();
+assertEquals(result, expected);
+
+// getFlagY
+var result = m.getflagY(a);
+var expected = a.flagY;
+assertEquals(result, expected);
+
+var result = m.getflagYLocal();
+assertEquals(result, expected);
+
+var result = m.getflagYImports();
+assertEquals(result, expected);
+
+// getFlagZ
+var result = m.getflagZ(a);
+var expected = a.flagZ;
+assertEquals(result, expected);
+
+var result = m.getflagZLocal();
+assertEquals(result, expected);
+
+var result = m.getflagZImports();
+assertEquals(result, expected);
+
+// getFlagW
+var result = m.getflagW(a);
+var expected = a.flagW;
+assertEquals(result, expected);
+
+var result = m.getflagWLocal();
+assertEquals(result, expected);
+
+var result = m.getflagWImports();
 assertEquals(result, expected);

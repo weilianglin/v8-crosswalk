@@ -978,6 +978,16 @@ void InstructionSelector::VisitNode(Node* node) {
       return VisitInt32x4GetZ(node);
     case IrOpcode::kInt32x4GetW:
       return VisitInt32x4GetW(node);
+    case IrOpcode::kInt32x4GetFlagX:
+      return VisitInt32x4GetFlagX(node);
+    case IrOpcode::kInt32x4GetFlagY:
+      return VisitInt32x4GetFlagY(node);
+    case IrOpcode::kInt32x4GetFlagZ:
+      return VisitInt32x4GetFlagZ(node);
+    case IrOpcode::kInt32x4GetFlagW:
+      return VisitInt32x4GetFlagW(node);
+    case IrOpcode::kInt32x4GetSignMask:
+      return VisitInt32x4GetSignMask(node);
     case IrOpcode::kFloat64x2Add:
       return MarkAsFloat64x2(node), VisitFloat64x2Add(node);
     case IrOpcode::kFloat64x2Sub:

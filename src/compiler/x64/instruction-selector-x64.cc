@@ -1449,6 +1449,11 @@ void InstructionSelector::VisitFloat64x2Constructor(Node* node) {
   V(Int32x4GetY)                      \
   V(Int32x4GetZ)                      \
   V(Int32x4GetW)                      \
+  V(Int32x4GetFlagX)                  \
+  V(Int32x4GetFlagY)                  \
+  V(Int32x4GetFlagZ)                  \
+  V(Int32x4GetFlagW)                  \
+  V(Int32x4GetSignMask)               \
   V(Float64x2GetX)                    \
   V(Float64x2GetY)                    \
   V(Float64x2GetSignMask)
