@@ -93,6 +93,7 @@ namespace compiler {
   V(Int32x4GetY)                 \
   V(Int32x4GetZ)                 \
   V(Int32x4GetW)                 \
+  V(Int32x4Bool)                 \
   V(LoadSIMD128)                 \
   V(CheckedLoadSIMD128)          \
   V(StoreSIMD128)                \

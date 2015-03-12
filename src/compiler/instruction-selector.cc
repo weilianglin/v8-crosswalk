@@ -990,6 +990,8 @@ void InstructionSelector::VisitNode(Node* node) {
       return VisitInt32x4GetZ(node);
     case IrOpcode::kInt32x4GetW:
       return VisitInt32x4GetW(node);
+    case IrOpcode::kInt32x4Bool:
+      return MarkAsInt32x4(node), VisitInt32x4Bool(node);
     case IrOpcode::kFloat64x2Add:
       return MarkAsFloat64x2(node), VisitFloat64x2Add(node);
     case IrOpcode::kFloat64x2Sub:

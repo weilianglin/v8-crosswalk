@@ -1431,6 +1431,16 @@ void InstructionSelector::VisitInt32x4Constructor(Node* node) {
 }
 
 
+void InstructionSelector::VisitInt32x4Bool(Node* node) {
+  X64OperandGenerator g(this);
+  InstructionOperand* temps[] = {g.TempRegister(rbx)};
+  Emit(kInt32x4Bool, g.DefineAsRegister(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseRegister(node->InputAt(2)), g.UseRegister(node->InputAt(3)),
+       1, temps);
+}
+
+
 void InstructionSelector::VisitFloat64x2Constructor(Node* node) {
   X64OperandGenerator g(this);
   Emit(kFloat64x2Constructor, g.DefineAsRegister(node),

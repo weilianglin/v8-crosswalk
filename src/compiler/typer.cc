@@ -46,6 +46,7 @@ enum LazyCachedType {
   kInt32x4Func2,
   kInt32x4Func4i,
   kInt32x4Func2f32x4,
+  kInt32x4FuncA,
   kFloat64x2Tagged,
   kFloat64x2Func1,
   kFloat64x2Func2,
@@ -162,6 +163,8 @@ class LazyTypeCache FINAL : public ZoneObject {
         return Type::Function(Get(kInt32x4), Type::Integral32(),
                               Type::Integral32(), Type::Integral32(),
                               Type::Integral32(), zone());
+      case kInt32x4FuncA:
+        return Type::Function(Get(kInt32x4), zone());
       // Float64x2
       case kFloat64x2Tagged:
         return CreateFloat64x2Tagged();
@@ -2279,6 +2282,7 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->int32x4_, Type::Untagged(), Int32x4Or)                    \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Xor)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Constructor)           \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Bool)                  \
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetX)          \
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetY)          \
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetZ)          \
@@ -2403,6 +2407,8 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
           return typer_->cache_->Get(kInt32x4Func2);
         case kInt32x4Constructor:
           return typer_->cache_->Get(kInt32x4Func4i);
+        case kInt32x4Bool:
+          return typer_->cache_->Get(kInt32x4FuncA);
         // Float64x2
         case kFloat64x2Add:
         case kFloat64x2Sub:

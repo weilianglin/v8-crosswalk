@@ -36,6 +36,7 @@ function asmModule(stdlib, imports, buffer) {
   var i4mul = i4.mul;
   var i4or = i4.or;
   var i4xor = i4.xor;
+  var i4bool = i4.bool;
 
   var a = i4(imports.a);
   var b = i4(imports.b);
@@ -240,6 +241,12 @@ function asmModule(stdlib, imports, buffer) {
     return w | 0;
   }
 
+  function bool(x, y, z, w) {
+    var ret = i4();
+    ret = i4bool(x, y, z, w);
+    return ret;
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -249,7 +256,8 @@ function asmModule(stdlib, imports, buffer) {
           getx : getx, getxLocal : getxLocal, getxImports : getxImports,
           gety : gety, getyLocal : getyLocal, getyImports : getyImports,
           getz : getz, getzLocal : getzLocal, getzImports : getzImports,
-          getw : getw, getwLocal : getwLocal, getwImports : getwImports}
+          getw : getw, getwLocal : getwLocal, getwImports : getwImports,
+          bool : bool};
 }
 
 
@@ -376,7 +384,6 @@ assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
 
-
 var result = m.getx(a);
 var expected = a.x;
 assertEquals(result, expected);
@@ -416,3 +423,10 @@ assertEquals(result, expected);
 
 var result = m.getwImports();
 assertEquals(result, expected);
+
+var result = m.bool(true, false, true, false);
+var expected = SIMD.int32x4.bool(true, false, true, false);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);

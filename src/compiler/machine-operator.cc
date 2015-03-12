@@ -169,6 +169,7 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
   V(Int32x4GetY, Operator::kNoProperties, 1, 0, 1)                            \
   V(Int32x4GetZ, Operator::kNoProperties, 1, 0, 1)                            \
   V(Int32x4GetW, Operator::kNoProperties, 1, 0, 1)                            \
+  V(Int32x4Bool, Operator::kNoProperties, 4, 0, 1)                            \
   V(Float64x2Add, Operator::kCommutative, 2, 0, 1)                            \
   V(Float64x2Sub, Operator::kNoProperties, 2, 0, 1)                           \
   V(Float64x2Mul, Operator::kCommutative, 2, 0, 1)                            \

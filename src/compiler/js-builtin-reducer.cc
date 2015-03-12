@@ -589,6 +589,22 @@ SIMD_LOAD_OPERATION(DECLARE_REDUCE_SIMD_LOAD)
 SIMD_STORE_OPERATION(DECLARE_REDUCE_SIMD_STORE)
 
 
+Reduction JSBuiltinReducer::ReduceInt32x4Bool(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 4) {
+    const Operator* to_bool = simplified()->AnyToBoolean();
+    Node* x = graph()->NewNode(to_bool, r.GetJSCallInput(0));
+    Node* y = graph()->NewNode(to_bool, r.GetJSCallInput(1));
+    Node* z = graph()->NewNode(to_bool, r.GetJSCallInput(2));
+    Node* w = graph()->NewNode(to_bool, r.GetJSCallInput(3));
+    Node* value = graph()->NewNode(machine()->Int32x4Bool(), x, y, z, w);
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
 Reduction JSBuiltinReducer::Reduce(Node* node) {
   JSCallReduction r(node);
 
@@ -692,6 +708,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceInt32x4Xor(node));
     case kInt32x4Constructor:
       return ReplaceWithPureReduction(node, ReduceInt32x4Constructor(node));
+    case kInt32x4Bool:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Bool(node));
     case kFloat64x2Add:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
     case kFloat64x2Sub:

@@ -74,6 +74,7 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceInt32x4Or(Node* node);
   Reduction ReduceInt32x4Xor(Node* node);
   Reduction ReduceInt32x4Constructor(Node* node);
+  Reduction ReduceInt32x4Bool(Node* node);
   Reduction ReduceFloat64x2Add(Node* node);
   Reduction ReduceFloat64x2Sub(Node* node);
   Reduction ReduceFloat64x2Mul(Node* node);

@@ -1040,6 +1040,24 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       }
       break;
     }
+    case kInt32x4Bool: {
+      __ leaq(rsp, Operand(rsp, -kInt32x4Size));
+      __ movl(rbx, i.InputRegister(0));
+      __ negl(rbx);
+      __ movl(Operand(rsp, 0 * kIntSize), rbx);
+      __ movl(rbx, i.InputRegister(1));
+      __ negl(rbx);
+      __ movl(Operand(rsp, 1 * kIntSize), rbx);
+      __ movl(rbx, i.InputRegister(2));
+      __ negl(rbx);
+      __ movl(Operand(rsp, 2 * kIntSize), rbx);
+      __ movl(rbx, i.InputRegister(3));
+      __ negl(rbx);
+      __ movl(Operand(rsp, 3 * kIntSize), rbx);
+      __ movups(i.OutputInt32x4Register(), Operand(rsp, 0 * kIntSize));
+      __ leaq(rsp, Operand(rsp, kInt32x4Size));
+      break;
+    }
     // Int32x4 Operation end.
     case kLoadSIMD128: {
       int index = 0;

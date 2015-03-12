@@ -221,6 +221,7 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   V(Int32x4GetY)                 \
   V(Int32x4GetZ)                 \
   V(Int32x4GetW)                 \
+  V(Int32x4Bool)                 \
   V(Float64x2Add)                \
   V(Float64x2Mul)                \
   V(Float64x2Sub)                \
