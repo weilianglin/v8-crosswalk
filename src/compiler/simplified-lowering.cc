@@ -1160,6 +1160,17 @@ class RepresentationSelector {
         ProcessInput(node, 4, kMachInt32);
         SetOutput(node, kMachFloat32x4);
         break;
+      case IrOpcode::kFloat32x4Equal:
+      case IrOpcode::kFloat32x4NotEqual:
+      case IrOpcode::kFloat32x4GreaterThan:
+      case IrOpcode::kFloat32x4GreaterThanOrEqual:
+      case IrOpcode::kFloat32x4LessThan:
+      case IrOpcode::kFloat32x4LessThanOrEqual:
+        DCHECK_EQ(2, node->InputCount());
+        ProcessInput(node, 0, kMachFloat32x4);
+        ProcessInput(node, 1, kMachFloat32x4);
+        SetOutput(node, kMachInt32x4);
+        break;
       // Int32x4
       case IrOpcode::kInt32x4Add:
       case IrOpcode::kInt32x4And:

@@ -61,6 +61,12 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceSetFloat32x4XY(Node* node);
   Reduction ReduceSetFloat32x4XYZ(Node* node);
   Reduction ReduceSetFloat32x4XYZW(Node* node);
+  Reduction ReduceFloat32x4Equal(Node* node);
+  Reduction ReduceFloat32x4NotEqual(Node* node);
+  Reduction ReduceFloat32x4GreaterThan(Node* node);
+  Reduction ReduceFloat32x4GreaterThanOrEqual(Node* node);
+  Reduction ReduceFloat32x4LessThan(Node* node);
+  Reduction ReduceFloat32x4LessThanOrEqual(Node* node);
   Reduction ReduceInt32x4Add(Node* node);
   Reduction ReduceInt32x4And(Node* node);
   Reduction ReduceInt32x4Sub(Node* node);

@@ -1507,6 +1507,25 @@ UNARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_UARY_SIMD_OPERATION2)
 BINARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_BINARY_SIMD_OPERATION2)
 
 
+#define BINARY_SIMD_OPERATION_LIST3(V) \
+  V(Float32x4Equal)                    \
+  V(Float32x4NotEqual)                 \
+  V(Float32x4GreaterThan)              \
+  V(Float32x4GreaterThanOrEqual)       \
+  V(Float32x4LessThan)                 \
+  V(Float32x4LessThanOrEqual)
+
+#define DECLARE_VISIT_BINARY_SIMD_OPERATION3(type)                           \
+  void InstructionSelector::Visit##type(Node* node) {                        \
+    X64OperandGenerator g(this);                                             \
+    Emit(k##type, g.DefineAsRegister(node), g.UseRegister(node->InputAt(0)), \
+         g.UseRegister(node->InputAt(1)));                                   \
+  }
+
+
+BINARY_SIMD_OPERATION_LIST3(DECLARE_VISIT_BINARY_SIMD_OPERATION3)
+
+
 void InstructionSelector::VisitFloat32x4Clamp(Node* node) {
   X64OperandGenerator g(this);
   Emit(kFloat32x4Clamp, g.DefineSameAsFirst(node),

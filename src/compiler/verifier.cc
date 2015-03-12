@@ -763,6 +763,12 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4WithW:
     case IrOpcode::kFloat32x4Clamp:
     case IrOpcode::kFloat32x4Swizzle:
+    case IrOpcode::kFloat32x4Equal:
+    case IrOpcode::kFloat32x4NotEqual:
+    case IrOpcode::kFloat32x4GreaterThan:
+    case IrOpcode::kFloat32x4GreaterThanOrEqual:
+    case IrOpcode::kFloat32x4LessThan:
+    case IrOpcode::kFloat32x4LessThanOrEqual:
     // Int32x4
     case IrOpcode::kInt32x4Add:
     case IrOpcode::kInt32x4And:

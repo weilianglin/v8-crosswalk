@@ -185,7 +185,13 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
   V(Float64x2Scale, Operator::kNoProperties, 2, 0, 1)                         \
   V(Float64x2WithX, Operator::kNoProperties, 2, 0, 1)                         \
   V(Float64x2WithY, Operator::kNoProperties, 2, 0, 1)                         \
-  V(Float64x2Clamp, Operator::kNoProperties, 3, 0, 1)
+  V(Float64x2Clamp, Operator::kNoProperties, 3, 0, 1)                         \
+  V(Float32x4Equal, Operator::kNoProperties, 2, 0, 1)                         \
+  V(Float32x4NotEqual, Operator::kNoProperties, 2, 0, 1)                      \
+  V(Float32x4GreaterThan, Operator::kNoProperties, 2, 0, 1)                   \
+  V(Float32x4GreaterThanOrEqual, Operator::kNoProperties, 2, 0, 1)            \
+  V(Float32x4LessThan, Operator::kNoProperties, 2, 0, 1)                      \
+  V(Float32x4LessThanOrEqual, Operator::kNoProperties, 2, 0, 1)
 
 
 #define MACHINE_TYPE_LIST(V) \

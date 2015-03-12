@@ -223,13 +223,13 @@ function asmModule(stdlib, imports, buffer) {
     return +x;
   }
 
-  function getyLocal(a) {
+  function getyLocal() {
     var a = f2(+1.1, +2.2);
     var y = a.y;
     return +y;
   }
 
-  function getSignMaskLocal(a) {
+  function getSignMaskLocal() {
     var a = f2(+1.1, +2.2);
     var s = a.signMask;
     return s | 0;

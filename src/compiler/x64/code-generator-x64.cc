@@ -295,6 +295,22 @@ class OutOfLineTruncateDoubleToI FINAL : public OutOfLineCode {
   } while (0)
 
 
+#define ASSEMBLE_SIMD_CMP_BINOP_NOAVX(op1, op2, type) \
+  do {                                                \
+    auto result = i.OutputInt32x4Register();          \
+    auto left = i.Input##type##Register(0);           \
+    auto right = i.Input##type##Register(1);          \
+    if (result.is(left)) {                            \
+      __ op1(result, right);                          \
+    } else if (result.is(right)) {                    \
+      __ op2(result, left);                           \
+    } else {                                          \
+      __ movaps(result, left);                        \
+      __ op1(result, right);                          \
+    }                                                 \
+  } while (0)
+
+
 #define ASSEMBLE_CHECKED_LOAD_FLOAT(asm_instr)                               \
   do {                                                                       \
     auto result = i.OutputDoubleRegister();                                  \
@@ -937,6 +953,24 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ shufps(value_reg, value_reg, s);
       break;
     }
+    case kFloat32x4Equal:
+      ASSEMBLE_SIMD_CMP_BINOP_NOAVX(cmpeqps, cmpeqps, Float32x4);
+      break;
+    case kFloat32x4NotEqual:
+      ASSEMBLE_SIMD_CMP_BINOP_NOAVX(cmpneqps, cmpneqps, Float32x4);
+      break;
+    case kFloat32x4GreaterThan:
+      ASSEMBLE_SIMD_CMP_BINOP_NOAVX(cmpnleps, cmpltps, Float32x4);
+      break;
+    case kFloat32x4GreaterThanOrEqual:
+      ASSEMBLE_SIMD_CMP_BINOP_NOAVX(cmpnltps, cmpleps, Float32x4);
+      break;
+    case kFloat32x4LessThan:
+      ASSEMBLE_SIMD_CMP_BINOP_NOAVX(cmpltps, cmpnleps, Float32x4);
+      break;
+    case kFloat32x4LessThanOrEqual:
+      ASSEMBLE_SIMD_CMP_BINOP_NOAVX(cmpleps, cmpnltps, Float32x4);
+      break;
     // For Int32x4 operation.
     case kInt32x4And:
       ASSEMBLE_SIMD_BINOP_NOAVX(andps, Int32x4);

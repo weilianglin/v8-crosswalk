@@ -30,6 +30,7 @@
 function asmModule(stdlib, imports, buffer) {
   "use asm"
   var f4 = stdlib.SIMD.float32x4;
+  var i4 = stdlib.SIMD.int32x4;
   var fscale = f4.scale;
   var fwithX = f4.withX;
   var fwithY = f4.withY;
@@ -37,6 +38,12 @@ function asmModule(stdlib, imports, buffer) {
   var fwithW = f4.withW;
   var fclamp = f4.clamp;
   var fswizzle = f4.swizzle;
+  var fequal = f4.equal;
+  var fnotEqual = f4.notEqual;
+  var flessThan = f4.lessThan;
+  var flessThanOrEqual = f4.lessThanOrEqual;
+  var fgreaterThan = f4.greaterThan;
+  var fgreaterThanOrEqual = f4.greaterThanOrEqual;
 
   function scale(a, b) {
     a = f4(a);
@@ -93,7 +100,59 @@ function asmModule(stdlib, imports, buffer) {
     ret = fswizzle(a, 3, 2, 1, 0);
     return f4(ret);
   }
-  return {scale : scale, withX : withX, withY : withY, withZ : withZ, withW : withW, clamp : clamp, swizzle1 : swizzle1, swizzle2 : swizzle2};
+
+  function equal(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = i4();
+    ret = fequal(a, b);
+    return i4(ret);
+  }
+
+  function notEqual(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = i4();
+    ret = fnotEqual(a, b);
+    return i4(ret);
+  }
+
+  function lessThan(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = i4();
+    ret = flessThan(a, b);
+    return i4(ret);
+  }
+
+  function lessThanOrEqual(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = i4();
+    ret = flessThanOrEqual(a, b);
+    return i4(ret);
+  }
+
+  function greaterThan(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = i4();
+    ret = fgreaterThan(a, b);
+    return i4(ret);
+  }
+
+  function greaterThanOrEqual(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = i4();
+    ret = fgreaterThanOrEqual(a, b);
+    return i4(ret);
+  }
+
+  return {scale : scale, withX : withX, withY : withY, withZ : withZ,
+          withW : withW, clamp : clamp, swizzle1 : swizzle1, swizzle2 : swizzle2,
+          equal : equal, notEqual : notEqual, lessThan : lessThan, lessThanOrEqual : lessThanOrEqual,
+          greaterThan : greaterThan, greaterThanOrEqual : greaterThanOrEqual};
 }
 
 
@@ -149,6 +208,50 @@ assertEquals(result.w, expected.w);
 
 var result = m.swizzle2(SIMD.float32x4(1.0, 2.0, 3.0, 4.0));
 var expected = SIMD.float32x4.swizzle(SIMD.float32x4(1.0, 2.0, 3.0, 4.0), 3, 2, 1, 0);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var a = SIMD.float32x4(1.0, 2.0, 0.1, 0.001);
+var b = SIMD.float32x4(2.0, 2.0, 0.001, 0.1);
+var result = m.equal(a, b);
+var expected = SIMD.float32x4.equal(a, b)
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.notEqual(a, b);
+var expected = SIMD.float32x4.notEqual(a, b)
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.lessThan(a, b);
+var expected = SIMD.float32x4.lessThan(a, b)
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.lessThanOrEqual(a, b);
+var expected = SIMD.float32x4.lessThanOrEqual(a, b)
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.greaterThanOrEqual(a, b);
+var expected = SIMD.float32x4.greaterThanOrEqual(a, b)
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.greaterThan(a, b);
+var expected = SIMD.float32x4.greaterThan(a, b)
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);

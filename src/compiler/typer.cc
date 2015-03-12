@@ -45,6 +45,7 @@ enum LazyCachedType {
   kInt32x4Tagged,
   kInt32x4Func2,
   kInt32x4Func4i,
+  kInt32x4Func2f32x4,
   kFloat64x2Tagged,
   kFloat64x2Func1,
   kFloat64x2Func2,
@@ -146,6 +147,9 @@ class LazyTypeCache FINAL : public ZoneObject {
         return Type::Function(Get(kFloat32x4), Get(kFloat32x4),
                               Type::Integral32(), Type::Integral32(),
                               Type::Integral32(), Type::Integral32(), zone());
+      case kInt32x4Func2f32x4:
+        return Type::Function(Get(kInt32x4), Get(kFloat32x4), Get(kFloat32x4),
+                              zone());
       // Int32x4
       case kInt32x4:
         return CreateInt32x4();
@@ -155,7 +159,7 @@ class LazyTypeCache FINAL : public ZoneObject {
         return Type::Function(Get(kInt32x4), Get(kInt32x4), Get(kInt32x4),
                               zone());
       case kInt32x4Func4i:
-        return Type::Function(Get(kFloat32x4), Type::Integral32(),
+        return Type::Function(Get(kInt32x4), Type::Integral32(),
                               Type::Integral32(), Type::Integral32(),
                               Type::Integral32(), zone());
       // Float64x2
@@ -2262,6 +2266,12 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->float32x4_, Type::Untagged(), Float32x4WithW)             \
   V(typer_->float32x4_, Type::Untagged(), Float32x4Clamp)             \
   V(typer_->float32x4_, Type::Untagged(), Float32x4Swizzle)           \
+  V(typer_->int32x4_, Type::Untagged(), Float32x4Equal)               \
+  V(typer_->int32x4_, Type::Untagged(), Float32x4NotEqual)            \
+  V(typer_->int32x4_, Type::Untagged(), Float32x4GreaterThan)         \
+  V(typer_->int32x4_, Type::Untagged(), Float32x4GreaterThanOrEqual)  \
+  V(typer_->int32x4_, Type::Untagged(), Float32x4LessThan)            \
+  V(typer_->int32x4_, Type::Untagged(), Float32x4LessThanOrEqual)     \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Add)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Sub)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Mul)                   \
@@ -2376,6 +2386,13 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kGetFloat32x4XYZ:
         case kGetFloat32x4XYZW:
           return typer_->cache_->Get(kFloat32x4FuncA);
+        case kFloat32x4Equal:
+        case kFloat32x4NotEqual:
+        case kFloat32x4GreaterThan:
+        case kFloat32x4GreaterThanOrEqual:
+        case kFloat32x4LessThan:
+        case kFloat32x4LessThanOrEqual:
+          return typer_->cache_->Get(kInt32x4Func2f32x4);
         // Int32x4
         case kInt32x4Add:
         case kInt32x4And:
