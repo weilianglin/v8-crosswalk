@@ -1434,10 +1434,9 @@ void InstructionSelector::VisitInt32x4Constructor(Node* node) {
 void InstructionSelector::VisitInt32x4Bool(Node* node) {
   X64OperandGenerator g(this);
   InstructionOperand* temps[] = {g.TempRegister(rbx)};
-  Emit(kInt32x4Bool, g.DefineAsRegister(node),
-       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
-       g.UseRegister(node->InputAt(2)), g.UseRegister(node->InputAt(3)),
-       1, temps);
+  Emit(kInt32x4Bool, g.DefineAsRegister(node), g.UseRegister(node->InputAt(0)),
+       g.UseRegister(node->InputAt(1)), g.UseRegister(node->InputAt(2)),
+       g.UseRegister(node->InputAt(3)), 1, temps);
 }
 
 
@@ -1547,6 +1546,22 @@ void InstructionSelector::VisitFloat32x4Clamp(Node* node) {
 void InstructionSelector::VisitFloat64x2Clamp(Node* node) {
   X64OperandGenerator g(this);
   Emit(kFloat64x2Clamp, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseRegister(node->InputAt(2)));
+}
+
+
+void InstructionSelector::VisitFloat32x4Select(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4Select, g.DefineAsRegister(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseRegister(node->InputAt(2)));
+}
+
+
+void InstructionSelector::VisitInt32x4Select(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kInt32x4Select, g.DefineAsRegister(node),
        g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
        g.UseRegister(node->InputAt(2)));
 }

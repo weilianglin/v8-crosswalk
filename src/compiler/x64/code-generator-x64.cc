@@ -971,6 +971,30 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     case kFloat32x4LessThanOrEqual:
       ASSEMBLE_SIMD_CMP_BINOP_NOAVX(cmpleps, cmpnltps, Float32x4);
       break;
+    case kFloat32x4Select:
+    case kInt32x4Select: {
+      auto mask = i.InputSIMD128Register(0);
+      auto left = i.InputSIMD128Register(1);
+      auto right = i.InputSIMD128Register(2);
+      auto result = i.OutputSIMD128Register();
+      __ movaps(xmm0, mask);
+      __ notps(xmm0);
+      __ andps(xmm0, right);
+      if (!result.is(mask)) {
+        if (result.is(left)) {
+          __ andps(result, mask);
+          __ orps(result, xmm0);
+        } else {
+          __ movaps(result, mask);
+          __ andps(result, left);
+          __ orps(result, xmm0);
+        }
+      } else {
+        __ andps(result, left);
+        __ orps(result, xmm0);
+      }
+      break;
+    }
     // For Int32x4 operation.
     case kInt32x4And:
       ASSEMBLE_SIMD_BINOP_NOAVX(andps, Int32x4);

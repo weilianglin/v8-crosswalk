@@ -2275,6 +2275,7 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->int32x4_, Type::Untagged(), Float32x4GreaterThanOrEqual)  \
   V(typer_->int32x4_, Type::Untagged(), Float32x4LessThan)            \
   V(typer_->int32x4_, Type::Untagged(), Float32x4LessThanOrEqual)     \
+  V(typer_->float32x4_, Type::Untagged(), Float32x4Select)            \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Add)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Sub)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Mul)                   \
@@ -2283,6 +2284,7 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->int32x4_, Type::Untagged(), Int32x4Xor)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Constructor)           \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Bool)                  \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Select)                \
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetX)          \
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetY)          \
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetZ)          \
@@ -2389,6 +2391,7 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kGetFloat32x4XY:
         case kGetFloat32x4XYZ:
         case kGetFloat32x4XYZW:
+        case kFloat32x4Select:
           return typer_->cache_->Get(kFloat32x4FuncA);
         case kFloat32x4Equal:
         case kFloat32x4NotEqual:
@@ -2408,6 +2411,7 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kInt32x4Constructor:
           return typer_->cache_->Get(kInt32x4Func4i);
         case kInt32x4Bool:
+        case kInt32x4Select:
           return typer_->cache_->Get(kInt32x4FuncA);
         // Float64x2
         case kFloat64x2Add:

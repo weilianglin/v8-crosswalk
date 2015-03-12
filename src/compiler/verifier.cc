@@ -769,6 +769,7 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4GreaterThanOrEqual:
     case IrOpcode::kFloat32x4LessThan:
     case IrOpcode::kFloat32x4LessThanOrEqual:
+    case IrOpcode::kFloat32x4Select:
     // Int32x4
     case IrOpcode::kInt32x4Add:
     case IrOpcode::kInt32x4And:
@@ -784,6 +785,7 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kInt32x4GetZ:
     case IrOpcode::kInt32x4GetW:
     case IrOpcode::kInt32x4Bool:
+    case IrOpcode::kInt32x4Select:
     // Float64x2
     case IrOpcode::kFloat64x2Add:
     case IrOpcode::kFloat64x2Sub:

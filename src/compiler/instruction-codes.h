@@ -82,6 +82,7 @@ namespace compiler {
   V(Float32x4GreaterThanOrEqual) \
   V(Float32x4LessThan)           \
   V(Float32x4LessThanOrEqual)    \
+  V(Float32x4Select)             \
   V(Int32x4Add)                  \
   V(Int32x4And)                  \
   V(Int32x4Mul)                  \
@@ -94,6 +95,7 @@ namespace compiler {
   V(Int32x4GetZ)                 \
   V(Int32x4GetW)                 \
   V(Int32x4Bool)                 \
+  V(Int32x4Select)               \
   V(LoadSIMD128)                 \
   V(CheckedLoadSIMD128)          \
   V(StoreSIMD128)                \

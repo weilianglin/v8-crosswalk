@@ -455,6 +455,36 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   return NoChange();
 }
 
+
+Reduction JSBuiltinReducer::ReduceFloat32x4Select(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 3 &&
+      NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(int32x4_) &&
+      NodeProperties::GetBounds(r.GetJSCallInput(1)).upper->Is(float32x4_) &&
+      NodeProperties::GetBounds(r.GetJSCallInput(2)).upper->Is(float32x4_)) {
+    Node* value =
+        graph()->NewNode(machine()->Float32x4Select(), r.GetJSCallInput(0),
+                         r.GetJSCallInput(1), r.GetJSCallInput(2));
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
+Reduction JSBuiltinReducer::ReduceInt32x4Select(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(int32x4_)) {
+    Node* value =
+        graph()->NewNode(machine()->Int32x4Select(), r.GetJSCallInput(0),
+                         r.GetJSCallInput(1), r.GetJSCallInput(2));
+    return Replace(value);
+  }
+
+  return NoChange();
+}
+
+
 #define SIMD_LOAD_OPERATION(V)           \
   V(4, GetFloat32x4X, kRepFloat32x4)     \
   V(8, GetFloat32x4XY, kRepFloat32x4)    \
@@ -694,6 +724,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
     case kFloat32x4LessThanOrEqual:
       return ReplaceWithPureReduction(node,
                                       ReduceFloat32x4LessThanOrEqual(node));
+    case kFloat32x4Select:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Select(node));
     case kInt32x4Add:
       return ReplaceWithPureReduction(node, ReduceInt32x4Add(node));
     case kInt32x4And:
@@ -710,6 +742,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceInt32x4Constructor(node));
     case kInt32x4Bool:
       return ReplaceWithPureReduction(node, ReduceInt32x4Bool(node));
+    case kInt32x4Select:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Select(node));
     case kFloat64x2Add:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
     case kFloat64x2Sub:
