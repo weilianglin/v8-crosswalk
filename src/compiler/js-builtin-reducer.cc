@@ -635,6 +635,52 @@ Reduction JSBuiltinReducer::ReduceInt32x4Bool(Node* node) {
 }
 
 
+Reduction JSBuiltinReducer::ReduceFloat32x4Shuffle(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 6) {
+    if (NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(float32x4_) &&
+        NodeProperties::GetBounds(r.GetJSCallInput(1)).upper->Is(float32x4_)) {
+      for (int i = 2; i < r.GetJSCallArity(); i++) {
+        Type* t = NodeProperties::GetBounds(r.GetJSCallInput(i)).upper;
+        if (!(t->IsConstant() && t->Is(Type::Integral32()))) {
+          return NoChange();
+        }
+      }
+      Node* value = graph()->NewNode(machine()->Float32x4Shuffle(),
+                                     r.GetJSCallInput(0), r.GetJSCallInput(1),
+                                     r.GetJSCallInput(2), r.GetJSCallInput(3),
+                                     r.GetJSCallInput(4), r.GetJSCallInput(5));
+      return Replace(value);
+    }
+  }
+
+  return NoChange();
+}
+
+
+Reduction JSBuiltinReducer::ReduceInt32x4Shuffle(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 6) {
+    if (NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(int32x4_) &&
+        NodeProperties::GetBounds(r.GetJSCallInput(1)).upper->Is(int32x4_)) {
+      for (int i = 2; i < r.GetJSCallArity(); i++) {
+        Type* t = NodeProperties::GetBounds(r.GetJSCallInput(i)).upper;
+        if (!(t->IsConstant() && t->Is(Type::Integral32()))) {
+          return NoChange();
+        }
+      }
+      Node* value = graph()->NewNode(machine()->Int32x4Shuffle(),
+                                     r.GetJSCallInput(0), r.GetJSCallInput(1),
+                                     r.GetJSCallInput(2), r.GetJSCallInput(3),
+                                     r.GetJSCallInput(4), r.GetJSCallInput(5));
+      return Replace(value);
+    }
+  }
+
+  return NoChange();
+}
+
+
 Reduction JSBuiltinReducer::Reduce(Node* node) {
   JSCallReduction r(node);
 
@@ -726,6 +772,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
                                       ReduceFloat32x4LessThanOrEqual(node));
     case kFloat32x4Select:
       return ReplaceWithPureReduction(node, ReduceFloat32x4Select(node));
+    case kFloat32x4Shuffle:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Shuffle(node));
     case kInt32x4Add:
       return ReplaceWithPureReduction(node, ReduceInt32x4Add(node));
     case kInt32x4And:
@@ -744,6 +792,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceInt32x4Bool(node));
     case kInt32x4Select:
       return ReplaceWithPureReduction(node, ReduceInt32x4Select(node));
+    case kInt32x4Shuffle:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Shuffle(node));
     case kFloat64x2Add:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
     case kFloat64x2Sub:

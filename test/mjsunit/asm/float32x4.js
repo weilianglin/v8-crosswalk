@@ -45,6 +45,7 @@ function asmModule(stdlib, imports, buffer) {
   var fgreaterThan = f4.greaterThan;
   var fgreaterThanOrEqual = f4.greaterThanOrEqual;
   var fselect = f4.select;
+  var fshuffle = f4.shuffle;
 
   function scale(a, b) {
     a = f4(a);
@@ -159,11 +160,60 @@ function asmModule(stdlib, imports, buffer) {
     return f4(ret);
   }
 
+  function shuffle1(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fshuffle(a, b, 0, 0, 4, 4);
+    return f4(ret);
+  }
+
+  function shuffle2(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fshuffle(a, b, 1, 1, 5, 5);
+    return f4(ret);
+  }
+
+  function shuffle3(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fshuffle(a, b, 2, 2, 6, 6);
+    return f4(ret);
+  }
+
+  function shuffle4(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fshuffle(a, b, 3, 3, 7, 7);
+    return f4(ret);
+  }
+
+  function shuffle5(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fshuffle(a, b, 3, 2, 5, 4);
+    return f4(ret);
+  }
+
+  function shuffle6(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fshuffle(a, b, 6, 7, 2, 3);
+    return f4(ret);
+  }
+
   return {scale : scale, withX : withX, withY : withY, withZ : withZ,
           withW : withW, clamp : clamp, swizzle1 : swizzle1, swizzle2 : swizzle2,
           equal : equal, notEqual : notEqual, lessThan : lessThan, lessThanOrEqual : lessThanOrEqual,
           greaterThan : greaterThan, greaterThanOrEqual : greaterThanOrEqual,
-          select : select};
+          select : select, shuffle1 : shuffle1, shuffle2 : shuffle2, shuffle3 : shuffle3,
+          shuffle4 : shuffle4, shuffle5 : shuffle5, shuffle6 : shuffle6};
 }
 
 
@@ -277,6 +327,51 @@ assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
+
+var a = SIMD.float32x4(1.0, 2.0, 3.0, 4.0);
+var b = SIMD.float32x4(5.0, 6.0, 7.0, 8.0);
+var result = m.shuffle1(a, b);
+var expected = SIMD.float32x4.shuffle(a, b, 0, 0, 4, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle2(a, b);
+var expected = SIMD.float32x4.shuffle(a, b, 1, 1, 5, 5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle3(a, b);
+var expected = SIMD.float32x4.shuffle(a, b, 2, 2, 6, 6);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle4(a, b);
+var expected = SIMD.float32x4.shuffle(a, b, 3, 3, 7, 7);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle5(a, b);
+var expected = SIMD.float32x4.shuffle(a, b, 3, 2, 5, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle6(a, b);
+var expected = SIMD.float32x4.shuffle(a, b, 6, 7, 2, 3);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
 
 function asmModule2(stdlib, imports, buffer) {
   "use asm"

@@ -38,6 +38,7 @@ function asmModule(stdlib, imports, buffer) {
   var i4xor = i4.xor;
   var i4bool = i4.bool;
   var i4select = i4.select;
+  var i4shuffle = i4.shuffle;
 
   var a = i4(imports.a);
   var b = i4(imports.b);
@@ -257,6 +258,54 @@ function asmModule(stdlib, imports, buffer) {
     return i4(ret);
   }
 
+  function shuffle1(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4shuffle(a, b, 0, 0, 4, 4);
+    return i4(ret);
+  }
+
+  function shuffle2(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4shuffle(a, b, 1, 1, 5, 5);
+    return i4(ret);
+  }
+
+  function shuffle3(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4shuffle(a, b, 2, 2, 6, 6);
+    return i4(ret);
+  }
+
+  function shuffle4(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4shuffle(a, b, 3, 3, 7, 7);
+    return i4(ret);
+  }
+
+  function shuffle5(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4shuffle(a, b, 3, 2, 5, 4);
+    return i4(ret);
+  }
+
+  function shuffle6(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4shuffle(a, b, 6, 7, 2, 3);
+    return i4(ret);
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -267,7 +316,8 @@ function asmModule(stdlib, imports, buffer) {
           gety : gety, getyLocal : getyLocal, getyImports : getyImports,
           getz : getz, getzLocal : getzLocal, getzImports : getzImports,
           getw : getw, getwLocal : getwLocal, getwImports : getwImports,
-          bool : bool, select : select};
+          bool : bool, select : select, shuffle1 : shuffle1, shuffle2 : shuffle2,
+          shuffle3 : shuffle3, shuffle4 : shuffle4, shuffle5 : shuffle5, shuffle6 : shuffle6};
 }
 
 
@@ -446,6 +496,50 @@ var t = SIMD.int32x4(1, 2, 3, 4);
 var f = SIMD.int32x4(5, 6, 7, 8);
 var result = m.select(s, t, f);
 var expected = SIMD.int32x4.select(s, t, f);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var a = SIMD.int32x4(1, 2, 3, 4);
+var b = SIMD.int32x4(5, 6, 7, 8);
+var result = m.shuffle1(a, b);
+var expected = SIMD.int32x4.shuffle(a, b, 0, 0, 4, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle2(a, b);
+var expected = SIMD.int32x4.shuffle(a, b, 1, 1, 5, 5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle3(a, b);
+var expected = SIMD.int32x4.shuffle(a, b, 2, 2, 6, 6);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle4(a, b);
+var expected = SIMD.int32x4.shuffle(a, b, 3, 3, 7, 7);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle5(a, b);
+var expected = SIMD.int32x4.shuffle(a, b, 3, 2, 5, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shuffle6(a, b);
+var expected = SIMD.int32x4.shuffle(a, b, 6, 7, 2, 3);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);

@@ -279,6 +279,7 @@
   V(Float32x4LessThan)           \
   V(Float32x4LessThanOrEqual)    \
   V(Float32x4Select)             \
+  V(Float32x4Shuffle)            \
   V(Int32x4Add)                  \
   V(Int32x4And)                  \
   V(Int32x4Mul)                  \
@@ -292,6 +293,7 @@
   V(Int32x4GetW)                 \
   V(Int32x4Bool)                 \
   V(Int32x4Select)               \
+  V(Int32x4Shuffle)              \
   V(Float64x2Add)                \
   V(Float64x2Mul)                \
   V(Float64x2Sub)                \

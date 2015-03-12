@@ -547,6 +547,106 @@ static uint8_t ComputeShuffleSelect(uint32_t x, uint32_t y, uint32_t z,
   return r;
 }
 
+static void Emit32x4Shuffle(MacroAssembler* masm, XMMRegister lhs,
+                            XMMRegister rhs, int32_t x, int32_t y, int32_t z,
+                            int32_t w) {
+  XMMRegister temp = xmm0;
+  uint32_t num_lanes_from_lhs = (x < 4) + (y < 4) + (z < 4) + (w < 4);
+  if (num_lanes_from_lhs == 4) {
+    uint8_t select = ComputeShuffleSelect(x, y, z, w);
+    masm->shufps(lhs, lhs, select);
+    return;
+  } else if (num_lanes_from_lhs == 0) {
+    x -= 4;
+    y -= 4;
+    z -= 4;
+    w -= 4;
+    uint8_t select = ComputeShuffleSelect(x, y, z, w);
+    masm->movaps(lhs, rhs);
+    masm->shufps(lhs, lhs, select);
+    return;
+  } else if (num_lanes_from_lhs == 3) {
+    uint8_t first_select = 0xFF;
+    uint8_t second_select = 0xFF;
+    if (x < 4 && y < 4) {
+      if (w >= 4) {
+        w -= 4;
+        first_select = ComputeShuffleSelect(w, w, z, z);
+        second_select = ComputeShuffleSelect(x, y, 2, 0);
+      } else {
+        DCHECK(z >= 4);
+        z -= 4;
+        first_select = ComputeShuffleSelect(z, z, w, w);
+        second_select = ComputeShuffleSelect(x, y, 0, 2);
+      }
+      masm->movaps(temp, rhs);
+      masm->shufps(temp, lhs, first_select);
+      masm->shufps(lhs, temp, second_select);
+      return;
+    }
+
+    DCHECK(z < 4 && w < 4);
+    if (y >= 4) {
+      y -= 4;
+      first_select = ComputeShuffleSelect(y, y, x, x);
+      second_select = ComputeShuffleSelect(2, 0, z, w);
+    } else {
+      DCHECK(x >= 4);
+      x -= 4;
+      first_select = ComputeShuffleSelect(x, x, y, y);
+      second_select = ComputeShuffleSelect(0, 2, z, w);
+    }
+    masm->movaps(temp, rhs);
+    masm->shufps(temp, lhs, first_select);
+    masm->shufps(temp, lhs, second_select);
+    masm->movaps(lhs, temp);
+    return;
+  } else if (num_lanes_from_lhs == 2) {
+    if (x < 4 && y < 4) {
+      uint8_t select = ComputeShuffleSelect(x, y, z % 4, w % 4);
+      masm->shufps(lhs, rhs, select);
+      return;
+    } else if (z < 4 && w < 4) {
+      uint8_t select = ComputeShuffleSelect(x % 4, y % 4, z, w);
+      masm->movaps(temp, rhs);
+      masm->shufps(temp, lhs, select);
+      masm->movaps(lhs, temp);
+      return;
+    }
+
+    // In two shufps, for the most generic case:
+    uint8_t first_select[4], second_select[4];
+    uint32_t i = 0, j = 2, k = 0;
+
+#define COMPUTE_SELECT(lane)    \
+  if (lane >= 4) {              \
+    first_select[j] = lane % 4; \
+    second_select[k++] = j++;   \
+  } else {                      \
+    first_select[i] = lane;     \
+    second_select[k++] = i++;   \
+  }
+
+    COMPUTE_SELECT(x)
+    COMPUTE_SELECT(y)
+    COMPUTE_SELECT(z)
+    COMPUTE_SELECT(w)
+#undef COMPUTE_SELECT
+
+    DCHECK(i == 2 && j == 4 && k == 4);
+
+    int8_t select;
+    select = ComputeShuffleSelect(first_select[0], first_select[1],
+                                  first_select[2], first_select[3]);
+    masm->shufps(lhs, rhs, select);
+    select = ComputeShuffleSelect(second_select[0], second_select[1],
+                                  second_select[2], second_select[3]);
+    masm->shufps(lhs, lhs, select);
+  }
+
+  return;
+}
+
 
 // Assembles an instruction after register allocation, producing machine code.
 void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
@@ -993,6 +1093,18 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
         __ andps(result, left);
         __ orps(result, xmm0);
       }
+      break;
+    }
+    case kFloat32x4Shuffle:
+    case kInt32x4Shuffle: {
+      DCHECK(i.OutputSIMD128Register().is(i.InputSIMD128Register(0)));
+      auto lhs = i.InputSIMD128Register(0);
+      auto rhs = i.InputSIMD128Register(1);
+      auto x = i.InputInt32(2);
+      auto y = i.InputInt32(3);
+      auto z = i.InputInt32(4);
+      auto w = i.InputInt32(5);
+      Emit32x4Shuffle(masm(), lhs, rhs, x, y, z, w);
       break;
     }
     // For Int32x4 operation.

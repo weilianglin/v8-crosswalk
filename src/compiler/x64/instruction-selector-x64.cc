@@ -1576,6 +1576,24 @@ void InstructionSelector::VisitFloat32x4Swizzle(Node* node) {
 }
 
 
+void InstructionSelector::VisitFloat32x4Shuffle(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kFloat32x4Shuffle, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseImmediate(node->InputAt(2)), g.UseImmediate(node->InputAt(3)),
+       g.UseImmediate(node->InputAt(4)), g.UseImmediate(node->InputAt(5)));
+}
+
+
+void InstructionSelector::VisitInt32x4Shuffle(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kInt32x4Shuffle, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.UseRegister(node->InputAt(1)),
+       g.UseImmediate(node->InputAt(2)), g.UseImmediate(node->InputAt(3)),
+       g.UseImmediate(node->InputAt(4)), g.UseImmediate(node->InputAt(5)));
+}
+
+
 // static
 MachineOperatorBuilder::Flags
 InstructionSelector::SupportedMachineOperatorFlags() {
