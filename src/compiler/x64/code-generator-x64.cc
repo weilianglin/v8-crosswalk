@@ -1232,6 +1232,23 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ bind(&done);
       break;
     }
+    case kInt32x4Not: {
+        XMMRegister input = i.InputInt32x4Register(0);
+        __ notps(input);
+        break;
+    }
+    case kInt32x4Neg: {
+        XMMRegister input = i.InputInt32x4Register(0);
+        __ pnegd(input);
+        break;
+    }
+    case kInt32x4Splat: {
+      Register input_reg = i.InputRegister(0);
+      XMMRegister result_reg = i.OutputInt32x4Register();
+      __ movd(result_reg, input_reg);
+      __ shufps(result_reg, result_reg, 0x0);
+      return;
+    }
     // Int32x4 Operation end.
     case kLoadSIMD128: {
       int index = 0;

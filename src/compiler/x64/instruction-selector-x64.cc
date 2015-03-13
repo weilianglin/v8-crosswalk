@@ -1465,6 +1465,7 @@ void InstructionSelector::VisitFloat64x2Constructor(Node* node) {
   V(Int32x4GetFlagZ)                  \
   V(Int32x4GetFlagW)                  \
   V(Int32x4GetSignMask)               \
+  V(Int32x4Splat)                     \
   V(Float64x2GetX)                    \
   V(Float64x2GetY)                    \
   V(Float64x2GetSignMask)
@@ -1486,6 +1487,8 @@ UNARY_SIMD_OPERATION_LIST1(DECLARE_VISIT_UARY_SIMD_OPERATION1)
   V(Float32x4Reciprocal)              \
   V(Float32x4ReciprocalSqrt)          \
   V(Float32x4Sqrt)                    \
+  V(Int32x4Neg)                       \
+  V(Int32x4Not)                       \
   V(Float64x2Abs)                     \
   V(Float64x2Neg)                     \
   V(Float64x2Sqrt)

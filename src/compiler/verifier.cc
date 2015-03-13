@@ -793,6 +793,9 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kInt32x4GetFlagY:
     case IrOpcode::kInt32x4GetFlagZ:
     case IrOpcode::kInt32x4GetFlagW:
+    case IrOpcode::kInt32x4Neg:
+    case IrOpcode::kInt32x4Not:
+    case IrOpcode::kInt32x4Splat:
     // Float64x2
     case IrOpcode::kFloat64x2Add:
     case IrOpcode::kFloat64x2Sub:

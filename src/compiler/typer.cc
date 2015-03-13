@@ -2305,6 +2305,9 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagY)                 \
   V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagZ)                 \
   V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagW)                 \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Neg)                   \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Not)                   \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Splat)                 \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Add)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Sub)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Mul)               \

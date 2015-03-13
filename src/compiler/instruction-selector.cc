@@ -1010,6 +1010,12 @@ void InstructionSelector::VisitNode(Node* node) {
       return VisitInt32x4GetFlagW(node);
     case IrOpcode::kInt32x4GetSignMask:
       return VisitInt32x4GetSignMask(node);
+    case IrOpcode::kInt32x4Neg:
+      return MarkAsInt32x4(node), VisitInt32x4Neg(node);
+    case IrOpcode::kInt32x4Not:
+      return MarkAsInt32x4(node), VisitInt32x4Not(node);
+    case IrOpcode::kInt32x4Splat:
+      return MarkAsInt32x4(node), VisitInt32x4Splat(node);
     case IrOpcode::kFloat64x2Add:
       return MarkAsFloat64x2(node), VisitFloat64x2Add(node);
     case IrOpcode::kFloat64x2Sub:

@@ -299,6 +299,9 @@
   V(Int32x4GetFlagZ)             \
   V(Int32x4GetFlagW)             \
   V(Int32x4GetSignMask)          \
+  V(Int32x4Neg)                  \
+  V(Int32x4Not)                  \
+  V(Int32x4Splat)                \
   V(Float64x2Add)                \
   V(Float64x2Mul)                \
   V(Float64x2Sub)                \

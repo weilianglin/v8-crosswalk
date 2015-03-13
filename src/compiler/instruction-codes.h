@@ -103,6 +103,9 @@ namespace compiler {
   V(Int32x4GetFlagZ)             \
   V(Int32x4GetFlagW)             \
   V(Int32x4GetSignMask)          \
+  V(Int32x4Neg)                  \
+  V(Int32x4Not)                  \
+  V(Int32x4Splat)                \
   V(LoadSIMD128)                 \
   V(CheckedLoadSIMD128)          \
   V(StoreSIMD128)                \

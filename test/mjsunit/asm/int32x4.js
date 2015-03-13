@@ -39,6 +39,9 @@ function asmModule(stdlib, imports, buffer) {
   var i4bool = i4.bool;
   var i4select = i4.select;
   var i4shuffle = i4.shuffle;
+  var i4neg = i4.neg;
+  var i4not = i4.not;
+  var i4splat = i4.splat;
 
   var a = i4(imports.a);
   var b = i4(imports.b);
@@ -229,6 +232,26 @@ function asmModule(stdlib, imports, buffer) {
     return fw;
   }
 
+  function neg(a) {
+    a = i4(a);
+    var ret = i4();
+    ret = i4neg(a);
+    return i4(ret);
+  }
+
+  function not(a) {
+    a = i4(a);
+    var ret = i4();
+    ret = i4not(a);
+    return i4(ret);
+  }
+
+  function splat(v) {
+    var ret = i4();
+    ret = i4splat(v);
+    return i4(ret);
+  }
+
   function getxLocal() {
     var a = i4(+1, +2, +3, +4);
     var x = a.x;
@@ -281,6 +304,20 @@ function asmModule(stdlib, imports, buffer) {
     var a = i4(+1, +2, +3, +4);
     var fw = a.flagW;
     return fw;
+  }
+
+  function negLocal() {
+    var a = i4(+1, +2, +3, +4);
+    var ret  = i4();
+    ret = i4neg(a);
+    return i4(ret);
+  }
+
+  function notLocal() {
+    var a = i4(+1, +2, +3, +4);
+    var ret  = i4();
+    ret = i4not(a);
+    return i4(ret);
   }
 
   function getxImports() {
@@ -391,6 +428,18 @@ function asmModule(stdlib, imports, buffer) {
     return fw;
   }
 
+  function negImports() {
+    var ret  = i4();
+    ret = i4neg(a);
+    return i4(ret);
+  }
+
+  function notImports() {
+    var ret  = i4();
+    ret = i4not(a);
+    return i4(ret);
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -407,7 +456,10 @@ function asmModule(stdlib, imports, buffer) {
           getflagX : getflagX, getflagXLocal : getflagXLocal, getflagXImports : getflagXImports,
           getflagY : getflagY, getflagYLocal : getflagYLocal, getflagYImports : getflagYImports,
           getflagZ : getflagZ, getflagZLocal : getflagZLocal, getflagZImports : getflagZImports,
-          getflagW : getflagW, getflagWLocal : getflagWLocal, getflagWImports : getflagWImports};
+          getflagW : getflagW, getflagWLocal : getflagWLocal, getflagWImports : getflagWImports,
+          not : not, notLocal : notLocal, notImports : notImports,
+          neg : neg, negLocal : negLocal, negImports : negImports,
+          splat : splat};
 }
 
 
@@ -577,6 +629,54 @@ assertEquals(result, expected);
 
 var result = m.getwImports();
 assertEquals(result, expected);
+
+//splat
+var result = m.splat(+5);
+var expected = SIMD.int32x4.splat(+5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+// not
+var result = m.not(a);
+var expected = SIMD.int32x4.not(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.notLocal();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.notImports();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+// neg
+var result = m.neg(a);
+var expected = SIMD.int32x4.neg(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.negLocal();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.negImports();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
 
 var result = m.bool(true, false, true, false);
 var expected = SIMD.int32x4.bool(true, false, true, false);

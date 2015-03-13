@@ -1251,6 +1251,17 @@ class RepresentationSelector {
         ProcessInput(node, 0, kMachInt32x4);
         SetOutput(node, kMachAnyTagged);
         break;
+      case IrOpcode::kInt32x4Neg:
+      case IrOpcode::kInt32x4Not:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachInt32x4);
+        SetOutput(node, kMachInt32x4);
+        break;
+      case IrOpcode::kInt32x4Splat:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachInt32);
+        SetOutput(node, kMachInt32x4);
+        break;
       // Float64x2
       case IrOpcode::kFloat64x2Add:
       case IrOpcode::kFloat64x2Sub:
