@@ -490,6 +490,10 @@ Reduction JSBuiltinReducer::ReduceInt32x4Select(Node* node) {
   V(8, GetFloat32x4XY, kRepFloat32x4)    \
   V(12, GetFloat32x4XYZ, kRepFloat32x4)  \
   V(16, GetFloat32x4XYZW, kRepFloat32x4) \
+  V(4, GetInt32x4X, kRepInt32x4)         \
+  V(8, GetInt32x4XY, kRepInt32x4)        \
+  V(12, GetInt32x4XYZ, kRepInt32x4)      \
+  V(16, GetInt32x4XYZW, kRepInt32x4)     \
   V(8, GetFloat64x2X, kRepFloat64x2)     \
   V(16, GetFloat64x2XY, kRepFloat64x2)
 
@@ -555,6 +559,10 @@ SIMD_LOAD_OPERATION(DECLARE_REDUCE_SIMD_LOAD)
   V(float32x4_, 8, SetFloat32x4XY, kRepFloat32x4)    \
   V(float32x4_, 12, SetFloat32x4XYZ, kRepFloat32x4)  \
   V(float32x4_, 16, SetFloat32x4XYZW, kRepFloat32x4) \
+  V(int32x4_, 4, SetInt32x4X, kRepInt32x4)           \
+  V(int32x4_, 8, SetInt32x4XY, kRepInt32x4)          \
+  V(int32x4_, 12, SetInt32x4XYZ, kRepInt32x4)        \
+  V(int32x4_, 16, SetInt32x4XYZW, kRepInt32x4)       \
   V(float64x2_, 8, SetFloat64x2X, kRepFloat64x2)     \
   V(float64x2_, 16, SetFloat64x2XY, kRepFloat64x2)
 
@@ -794,6 +802,22 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceInt32x4Select(node));
     case kInt32x4Shuffle:
       return ReplaceWithPureReduction(node, ReduceInt32x4Shuffle(node));
+    case kGetInt32x4X:
+      return ReplaceWithPureReduction(node, ReduceGetInt32x4X(node));
+    case kGetInt32x4XY:
+      return ReplaceWithPureReduction(node, ReduceGetInt32x4XY(node));
+    case kGetInt32x4XYZ:
+      return ReplaceWithPureReduction(node, ReduceGetInt32x4XYZ(node));
+    case kGetInt32x4XYZW:
+      return ReplaceWithPureReduction(node, ReduceGetInt32x4XYZW(node));
+    case kSetInt32x4X:
+      return ReplaceWithPureReduction(node, ReduceSetInt32x4X(node));
+    case kSetInt32x4XY:
+      return ReplaceWithPureReduction(node, ReduceSetInt32x4XY(node));
+    case kSetInt32x4XYZ:
+      return ReplaceWithPureReduction(node, ReduceSetInt32x4XYZ(node));
+    case kSetInt32x4XYZW:
+      return ReplaceWithPureReduction(node, ReduceSetInt32x4XYZW(node));
     case kFloat64x2Add:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
     case kFloat64x2Sub:

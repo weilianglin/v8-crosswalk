@@ -693,3 +693,140 @@ assertEquals(result, expected);
 
 var result = m.getflagWImports();
 assertEquals(result, expected);
+
+function asmModule2(stdlib, imports, buffer) {
+  "use asm"
+  var i4 = stdlib.SIMD.int32x4;
+  var i4load = i4.load;
+  var i4loadX = i4.loadX;
+  var i4loadXY = i4.loadXY;
+  var i4loadXYZ = i4.loadXYZ;
+  var i4store = i4.store;
+  var i4storeX = i4.storeX;
+  var i4storeXY = i4.storeXY;
+  var i4storeXYZ = i4.storeXYZ;
+  var i32array = new stdlib.Int32Array(buffer);
+
+  function load(a) {
+    a = a | 0;
+    var ret = i4(0, 0, 0, 0);
+    ret = i4load(i32array, a | 0);
+    return i4(ret);
+  }
+
+  function loadX(a) {
+    a = a | 0;
+    var ret = i4(0, 0, 0, 0);
+    ret = i4loadX(i32array, a | 0);
+    return i4(ret);
+  }
+
+  function loadXY(a) {
+    a = a | 0;
+    var ret = i4(0, 0, 0, 0);
+    ret = i4loadXY(i32array, a | 0);
+    return i4(ret);
+  }
+
+  function loadXYZ(a) {
+    a = a | 0;
+    var ret = i4(0, 0, 0, 0);
+    ret = i4loadXYZ(i32array, a);
+    return i4(ret);
+  }
+
+  function store(a, v) {
+    a =  a | 0;
+    v = i4(v);
+    i4store(i32array, a, v);
+    return i4load(i32array, a);
+  }
+
+  function storeX(a, v) {
+    a =  a | 0;
+    v = i4(v);
+    i4storeX(i32array, a, v);
+    return i4loadX(i32array, a);
+  }
+
+  function storeXY(a, v) {
+    a =  a | 0;
+    v = i4(v);
+    i4storeXY(i32array, a, v);
+    return i4loadXY(i32array, a);
+  }
+
+  function storeXYZ(a, v) {
+    a =  a | 0;
+    v = i4(v);
+    i4storeXYZ(i32array, a, v);
+    return i4loadXYZ(i32array, a);
+  }
+
+  return {load : load, loadX : loadX, loadXY : loadXY, loadXYZ : loadXYZ,
+          store : store, storeX : storeX, storeXY : storeXY, storeXYZ : storeXYZ};
+}
+
+
+var heap = new ArrayBuffer(0x4000);
+var i32array = new Int32Array(heap);
+for (var i = 0; i < 0x4000; i = i + 4) {
+  i32array[i>>2] = i;
+}
+var m = asmModule2(this, {}, heap);
+var result = m.load(4);
+var expected = SIMD.int32x4.load(i32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.loadX(4);
+var expected = SIMD.int32x4.loadX(i32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.loadXY(4);
+var expected = SIMD.int32x4.loadXY(i32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.loadXYZ(4);
+var expected = SIMD.int32x4.loadXYZ(i32array, 4);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var val = SIMD.int32x4(1, 2, 3, 4);
+var result = m.store(4, val);
+var expected = val;
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var expected = SIMD.int32x4(1, 0, 0, 0);
+var result = m.storeX(8, val);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var expected = SIMD.int32x4(1, 2, 0, 0);
+var result = m.storeXY(12, val);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var expected = SIMD.int32x4(1, 2, 3, 0);
+var result = m.storeXYZ(16, val);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);

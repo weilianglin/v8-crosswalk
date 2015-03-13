@@ -1878,6 +1878,8 @@ Bounds Typer::Visitor::TypeLoad(Node* node) {
   if (OpParameter<MachineType>(node) == kRepFloat32x4) {
     return Bounds(
         Type::Intersect(typer_->float32x4_, Type::Untagged(), zone()));
+  } else if (OpParameter<MachineType>(node) == kRepInt32x4) {
+    return Bounds(Type::Intersect(typer_->int32x4_, Type::Untagged(), zone()));
   } else if (OpParameter<MachineType>(node) == kRepFloat64x2) {
     return Bounds(
         Type::Intersect(typer_->float64x2_, Type::Untagged(), zone()));
@@ -2234,6 +2236,8 @@ Bounds Typer::Visitor::TypeCheckedLoad(Node* node) {
   if (OpParameter<MachineType>(node) == kRepFloat32x4) {
     return Bounds(
         Type::Intersect(typer_->float32x4_, Type::Untagged(), zone()));
+  } else if (OpParameter<MachineType>(node) == kRepInt32x4) {
+    return Bounds(Type::Intersect(typer_->int32x4_, Type::Untagged(), zone()));
   } else if (OpParameter<MachineType>(node) == kRepFloat64x2) {
     return Bounds(
         Type::Intersect(typer_->float64x2_, Type::Untagged(), zone()));
@@ -2421,6 +2425,10 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kInt32x4Bool:
         case kInt32x4Select:
         case kInt32x4Shuffle:
+        case kGetInt32x4X:
+        case kGetInt32x4XY:
+        case kGetInt32x4XYZ:
+        case kGetInt32x4XYZW:
           return typer_->cache_->Get(kInt32x4FuncA);
         // Float64x2
         case kFloat64x2Add:

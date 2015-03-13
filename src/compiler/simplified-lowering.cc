@@ -964,6 +964,7 @@ class RepresentationSelector {
         ProcessInput(node, 2, kMachInt32);  // length
         ProcessInput(node, 3, rep.machine_type());
         if (rep.machine_type() == kRepFloat32x4 ||
+            rep.machine_type() == kRepInt32x4 ||
             rep.machine_type() == kRepFloat64x2) {
           ProcessInput(node, 4, kMachInt32);  // partial
           ProcessRemainingInputs(node, 5);
@@ -1241,6 +1242,7 @@ class RepresentationSelector {
         ProcessInput(node, 1, kMachInt32x4);
         ProcessInput(node, 2, kMachInt32x4);
         SetOutput(node, kMachInt32x4);
+        break;
       case IrOpcode::kInt32x4GetFlagX:
       case IrOpcode::kInt32x4GetFlagY:
       case IrOpcode::kInt32x4GetFlagZ:

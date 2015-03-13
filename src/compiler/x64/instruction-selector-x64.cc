@@ -257,6 +257,7 @@ void InstructionSelector::VisitCheckedLoad(Node* node) {
       opcode = kCheckedLoadFloat64;
       break;
     case kRepFloat32x4:
+    case kRepInt32x4:
     case kRepFloat64x2:
       opcode = kCheckedLoadSIMD128;
       loaded_bytes = node->InputAt(3);
@@ -326,6 +327,7 @@ void InstructionSelector::VisitCheckedStore(Node* node) {
       opcode = kCheckedStoreFloat64;
       break;
     case kRepFloat32x4:
+    case kRepInt32x4:
     case kRepFloat64x2:
       opcode = kCheckedStoreSIMD128;
       stored_bytes = node->InputAt(4);
