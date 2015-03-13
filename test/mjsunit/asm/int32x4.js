@@ -248,6 +248,7 @@ function asmModule(stdlib, imports, buffer) {
   }
 
   function splat(v) {
+    v = v | 0;
     var ret = i4();
     ret = i4splat(v);
     return i4(ret);

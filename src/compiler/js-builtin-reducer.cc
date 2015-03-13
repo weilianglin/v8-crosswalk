@@ -389,7 +389,7 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Constructor(Node* node) {
   V(Type::Number(), Float32x4Splat)      \
   V(int32x4_, Int32x4Neg)                \
   V(int32x4_, Int32x4Not)                \
-  V(int32x4_, Int32x4Splat)              \
+  V(Type::Number(), Int32x4Splat)        \
   V(float64x2_, Float64x2Abs)            \
   V(float64x2_, Float64x2Neg)            \
   V(float64x2_, Float64x2Sqrt)
