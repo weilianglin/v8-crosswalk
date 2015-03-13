@@ -49,6 +49,10 @@ function asmModule(stdlib, imports, buffer) {
   var i4equal = i4.equal;
   var i4greaterThan = i4.greaterThan;
   var i4lessThan = i4.lessThan;
+  var i4withX = i4.withX;
+  var i4withY = i4.withY;
+  var i4withZ = i4.withZ;
+  var i4withW = i4.withW;
 
   var a = i4(imports.a);
   var b = i4(imports.b);
@@ -260,6 +264,38 @@ function asmModule(stdlib, imports, buffer) {
     return i4(ret);
   }
 
+  function withX(a, b) {
+    a = i4(a);
+    b = b | 0;
+    var ret = i4();
+    ret = i4withX(a, b);
+    return i4(ret);
+  }
+
+  function withY(a, b) {
+    a = i4(a);
+    b = b | 0;
+    var ret = i4();
+    ret = i4withY(a, b);
+    return i4(ret);
+  }
+
+  function withZ(a, b) {
+    a = i4(a);
+    b = b | 0;
+    var ret = i4();
+    ret = i4withZ(a, b);
+    return i4(ret);
+  }
+
+  function withW(a, b) {
+    a = i4(a);
+    b = b | 0;
+    var ret = i4();
+    ret = i4withW(a, b);
+    return i4(ret);
+  }
+
   function getxLocal() {
     var a = i4(+1, +2, +3, +4);
     var x = a.x;
@@ -325,6 +361,38 @@ function asmModule(stdlib, imports, buffer) {
     var a = i4(+1, +2, +3, +4);
     var ret  = i4();
     ret = i4not(a);
+    return i4(ret);
+  }
+
+  function withXLocal(b) {
+    var a = i4(+1, +2, +3, +4);
+    b = b | 0;
+    var ret = i4();
+    ret = i4withX(a, b);
+    return i4(ret);
+  }
+
+  function withYLocal(b) {
+    var a = i4(+1, +2, +3, +4);
+    b = b | 0;
+    var ret = i4();
+    ret = i4withY(a, b);
+    return i4(ret);
+  }
+
+  function withZLocal(b) {
+    var a = i4(+1, +2, +3, +4);
+    b = b | 0;
+    var ret = i4();
+    ret = i4withZ(a, b);
+    return i4(ret);
+  }
+
+  function withWLocal(b) {
+    var a = i4(+1, +2, +3, +4);
+    b = b | 0;
+    var ret = i4();
+    ret = i4withW(a, b);
     return i4(ret);
   }
 
@@ -531,6 +599,34 @@ function asmModule(stdlib, imports, buffer) {
     return i4(ret);
   }
 
+  function withXImports(b) {
+    b = b | 0;
+    var ret = i4();
+    ret = i4withX(a, b);
+    return i4(ret);
+  }
+
+  function withYImports(b) {
+    b = b | 0;
+    var ret = i4();
+    ret = i4withY(a, b);
+    return i4(ret);
+  }
+
+  function withZImports(b) {
+    b = b | 0;
+    var ret = i4();
+    ret = i4withZ(a, b);
+    return i4(ret);
+  }
+
+  function withWImports(b) {
+    b = b | 0;
+    var ret = i4();
+    ret = i4withW(a, b);
+    return i4(ret);
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -557,6 +653,10 @@ function asmModule(stdlib, imports, buffer) {
           shiftRightArithmeticByScalar : shiftRightArithmeticByScalar,
           shiftRightArithmeticByScalarConst : shiftRightArithmeticByScalarConst,
           equal : equal, greaterThan : greaterThan, lessThan : lessThan,
+          withX : withX, withXLocal : withXLocal, withXImports : withXImports,
+          withY : withY, withYLocal : withYLocal, withYImports : withYImports,
+          withZ : withZ, withZLocal : withZLocal, withZImports : withZImports,
+          withW : withW, withWLocal : withWLocal, withWImports : withWImports
           };
 }
 
@@ -771,6 +871,86 @@ assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
 
 var result = m.negImports();
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+// WithX
+var result = m.withX(a, +5);
+var expected = SIMD.int32x4.withX(a, +5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.withXLocal(+5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.withXImports(+5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+// WithY
+var result = m.withY(a, +5);
+var expected = SIMD.int32x4.withY(a, +5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.withYLocal(+5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.withYImports(+5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+// WithZ
+var result = m.withZ(a, +5);
+var expected = SIMD.int32x4.withZ(a, +5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.withZLocal(+5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.withZImports(+5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+// WithW
+var result = m.withW(a, +5);
+var expected = SIMD.int32x4.withW(a, +5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.withWLocal(+5);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.withWImports(+5);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);

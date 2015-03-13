@@ -1277,6 +1277,10 @@ class RepresentationSelector {
       case IrOpcode::kInt32x4ShiftLeft:
       case IrOpcode::kInt32x4ShiftRight:
       case IrOpcode::kInt32x4ShiftRightArithmetic:
+      case IrOpcode::kInt32x4WithX:
+      case IrOpcode::kInt32x4WithY:
+      case IrOpcode::kInt32x4WithZ:
+      case IrOpcode::kInt32x4WithW:
         DCHECK_EQ(2, node->InputCount());
         ProcessInput(node, 0, kMachInt32x4);
         ProcessInput(node, 1, kMachInt32);

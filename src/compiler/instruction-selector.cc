@@ -972,6 +972,7 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsFloat32x4(node), VisitFloat32x4Select(node);
     case IrOpcode::kFloat32x4Shuffle:
       return MarkAsFloat32x4(node), VisitFloat32x4Shuffle(node);
+    // int32x4
     case IrOpcode::kInt32x4Add:
       return MarkAsInt32x4(node), VisitInt32x4Add(node);
     case IrOpcode::kInt32x4And:
@@ -1038,6 +1039,15 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsInt32x4(node), VisitInt32x4GreaterThan(node);
     case IrOpcode::kInt32x4LessThan:
       return MarkAsInt32x4(node), VisitInt32x4LessThan(node);
+    case IrOpcode::kInt32x4WithX:
+      return MarkAsInt32x4(node), VisitInt32x4WithX(node);
+    case IrOpcode::kInt32x4WithY:
+      return MarkAsInt32x4(node), VisitInt32x4WithY(node);
+    case IrOpcode::kInt32x4WithZ:
+      return MarkAsInt32x4(node), VisitInt32x4WithZ(node);
+    case IrOpcode::kInt32x4WithW:
+      return MarkAsInt32x4(node), VisitInt32x4WithW(node);
+    // float64x2
     case IrOpcode::kFloat64x2Add:
       return MarkAsFloat64x2(node), VisitFloat64x2Add(node);
     case IrOpcode::kFloat64x2Sub:

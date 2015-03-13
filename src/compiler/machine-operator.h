@@ -245,6 +245,10 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   V(Int32x4Equal)                \
   V(Int32x4GreaterThan)          \
   V(Int32x4LessThan)             \
+  V(Int32x4WithX)                \
+  V(Int32x4WithY)                \
+  V(Int32x4WithZ)                \
+  V(Int32x4WithW)                \
   V(Float64x2Add)                \
   V(Float64x2Mul)                \
   V(Float64x2Sub)                \

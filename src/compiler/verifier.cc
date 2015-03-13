@@ -803,6 +803,10 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kInt32x4Equal:
     case IrOpcode::kInt32x4GreaterThan:
     case IrOpcode::kInt32x4LessThan:
+    case IrOpcode::kInt32x4WithX:
+    case IrOpcode::kInt32x4WithY:
+    case IrOpcode::kInt32x4WithZ:
+    case IrOpcode::kInt32x4WithW:
     // Float64x2
     case IrOpcode::kFloat64x2Add:
     case IrOpcode::kFloat64x2Sub:

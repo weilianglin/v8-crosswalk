@@ -1312,6 +1312,27 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ pcmpgtd(xmm0, i.InputFloat32x4Register(0));
       __ movaps(i.InputFloat32x4Register(0), xmm0);
       break;
+    case kInt32x4WithW:
+      select++;
+    case kInt32x4WithZ:
+      select++;
+    case kInt32x4WithY:
+      select++;
+    case kInt32x4WithX: {
+      XMMRegister left = i.InputInt32x4Register(0);
+      Register right = i.InputRegister(1);
+      if (CpuFeatures::IsSupported(SSE4_1)) {
+        CpuFeatureScope scope(masm(), SSE4_1);
+        __ pinsrd(left, right, select);
+      } else {
+        __ subq(rsp, Immediate(kInt32x4Size));
+        __ movdqu(Operand(rsp, 0), left);
+        __ movl(Operand(rsp, select * kInt32Size), right);
+        __ movdqu(left, Operand(rsp, 0));
+        __ addq(rsp, Immediate(kInt32x4Size));
+      }
+      break;
+    }
     // Int32x4 Operation end.
     case kLoadSIMD128: {
       int index = 0;
