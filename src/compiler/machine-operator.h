@@ -226,6 +226,11 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   V(Int32x4Bool)                 \
   V(Int32x4Select)               \
   V(Int32x4Shuffle)              \
+  V(Int32x4GetFlagX)             \
+  V(Int32x4GetFlagY)             \
+  V(Int32x4GetFlagZ)             \
+  V(Int32x4GetFlagW)             \
+  V(Int32x4GetSignMask)          \
   V(Float64x2Add)                \
   V(Float64x2Mul)                \
   V(Float64x2Sub)                \

@@ -2277,6 +2277,11 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->int32x4_, Type::Untagged(), Float32x4LessThanOrEqual)     \
   V(typer_->float32x4_, Type::Untagged(), Float32x4Select)            \
   V(typer_->float32x4_, Type::Untagged(), Float32x4Shuffle)           \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetX)           \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetY)           \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetZ)           \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetW)           \
+  V(Type::Signed32(), Type::UntaggedSigned32(), Float32x4GetSignMask) \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Add)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Sub)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Mul)                   \
@@ -2291,11 +2296,11 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetY)          \
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetZ)          \
   V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetW)          \
-  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetX)           \
-  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetY)           \
-  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetZ)           \
-  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetW)           \
-  V(Type::Signed32(), Type::UntaggedSigned32(), Float32x4GetSignMask) \
+  V(Type::Signed32(), Type::UntaggedSigned32(), Int32x4GetSignMask)   \
+  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagX)                 \
+  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagY)                 \
+  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagZ)                 \
+  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagW)                 \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Add)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Sub)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Mul)               \

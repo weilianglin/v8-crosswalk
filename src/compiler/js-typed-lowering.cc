@@ -805,6 +805,16 @@ Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
       value = graph()->NewNode(machine()->Int32x4GetZ(), obj);
     } else if (name->Equals(isolate->heap()->w())) {
       value = graph()->NewNode(machine()->Int32x4GetW(), obj);
+    } else if (name->Equals(isolate->heap()->flagX())) {
+      value = graph()->NewNode(machine()->Int32x4GetFlagX(), obj);
+    } else if (name->Equals(isolate->heap()->flagY())) {
+      value = graph()->NewNode(machine()->Int32x4GetFlagY(), obj);
+    } else if (name->Equals(isolate->heap()->flagZ())) {
+      value = graph()->NewNode(machine()->Int32x4GetFlagZ(), obj);
+    } else if (name->Equals(isolate->heap()->flagW())) {
+      value = graph()->NewNode(machine()->Int32x4GetFlagW(), obj);
+    } else if (name->Equals(isolate->heap()->signMask())) {
+      value = graph()->NewNode(machine()->Int32x4GetSignMask(), obj);
     }
 
     if (value != NULL) {

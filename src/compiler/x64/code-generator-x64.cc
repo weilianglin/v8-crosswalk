@@ -1194,6 +1194,44 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ leaq(rsp, Operand(rsp, kInt32x4Size));
       break;
     }
+    case kInt32x4GetSignMask: {
+      XMMRegister input = i.InputInt32x4Register(0);
+      Register dst = i.OutputRegister();
+      __ movmskps(dst, input);
+      break;
+    }
+    case kInt32x4GetFlagW:
+      select++;
+    case kInt32x4GetFlagZ:
+      select++;
+    case kInt32x4GetFlagY:
+      select++;
+    case kInt32x4GetFlagX: {
+      Label false_value, done;
+      Register dst = i.OutputRegister();
+      XMMRegister input = i.InputInt32x4Register(0);
+      if (select == 0x0) {
+        __ movd(dst, input);
+      } else {
+        if (CpuFeatures::IsSupported(SSE4_1)) {
+          CpuFeatureScope scope(masm(), SSE4_1);
+            __ extractps(dst, input, select);
+        } else {
+          XMMRegister xmm_scratch = xmm0;
+          __ pshufd(xmm_scratch, input, select);
+          __ movd(dst, xmm_scratch);
+        }
+      }
+
+      __ testl(dst, dst);
+      __ j(zero, &false_value, Label::kNear);
+      __ LoadRoot(dst, Heap::kTrueValueRootIndex);
+      __ jmp(&done, Label::kNear);
+      __ bind(&false_value);
+      __ LoadRoot(dst, Heap::kFalseValueRootIndex);
+      __ bind(&done);
+      break;
+    }
     // Int32x4 Operation end.
     case kLoadSIMD128: {
       int index = 0;

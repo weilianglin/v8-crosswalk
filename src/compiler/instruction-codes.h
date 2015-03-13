@@ -98,6 +98,11 @@ namespace compiler {
   V(Int32x4Bool)                 \
   V(Int32x4Select)               \
   V(Int32x4Shuffle)              \
+  V(Int32x4GetFlagX)             \
+  V(Int32x4GetFlagY)             \
+  V(Int32x4GetFlagZ)             \
+  V(Int32x4GetFlagW)             \
+  V(Int32x4GetSignMask)          \
   V(LoadSIMD128)                 \
   V(CheckedLoadSIMD128)          \
   V(StoreSIMD128)                \

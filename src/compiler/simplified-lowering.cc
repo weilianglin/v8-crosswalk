@@ -1222,6 +1222,7 @@ class RepresentationSelector {
       case IrOpcode::kInt32x4GetY:
       case IrOpcode::kInt32x4GetZ:
       case IrOpcode::kInt32x4GetW:
+      case IrOpcode::kInt32x4GetSignMask:
         DCHECK_EQ(1, node->InputCount());
         ProcessInput(node, 0, kMachInt32x4);
         SetOutput(node, kMachInt32);
@@ -1240,6 +1241,13 @@ class RepresentationSelector {
         ProcessInput(node, 1, kMachInt32x4);
         ProcessInput(node, 2, kMachInt32x4);
         SetOutput(node, kMachInt32x4);
+      case IrOpcode::kInt32x4GetFlagX:
+      case IrOpcode::kInt32x4GetFlagY:
+      case IrOpcode::kInt32x4GetFlagZ:
+      case IrOpcode::kInt32x4GetFlagW:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachInt32x4);
+        SetOutput(node, kMachAnyTagged);
         break;
       // Float64x2
       case IrOpcode::kFloat64x2Add:
