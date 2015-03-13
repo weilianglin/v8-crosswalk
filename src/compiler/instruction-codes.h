@@ -107,6 +107,9 @@ namespace compiler {
   V(Int32x4Not)                  \
   V(Int32x4Splat)                \
   V(Int32x4Swizzle)              \
+  V(Int32x4ShiftLeft)            \
+  V(Int32x4ShiftRight)           \
+  V(Int32x4ShiftRightArithmetic) \
   V(LoadSIMD128)                 \
   V(CheckedLoadSIMD128)          \
   V(StoreSIMD128)                \

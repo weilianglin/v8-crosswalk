@@ -1256,6 +1256,39 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ pshufd(value_reg, value_reg, s);
       break;
     }
+    case kInt32x4ShiftLeft: {
+      if (HasImmediateInput(instr, 1)) {
+        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) && 0xFF);
+        __ pslld(i.InputInt32x4Register(0), shift);
+      } else {
+        DCHECK(instr->InputAt(1)->IsRegister());
+        __ movd(xmm0, i.InputRegister(1));
+        __ pslld(i.InputInt32x4Register(0), xmm0);
+      }
+      break;
+    }
+    case kInt32x4ShiftRight: {
+      if (HasImmediateInput(instr, 1)) {
+        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) && 0xFF);
+        __ psrld(i.InputInt32x4Register(0), shift);
+      } else {
+        DCHECK(instr->InputAt(1)->IsRegister());
+        __ movd(xmm0, i.InputRegister(1));
+        __ psrld(i.InputInt32x4Register(0), xmm0);
+      }
+      break;
+    }
+    case kInt32x4ShiftRightArithmetic: {
+      if (HasImmediateInput(instr, 1)) {
+        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) && 0xFF);
+        __ psrad(i.InputInt32x4Register(0), shift);
+      } else {
+        DCHECK(instr->InputAt(1)->IsRegister());
+        __ movd(xmm0, i.InputRegister(1));
+        __ psrad(i.InputInt32x4Register(0), xmm0);
+      }
+      break;
+    }
     // Int32x4 Operation end.
     case kLoadSIMD128: {
       int index = 0;

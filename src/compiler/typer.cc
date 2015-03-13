@@ -2309,6 +2309,9 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->int32x4_, Type::Untagged(), Int32x4Not)                   \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Splat)                 \
   V(typer_->int32x4_, Type::Untagged(), Int32x4Swizzle)               \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4ShiftLeft)             \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4ShiftRight)            \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4ShiftRightArithmetic)  \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Add)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Sub)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Mul)               \
@@ -2426,6 +2429,8 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
           return typer_->cache_->Get(kInt32x4Func2);
         case kInt32x4Constructor:
           return typer_->cache_->Get(kInt32x4Func4i);
+        case kInt32x4Swizzle:
+          return typer_->cache_->Get(kFloat32x4Func1_4i);
         case kInt32x4Bool:
         case kInt32x4Select:
         case kInt32x4Shuffle:
@@ -2433,8 +2438,9 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kGetInt32x4XY:
         case kGetInt32x4XYZ:
         case kGetInt32x4XYZW:
-        case kInt32x4Swizzle:
-          return typer_->cache_->Get(kFloat32x4Func1_4i);
+        case kInt32x4ShiftLeft:
+        case kInt32x4ShiftRight:
+        case kInt32x4ShiftRightArithmetic:
           return typer_->cache_->Get(kInt32x4FuncA);
         // Float64x2
         case kFloat64x2Add:

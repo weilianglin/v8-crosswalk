@@ -225,38 +225,41 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
 }
 
 
-#define REDUCED_SIMD_BINARY_OPERATIONS(V)                \
-  V(float32x4_, float32x4_, Float32x4Add)                \
-  V(float32x4_, float32x4_, Float32x4Sub)                \
-  V(float32x4_, float32x4_, Float32x4Mul)                \
-  V(float32x4_, float32x4_, Float32x4Div)                \
-  V(float32x4_, float32x4_, Float32x4Max)                \
-  V(float32x4_, float32x4_, Float32x4Min)                \
-  V(float32x4_, Type::Number(), Float32x4Scale)          \
-  V(float32x4_, Type::Number(), Float32x4WithX)          \
-  V(float32x4_, Type::Number(), Float32x4WithY)          \
-  V(float32x4_, Type::Number(), Float32x4WithZ)          \
-  V(float32x4_, Type::Number(), Float32x4WithW)          \
-  V(float32x4_, float32x4_, Float32x4Equal)              \
-  V(float32x4_, float32x4_, Float32x4NotEqual)           \
-  V(float32x4_, float32x4_, Float32x4GreaterThan)        \
-  V(float32x4_, float32x4_, Float32x4GreaterThanOrEqual) \
-  V(float32x4_, float32x4_, Float32x4LessThan)           \
-  V(float32x4_, float32x4_, Float32x4LessThanOrEqual)    \
-  V(int32x4_, int32x4_, Int32x4Add)                      \
-  V(int32x4_, int32x4_, Int32x4And)                      \
-  V(int32x4_, int32x4_, Int32x4Sub)                      \
-  V(int32x4_, int32x4_, Int32x4Mul)                      \
-  V(int32x4_, int32x4_, Int32x4Or)                       \
-  V(int32x4_, int32x4_, Int32x4Xor)                      \
-  V(float64x2_, float64x2_, Float64x2Add)                \
-  V(float64x2_, float64x2_, Float64x2Sub)                \
-  V(float64x2_, float64x2_, Float64x2Mul)                \
-  V(float64x2_, float64x2_, Float64x2Div)                \
-  V(float64x2_, float64x2_, Float64x2Min)                \
-  V(float64x2_, float64x2_, Float64x2Max)                \
-  V(float64x2_, Type::Number(), Float64x2Scale)          \
-  V(float64x2_, Type::Number(), Float64x2WithX)          \
+#define REDUCED_SIMD_BINARY_OPERATIONS(V)                  \
+  V(float32x4_, float32x4_, Float32x4Add)                  \
+  V(float32x4_, float32x4_, Float32x4Sub)                  \
+  V(float32x4_, float32x4_, Float32x4Mul)                  \
+  V(float32x4_, float32x4_, Float32x4Div)                  \
+  V(float32x4_, float32x4_, Float32x4Max)                  \
+  V(float32x4_, float32x4_, Float32x4Min)                  \
+  V(float32x4_, Type::Number(), Float32x4Scale)            \
+  V(float32x4_, Type::Number(), Float32x4WithX)            \
+  V(float32x4_, Type::Number(), Float32x4WithY)            \
+  V(float32x4_, Type::Number(), Float32x4WithZ)            \
+  V(float32x4_, Type::Number(), Float32x4WithW)            \
+  V(float32x4_, float32x4_, Float32x4Equal)                \
+  V(float32x4_, float32x4_, Float32x4NotEqual)             \
+  V(float32x4_, float32x4_, Float32x4GreaterThan)          \
+  V(float32x4_, float32x4_, Float32x4GreaterThanOrEqual)   \
+  V(float32x4_, float32x4_, Float32x4LessThan)             \
+  V(float32x4_, float32x4_, Float32x4LessThanOrEqual)      \
+  V(int32x4_, int32x4_, Int32x4Add)                        \
+  V(int32x4_, int32x4_, Int32x4And)                        \
+  V(int32x4_, int32x4_, Int32x4Sub)                        \
+  V(int32x4_, int32x4_, Int32x4Mul)                        \
+  V(int32x4_, int32x4_, Int32x4Or)                         \
+  V(int32x4_, int32x4_, Int32x4Xor)                        \
+  V(int32x4_, Type::Number(), Int32x4ShiftLeft)            \
+  V(int32x4_, Type::Number(), Int32x4ShiftRight)           \
+  V(int32x4_, Type::Number(), Int32x4ShiftRightArithmetic) \
+  V(float64x2_, float64x2_, Float64x2Add)                  \
+  V(float64x2_, float64x2_, Float64x2Sub)                  \
+  V(float64x2_, float64x2_, Float64x2Mul)                  \
+  V(float64x2_, float64x2_, Float64x2Div)                  \
+  V(float64x2_, float64x2_, Float64x2Min)                  \
+  V(float64x2_, float64x2_, Float64x2Max)                  \
+  V(float64x2_, Type::Number(), Float64x2Scale)            \
+  V(float64x2_, Type::Number(), Float64x2WithX)            \
   V(float64x2_, Type::Number(), Float64x2WithY)
 
 
@@ -852,6 +855,13 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceInt32x4Splat(node));
     case kInt32x4Swizzle:
       return ReplaceWithPureReduction(node, ReduceInt32x4Swizzle(node));
+    case kInt32x4ShiftLeft:
+      return ReplaceWithPureReduction(node, ReduceInt32x4ShiftLeft(node));
+    case kInt32x4ShiftRight:
+      return ReplaceWithPureReduction(node, ReduceInt32x4ShiftRight(node));
+    case kInt32x4ShiftRightArithmetic:
+      return ReplaceWithPureReduction(node,
+                                      ReduceInt32x4ShiftRightArithmetic(node));
     case kFloat64x2Add:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
     case kFloat64x2Sub:

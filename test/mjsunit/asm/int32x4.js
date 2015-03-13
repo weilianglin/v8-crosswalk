@@ -43,6 +43,9 @@ function asmModule(stdlib, imports, buffer) {
   var i4not = i4.not;
   var i4splat = i4.splat;
   var i4swizzle = i4.swizzle;
+  var i4shiftLeftByScalar = i4.shiftLeftByScalar;
+  var i4shiftRightLogicalByScalar = i4.shiftRightLogicalByScalar;
+  var i4shiftRightArithmeticByScalar = i4.shiftRightArithmeticByScalar;
 
   var a = i4(imports.a);
   var b = i4(imports.b);
@@ -456,6 +459,51 @@ function asmModule(stdlib, imports, buffer) {
     return i4(ret);
   }
 
+  function shiftLeftByScalar(a, n) {
+    a = i4(a);
+    n = n | 0;
+    var ret = i4();
+    ret = i4shiftLeftByScalar(a, n);
+    return i4(ret);
+  }
+
+  function shiftLeftByScalarConst(a) {
+    a = i4(a);
+    var ret = i4();
+    ret = i4shiftLeftByScalar(a, 2);
+    return i4(ret);
+  }
+
+  function shiftRightLogicalByScalar (a, n) {
+    a = i4(a);
+    n = n | 0;
+    var ret = i4();
+    ret = i4shiftRightLogicalByScalar(a, n);
+    return i4(ret);
+  }
+
+  function shiftRightLogicalByScalarConst(a) {
+    a = i4(a);
+    var ret = i4();
+    ret = i4shiftRightLogicalByScalar(a, 2);
+    return i4(ret);
+  }
+
+  function shiftRightArithmeticByScalar(a, n) {
+    a = i4(a);
+    n = n | 0;
+    var ret = i4();
+    ret = i4shiftRightArithmeticByScalar(a, n);
+    return i4(ret);
+  }
+
+  function shiftRightArithmeticByScalarConst(a) {
+    a = i4(a);
+    var ret = i4();
+    ret = i4shiftRightArithmeticByScalar(a, 2);
+    return i4(ret);
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -475,7 +523,13 @@ function asmModule(stdlib, imports, buffer) {
           getflagW : getflagW, getflagWLocal : getflagWLocal, getflagWImports : getflagWImports,
           not : not, notLocal : notLocal, notImports : notImports,
           neg : neg, negLocal : negLocal, negImports : negImports,
-          splat : splat, swizzle1 : swizzle1, swizzle2 : swizzle2};
+          splat : splat, swizzle1 : swizzle1, swizzle2 : swizzle2,
+          shiftLeftByScalar : shiftLeftByScalar, shiftLeftByScalarConst : shiftLeftByScalarConst,
+          shiftRightLogicalByScalar : shiftRightLogicalByScalar,
+          shiftRightLogicalByScalarConst : shiftRightLogicalByScalarConst,
+          shiftRightArithmeticByScalar : shiftRightArithmeticByScalar,
+          shiftRightArithmeticByScalarConst : shiftRightArithmeticByScalarConst,
+          };
 }
 
 
@@ -819,6 +873,46 @@ assertEquals(result.w, expected.w);
 
 var result = m.swizzle2(SIMD.int32x4(1, 2, 3, 4));
 var expected = SIMD.int32x4.swizzle(SIMD.int32x4(1, 2, 3, 4), 3, 2, 1, 0);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var a = SIMD.int32x4(1, 2, 100, 0);
+var result = m.shiftLeftByScalar(a, 2);
+var expected = SIMD.int32x4.shiftLeftByScalar(a, 2);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shiftLeftByScalarConst(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shiftRightLogicalByScalar(a, 2);
+var expected = SIMD.int32x4.shiftRightLogicalByScalar(a, 2);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shiftRightLogicalByScalarConst(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shiftRightArithmeticByScalar(a, 2);
+var expected = SIMD.int32x4.shiftRightArithmeticByScalar(a, 2);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.shiftRightArithmeticByScalarConst(a);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);

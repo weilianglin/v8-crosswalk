@@ -1613,6 +1613,27 @@ void InstructionSelector::VisitInt32x4Swizzle(Node* node) {
 }
 
 
+void InstructionSelector::VisitInt32x4ShiftLeft(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kInt32x4ShiftLeft, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.Use(node->InputAt(1)));
+}
+
+
+void InstructionSelector::VisitInt32x4ShiftRight(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kInt32x4ShiftRight, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.Use(node->InputAt(1)));
+}
+
+
+void InstructionSelector::VisitInt32x4ShiftRightArithmetic(Node* node) {
+  X64OperandGenerator g(this);
+  Emit(kInt32x4ShiftRightArithmetic, g.DefineSameAsFirst(node),
+       g.UseRegister(node->InputAt(0)), g.Use(node->InputAt(1)));
+}
+
+
 // static
 MachineOperatorBuilder::Flags
 InstructionSelector::SupportedMachineOperatorFlags() {
