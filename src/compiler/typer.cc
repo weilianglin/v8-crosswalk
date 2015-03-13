@@ -2319,6 +2319,10 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->int32x4_, Type::Untagged(), Int32x4Equal)                 \
   V(typer_->int32x4_, Type::Untagged(), Int32x4GreaterThan)           \
   V(typer_->int32x4_, Type::Untagged(), Int32x4LessThan)              \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4WithX)                 \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4WithY)                 \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4WithZ)                 \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4WithW)                 \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Add)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Sub)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Mul)               \

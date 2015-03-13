@@ -110,6 +110,10 @@ namespace compiler {
   V(Int32x4ShiftLeft)            \
   V(Int32x4ShiftRight)           \
   V(Int32x4ShiftRightArithmetic) \
+  V(Int32x4WithX)                \
+  V(Int32x4WithY)                \
+  V(Int32x4WithZ)                \
+  V(Int32x4WithW)                \
   V(LoadSIMD128)                 \
   V(CheckedLoadSIMD128)          \
   V(StoreSIMD128)                \

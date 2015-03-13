@@ -1518,6 +1518,10 @@ UNARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_UARY_SIMD_OPERATION2)
   V(Float32x4WithY)                    \
   V(Float32x4WithZ)                    \
   V(Float32x4WithW)                    \
+  V(Int32x4WithX)                      \
+  V(Int32x4WithY)                      \
+  V(Int32x4WithZ)                      \
+  V(Int32x4WithW)                      \
   V(Float64x2Scale)                    \
   V(Float64x2WithX)                    \
   V(Float64x2WithY)

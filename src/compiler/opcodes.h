@@ -313,6 +313,10 @@
   V(Int32x4LessThan)             \
   V(Float32x4BitsToInt32x4)      \
   V(Float32x4ToInt32x4)          \
+  V(Int32x4WithX)                \
+  V(Int32x4WithY)                \
+  V(Int32x4WithZ)                \
+  V(Int32x4WithW)                \
   V(Float64x2Add)                \
   V(Float64x2Mul)                \
   V(Float64x2Sub)                \
