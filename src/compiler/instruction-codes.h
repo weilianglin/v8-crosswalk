@@ -106,6 +106,7 @@ namespace compiler {
   V(Int32x4Neg)                  \
   V(Int32x4Not)                  \
   V(Int32x4Splat)                \
+  V(Int32x4Swizzle)              \
   V(LoadSIMD128)                 \
   V(CheckedLoadSIMD128)          \
   V(StoreSIMD128)                \

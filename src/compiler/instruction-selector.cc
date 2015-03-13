@@ -1016,6 +1016,8 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsInt32x4(node), VisitInt32x4Not(node);
     case IrOpcode::kInt32x4Splat:
       return MarkAsInt32x4(node), VisitInt32x4Splat(node);
+    case IrOpcode::kInt32x4Swizzle:
+      return MarkAsInt32x4(node), VisitInt32x4Swizzle(node);
     case IrOpcode::kFloat64x2Add:
       return MarkAsFloat64x2(node), VisitFloat64x2Add(node);
     case IrOpcode::kFloat64x2Sub:

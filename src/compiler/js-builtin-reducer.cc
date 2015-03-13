@@ -459,6 +459,29 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
 }
 
 
+Reduction JSBuiltinReducer::ReduceInt32x4Swizzle(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 5) {
+    if (NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(int32x4_)) {
+      for (int i = 1; i < r.GetJSCallArity(); i++) {
+        Type* t = NodeProperties::GetBounds(r.GetJSCallInput(i)).upper;
+        if (!(t->IsConstant() && t->Is(Type::Number()))) {
+          return NoChange();
+        }
+
+        Node* value =
+            graph()->NewNode(machine()->Int32x4Swizzle(), r.GetJSCallInput(0),
+                             r.GetJSCallInput(1), r.GetJSCallInput(2),
+                             r.GetJSCallInput(3), r.GetJSCallInput(4));
+        return Replace(value);
+      }
+    }
+  }
+
+  return NoChange();
+}
+
+
 Reduction JSBuiltinReducer::ReduceFloat32x4Select(Node* node) {
   JSCallReduction r(node);
   if (r.GetJSCallArity() == 3 &&
@@ -827,6 +850,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceInt32x4Not(node));
     case kInt32x4Splat:
       return ReplaceWithPureReduction(node, ReduceInt32x4Splat(node));
+    case kInt32x4Swizzle:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Swizzle(node));
     case kFloat64x2Add:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
     case kFloat64x2Sub:

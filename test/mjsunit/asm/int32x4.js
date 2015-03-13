@@ -42,6 +42,7 @@ function asmModule(stdlib, imports, buffer) {
   var i4neg = i4.neg;
   var i4not = i4.not;
   var i4splat = i4.splat;
+  var i4swizzle = i4.swizzle;
 
   var a = i4(imports.a);
   var b = i4(imports.b);
@@ -440,6 +441,20 @@ function asmModule(stdlib, imports, buffer) {
     return i4(ret);
   }
 
+  function swizzle1(a) {
+    a = i4(a);
+    var ret = i4();
+    ret = i4swizzle(a, 0, 0, 0, 0);
+    return i4(ret);
+  }
+
+  function swizzle2(a) {
+    a = i4(a);
+    var ret = i4();
+    ret = i4swizzle(a, 3, 2, 1, 0);
+    return i4(ret);
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -459,7 +474,7 @@ function asmModule(stdlib, imports, buffer) {
           getflagW : getflagW, getflagWLocal : getflagWLocal, getflagWImports : getflagWImports,
           not : not, notLocal : notLocal, notImports : notImports,
           neg : neg, negLocal : negLocal, negImports : negImports,
-          splat : splat};
+          splat : splat, swizzle1 : swizzle1, swizzle2 : swizzle2};
 }
 
 
@@ -793,6 +808,20 @@ assertEquals(result, expected);
 
 var result = m.getflagWImports();
 assertEquals(result, expected);
+
+var result = m.swizzle1(SIMD.int32x4(1, 2, 3, 4));
+var expected = SIMD.int32x4.swizzle(SIMD.int32x4(1, 2, 3, 4), 0, 0, 0, 0);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.swizzle2(SIMD.int32x4(1, 2, 3, 4));
+var expected = SIMD.int32x4.swizzle(SIMD.int32x4(1, 2, 3, 4), 3, 2, 1, 0);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
 
 function asmModule2(stdlib, imports, buffer) {
   "use asm"

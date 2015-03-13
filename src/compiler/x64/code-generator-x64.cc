@@ -1233,14 +1233,14 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       break;
     }
     case kInt32x4Not: {
-        XMMRegister input = i.InputInt32x4Register(0);
-        __ notps(input);
-        break;
+      XMMRegister input = i.InputInt32x4Register(0);
+      __ notps(input);
+      break;
     }
     case kInt32x4Neg: {
-        XMMRegister input = i.InputInt32x4Register(0);
-        __ pnegd(input);
-        break;
+      XMMRegister input = i.InputInt32x4Register(0);
+      __ pnegd(input);
+      break;
     }
     case kInt32x4Splat: {
       Register input_reg = i.InputRegister(0);
@@ -1248,6 +1248,13 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       __ movd(result_reg, input_reg);
       __ shufps(result_reg, result_reg, 0x0);
       return;
+    }
+    case kInt32x4Swizzle: {
+      uint8_t s = ComputeShuffleSelect(i.InputInt32(1), i.InputInt32(2),
+                                       i.InputInt32(3), i.InputInt32(4));
+      XMMRegister value_reg = i.InputInt32x4Register(0);
+      __ pshufd(value_reg, value_reg, s);
+      break;
     }
     // Int32x4 Operation end.
     case kLoadSIMD128: {

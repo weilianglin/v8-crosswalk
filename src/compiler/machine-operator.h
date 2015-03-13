@@ -234,6 +234,7 @@ class MachineOperatorBuilder FINAL : public ZoneObject {
   V(Int32x4Neg)                  \
   V(Int32x4Not)                  \
   V(Int32x4Splat)                \
+  V(Int32x4Swizzle)              \
   V(Float64x2Add)                \
   V(Float64x2Mul)                \
   V(Float64x2Sub)                \

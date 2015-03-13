@@ -182,6 +182,7 @@ CheckedStoreRepresentation CheckedStoreRepresentationOf(Operator const* op) {
   V(Int32x4Neg, Operator::kNoProperties, 1, 0, 1)                             \
   V(Int32x4Not, Operator::kNoProperties, 1, 0, 1)                             \
   V(Int32x4Splat, Operator::kNoProperties, 1, 0, 1)                           \
+  V(Int32x4Swizzle, Operator::kNoProperties, 5, 0, 1)                         \
   V(Float64x2Add, Operator::kCommutative, 2, 0, 1)                            \
   V(Float64x2Sub, Operator::kNoProperties, 2, 0, 1)                           \
   V(Float64x2Mul, Operator::kCommutative, 2, 0, 1)                            \
