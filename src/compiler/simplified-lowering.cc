@@ -1330,6 +1330,18 @@ class RepresentationSelector {
         ProcessInput(node, 2, kMachFloat64x2);
         SetOutput(node, kMachFloat64x2);
         break;
+      case IrOpcode::kInt32x4BitsToFloat32x4:
+      case IrOpcode::kInt32x4ToFloat32x4:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachInt32x4);
+        SetOutput(node, kMachFloat32x4);
+        break;
+      case IrOpcode::kFloat32x4BitsToInt32x4:
+      case IrOpcode::kFloat32x4ToInt32x4:
+        DCHECK_EQ(1, node->InputCount());
+        ProcessInput(node, 0, kMachFloat32x4);
+        SetOutput(node, kMachInt32x4);
+        break;
       default:
         VisitInputs(node);
         break;

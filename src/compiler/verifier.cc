@@ -820,6 +820,11 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat64x2WithX:
     case IrOpcode::kFloat64x2WithY:
     case IrOpcode::kFloat64x2Clamp:
+    // Conversion
+    case IrOpcode::kInt32x4BitsToFloat32x4:
+    case IrOpcode::kInt32x4ToFloat32x4:
+    case IrOpcode::kFloat32x4BitsToInt32x4:
+    case IrOpcode::kFloat32x4ToInt32x4:
       // TODO(rossberg): Check.
       break;
   }

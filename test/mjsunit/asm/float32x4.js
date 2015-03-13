@@ -46,6 +46,10 @@ function asmModule(stdlib, imports, buffer) {
   var fgreaterThanOrEqual = f4.greaterThanOrEqual;
   var fselect = f4.select;
   var fshuffle = f4.shuffle;
+  var ffromInt32x4 = f4.fromInt32x4;
+  var ffromInt32x4Bits = f4.fromInt32x4Bits;
+  var ifromFloat32x4 = i4.fromFloat32x4;
+  var ifromFloat32x4Bits = i4.fromFloat32x4Bits;
 
   function scale(a, b) {
     a = f4(a);
@@ -208,12 +212,43 @@ function asmModule(stdlib, imports, buffer) {
     return f4(ret);
   }
 
+  function fromInt32x4(a) {
+    a = i4(a);
+    var ret = f4();
+    ret = ffromInt32x4(a);
+    return f4(ret);
+  }
+
+  function fromInt32x4Bits(a) {
+    a = i4(a);
+    var ret = f4();
+    ret = ffromInt32x4Bits(a);
+    return f4(ret);
+  }
+
+  function fromFloat32x4(a) {
+    a = f4(a);
+    var ret = i4();
+    ret = ifromFloat32x4(a);
+    return i4(ret);
+  }
+
+  function fromFloat32x4Bits(a) {
+    a = f4(a);
+    var ret = i4();
+    ret = ifromFloat32x4Bits(a);
+    return i4(ret);
+  }
+
   return {scale : scale, withX : withX, withY : withY, withZ : withZ,
           withW : withW, clamp : clamp, swizzle1 : swizzle1, swizzle2 : swizzle2,
           equal : equal, notEqual : notEqual, lessThan : lessThan, lessThanOrEqual : lessThanOrEqual,
           greaterThan : greaterThan, greaterThanOrEqual : greaterThanOrEqual,
           select : select, shuffle1 : shuffle1, shuffle2 : shuffle2, shuffle3 : shuffle3,
-          shuffle4 : shuffle4, shuffle5 : shuffle5, shuffle6 : shuffle6};
+          shuffle4 : shuffle4, shuffle5 : shuffle5, shuffle6 : shuffle6,
+          fromInt32x4 : fromInt32x4, fromInt32x4Bits : fromInt32x4Bits, fromFloat32x4 : fromFloat32x4,
+          fromFloat32x4Bits : fromFloat32x4Bits
+          };
 }
 
 
@@ -372,6 +407,33 @@ assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
 
+var a = SIMD.int32x4(0x3F800000, 0x40000000, 0x40400000, 0x40800000);
+var result = m.fromInt32x4Bits(a);
+assertEquals(1.0, result.x);
+assertEquals(2.0, result.y);
+assertEquals(3.0, result.z);
+assertEquals(4.0, result.w);
+
+var a = SIMD.int32x4(1, 2, 3, 4);
+var result = m.fromInt32x4(a);
+assertEquals(1.0, result.x);
+assertEquals(2.0, result.y);
+assertEquals(3.0, result.z);
+assertEquals(4.0, result.w);
+
+var a = SIMD.float32x4(9.0, 10.0, 11.0, 12.0);
+var result = m.fromFloat32x4Bits(a);
+assertEquals(0x41100000, result.x);
+assertEquals(0x41200000, result.y);
+assertEquals(0x41300000, result.z);
+assertEquals(0x41400000, result.w);
+
+var a = SIMD.float32x4(5.0, 6.0, 7.0, 8.0);
+var result = m.fromFloat32x4(a);
+assertEquals(5, result.x);
+assertEquals(6, result.y);
+assertEquals(7, result.z);
+assertEquals(8, result.w);
 
 function asmModule2(stdlib, imports, buffer) {
   "use asm"

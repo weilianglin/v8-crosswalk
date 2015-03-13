@@ -1024,6 +1024,14 @@ void InstructionSelector::VisitNode(Node* node) {
       return MarkAsInt32x4(node), VisitInt32x4ShiftRight(node);
     case IrOpcode::kInt32x4ShiftRightArithmetic:
       return MarkAsInt32x4(node), VisitInt32x4ShiftRightArithmetic(node);
+    case IrOpcode::kInt32x4BitsToFloat32x4:
+      return MarkAsFloat32x4(node), VisitInt32x4BitsToFloat32x4(node);
+    case IrOpcode::kInt32x4ToFloat32x4:
+      return MarkAsFloat32x4(node), VisitInt32x4ToFloat32x4(node);
+    case IrOpcode::kFloat32x4BitsToInt32x4:
+      return MarkAsInt32x4(node), VisitFloat32x4BitsToInt32x4(node);
+    case IrOpcode::kFloat32x4ToInt32x4:
+      return MarkAsInt32x4(node), VisitFloat32x4ToInt32x4(node);
     case IrOpcode::kFloat64x2Add:
       return MarkAsFloat64x2(node), VisitFloat64x2Add(node);
     case IrOpcode::kFloat64x2Sub:
