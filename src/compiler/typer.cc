@@ -2316,6 +2316,9 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   V(typer_->float32x4_, Type::Untagged(), Int32x4ToFloat32x4)         \
   V(typer_->int32x4_, Type::Untagged(), Float32x4BitsToInt32x4)       \
   V(typer_->int32x4_, Type::Untagged(), Float32x4ToInt32x4)           \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4Equal)                 \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4GreaterThan)           \
+  V(typer_->int32x4_, Type::Untagged(), Int32x4LessThan)              \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Add)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Sub)               \
   V(typer_->float64x2_, Type::Untagged(), Float64x2Mul)               \
@@ -2430,6 +2433,9 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kInt32x4Mul:
         case kInt32x4Or:
         case kInt32x4Xor:
+        case kInt32x4Equal:
+        case kInt32x4GreaterThan:
+        case kInt32x4LessThan:
           return typer_->cache_->Get(kInt32x4Func2);
         case kInt32x4Constructor:
           return typer_->cache_->Get(kInt32x4Func4i);

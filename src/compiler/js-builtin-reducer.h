@@ -98,6 +98,9 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceInt32x4ToFloat32x4(Node* node);
   Reduction ReduceFloat32x4BitsToInt32x4(Node* node);
   Reduction ReduceFloat32x4ToInt32x4(Node* node);
+  Reduction ReduceInt32x4Equal(Node* node);
+  Reduction ReduceInt32x4GreaterThan(Node* node);
+  Reduction ReduceInt32x4LessThan(Node* node);
   Reduction ReduceFloat64x2Add(Node* node);
   Reduction ReduceFloat64x2Sub(Node* node);
   Reduction ReduceFloat64x2Mul(Node* node);

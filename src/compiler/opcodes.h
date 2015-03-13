@@ -308,6 +308,9 @@
   V(Int32x4ShiftRightArithmetic) \
   V(Int32x4BitsToFloat32x4)      \
   V(Int32x4ToFloat32x4)          \
+  V(Int32x4Equal)                \
+  V(Int32x4GreaterThan)          \
+  V(Int32x4LessThan)             \
   V(Float32x4BitsToInt32x4)      \
   V(Float32x4ToInt32x4)          \
   V(Float64x2Add)                \

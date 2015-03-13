@@ -1290,20 +1290,28 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       break;
     }
     case kFloat32x4BitsToInt32x4:
-    case kInt32x4BitsToFloat32x4: {
+    case kInt32x4BitsToFloat32x4:
       if (!i.OutputSIMD128Register().is(i.InputSIMD128Register(0))) {
         __ movaps(i.OutputSIMD128Register(), i.InputSIMD128Register(0));
       }
       break;
-    }
-    case kInt32x4ToFloat32x4: {
+    case kInt32x4ToFloat32x4:
       __ cvtdq2ps(i.OutputFloat32x4Register(), i.InputInt32x4Register(0));
       break;
-    }
-    case kFloat32x4ToInt32x4: {
+    case kFloat32x4ToInt32x4:
       __ cvtps2dq(i.OutputInt32x4Register(), i.InputFloat32x4Register(0));
       break;
-    }
+    case kInt32x4Equal:
+      __ pcmpeqd(i.InputFloat32x4Register(0), i.InputFloat32x4Register(1));
+      break;
+    case kInt32x4GreaterThan:
+      __ pcmpgtd(i.InputFloat32x4Register(0), i.InputFloat32x4Register(1));
+      break;
+    case kInt32x4LessThan:
+      __ movaps(xmm0, i.InputFloat32x4Register(1));
+      __ pcmpgtd(xmm0, i.InputFloat32x4Register(0));
+      __ movaps(i.InputFloat32x4Register(0), xmm0);
+      break;
     // Int32x4 Operation end.
     case kLoadSIMD128: {
       int index = 0;

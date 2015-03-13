@@ -252,6 +252,9 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
   V(int32x4_, Type::Number(), Int32x4ShiftLeft)            \
   V(int32x4_, Type::Number(), Int32x4ShiftRight)           \
   V(int32x4_, Type::Number(), Int32x4ShiftRightArithmetic) \
+  V(int32x4_, int32x4_, Int32x4Equal)                      \
+  V(int32x4_, int32x4_, Int32x4GreaterThan)                \
+  V(int32x4_, int32x4_, Int32x4LessThan)                   \
   V(float64x2_, float64x2_, Float64x2Add)                  \
   V(float64x2_, float64x2_, Float64x2Sub)                  \
   V(float64x2_, float64x2_, Float64x2Mul)                  \
@@ -874,6 +877,12 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat32x4BitsToInt32x4(node));
     case kFloat32x4ToInt32x4:
       return ReplaceWithPureReduction(node, ReduceFloat32x4ToInt32x4(node));
+    case kInt32x4Equal:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Equal(node));
+    case kInt32x4GreaterThan:
+      return ReplaceWithPureReduction(node, ReduceInt32x4GreaterThan(node));
+    case kInt32x4LessThan:
+      return ReplaceWithPureReduction(node, ReduceInt32x4LessThan(node));
     case kFloat64x2Add:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Add(node));
     case kFloat64x2Sub:

@@ -1386,6 +1386,9 @@ void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
   V(Int32x4Sub)                        \
   V(Int32x4Or)                         \
   V(Int32x4Xor)                        \
+  V(Int32x4Equal)                      \
+  V(Int32x4GreaterThan)                \
+  V(Int32x4LessThan)                   \
   V(Float64x2Add)                      \
   V(Float64x2Sub)                      \
   V(Float64x2Mul)                      \

@@ -118,6 +118,9 @@ namespace compiler {
   V(Int32x4ToFloat32x4)          \
   V(Float32x4BitsToInt32x4)      \
   V(Float32x4ToInt32x4)          \
+  V(Int32x4Equal)                \
+  V(Int32x4GreaterThan)          \
+  V(Int32x4LessThan)             \
   V(Float64x2Add)                \
   V(Float64x2Mul)                \
   V(Float64x2Sub)                \

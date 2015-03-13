@@ -1206,6 +1206,9 @@ class RepresentationSelector {
       case IrOpcode::kInt32x4Mul:
       case IrOpcode::kInt32x4Or:
       case IrOpcode::kInt32x4Xor:
+      case IrOpcode::kInt32x4Equal:
+      case IrOpcode::kInt32x4GreaterThan:
+      case IrOpcode::kInt32x4LessThan:
         DCHECK_EQ(2, node->InputCount());
         ProcessInput(node, 0, kMachInt32x4);
         ProcessInput(node, 1, kMachInt32x4);

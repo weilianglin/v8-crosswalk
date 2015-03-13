@@ -46,6 +46,9 @@ function asmModule(stdlib, imports, buffer) {
   var i4shiftLeftByScalar = i4.shiftLeftByScalar;
   var i4shiftRightLogicalByScalar = i4.shiftRightLogicalByScalar;
   var i4shiftRightArithmeticByScalar = i4.shiftRightArithmeticByScalar;
+  var i4equal = i4.equal;
+  var i4greaterThan = i4.greaterThan;
+  var i4lessThan = i4.lessThan;
 
   var a = i4(imports.a);
   var b = i4(imports.b);
@@ -504,6 +507,30 @@ function asmModule(stdlib, imports, buffer) {
     return i4(ret);
   }
 
+  function equal(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4equal(a, b);
+    return i4(ret);
+  }
+
+  function greaterThan(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4greaterThan(a, b);
+    return i4(ret);
+  }
+
+  function lessThan(a, b) {
+    a = i4(a);
+    b = i4(b);
+    var ret = i4();
+    ret = i4lessThan(a, b);
+    return i4(ret);
+  }
+
   return {add : add, addLocal : addLocal, addImports : addImports,
           sub : sub, subLocal : subLocal, subImports : subImports,
           mul : mul, mulLocal : mulLocal, mulImports : mulImports,
@@ -529,6 +556,7 @@ function asmModule(stdlib, imports, buffer) {
           shiftRightLogicalByScalarConst : shiftRightLogicalByScalarConst,
           shiftRightArithmeticByScalar : shiftRightArithmeticByScalar,
           shiftRightArithmeticByScalarConst : shiftRightArithmeticByScalarConst,
+          equal : equal, greaterThan : greaterThan, lessThan : lessThan,
           };
 }
 
@@ -917,6 +945,30 @@ assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
+
+var a = SIMD.int32x4(1, 2, 100, 1);
+var b = SIMD.int32x4(2, 2, 1, 100);
+var result = m.equal(a, b);
+var expected = SIMD.int32x4.equal(a, b)
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.greaterThan(a, b);
+var expected = SIMD.int32x4.greaterThan(a, b)
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.lessThan(a, b);
+var expected = SIMD.int32x4.lessThan(a, b)
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
 
 function asmModule2(stdlib, imports, buffer) {
   "use asm"
