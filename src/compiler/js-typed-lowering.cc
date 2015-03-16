@@ -793,6 +793,8 @@ Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
     if (value != NULL) {
       NodeProperties::ReplaceWithValue(node, value);
       return Replace(value);
+    } else if (FLAG_simd_warning) {
+      fprintf(stderr, "Warning: Float32x4 property access is not inlined!\n");
     }
   } else if (NodeProperties::GetBounds(obj).upper->Is(int32x4_)) {
     Node* value = NULL;
@@ -820,6 +822,8 @@ Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
     if (value != NULL) {
       NodeProperties::ReplaceWithValue(node, value);
       return Replace(value);
+    } else if (FLAG_simd_warning) {
+      fprintf(stderr, "Warning: Int32x4 property access is not inlined!\n");
     }
   } else if (NodeProperties::GetBounds(obj).upper->Is(float64x2_)) {
     Node* value = NULL;
@@ -835,6 +839,25 @@ Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
     if (value != NULL) {
       NodeProperties::ReplaceWithValue(node, value);
       return Replace(value);
+    } else if (FLAG_simd_warning) {
+      fprintf(stderr, "Warning: Float64x2 property access is not inlined!\n");
+    }
+  }
+
+  if (FLAG_simd_warning) {
+    Handle<Name> name = p.name().handle();
+    if (name->Equals(isolate->heap()->x()) ||
+        name->Equals(isolate->heap()->y()) ||
+        name->Equals(isolate->heap()->z()) ||
+        name->Equals(isolate->heap()->signMask())) {
+      fprintf(stderr,
+              "Warning: Float64x2 property access may be not inlined!\n");
+#ifdef OBJECT_PRINT
+      OFStream os(stderr);
+      os << "  ";
+      name->NamePrint(os);
+      os << "\n";
+#endif
     }
   }
   return NoChange();

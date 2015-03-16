@@ -225,6 +225,13 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
 }
 
 
+#define SIMD_WARNING(opcode, node)                                 \
+  if (FLAG_simd_warning) {                                         \
+    fprintf(stderr, "Warning: %s[#%d] is not inlined!\n", #opcode, \
+            node->id());                                           \
+  }
+
+
 #define REDUCED_SIMD_BINARY_OPERATIONS(V)                  \
   V(float32x4_, float32x4_, Float32x4Add)                  \
   V(float32x4_, float32x4_, Float32x4Sub)                  \
@@ -280,6 +287,7 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
       return Replace(value);                                          \
     }                                                                 \
                                                                       \
+    SIMD_WARNING(opcode, node)                                        \
     return NoChange();                                                \
   }
 
@@ -318,6 +326,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
     }
   }
 
+  SIMD_WARNING(Float32x4Constructor, node);
   return NoChange();
 }
 
@@ -353,6 +362,7 @@ Reduction JSBuiltinReducer::ReduceInt32x4Constructor(Node* node) {
     }
   }
 
+  SIMD_WARNING(Int32x4Constructor, node);
   return NoChange();
 }
 
@@ -386,6 +396,7 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Constructor(Node* node) {
     }
   }
 
+  SIMD_WARNING(Float64x2Constructor, node);
   return NoChange();
 }
 
@@ -417,6 +428,8 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Constructor(Node* node) {
       return Replace(value);                                         \
     }                                                                \
                                                                      \
+    SIMD_WARNING(opcode, node)                                       \
+                                                                     \
     return NoChange();                                               \
   }
 
@@ -433,6 +446,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Clamp(Node* node) {
     return Replace(value);
   }
 
+  SIMD_WARNING(Float32x4Clamp, node);
   return NoChange();
 }
 
@@ -446,6 +460,7 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Clamp(Node* node) {
     return Replace(value);
   }
 
+  SIMD_WARNING(Float64x2Clamp, node);
   return NoChange();
 }
 
@@ -469,6 +484,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
     }
   }
 
+  SIMD_WARNING(Float32x4Swizzle, node);
   return NoChange();
 }
 
@@ -492,6 +508,7 @@ Reduction JSBuiltinReducer::ReduceInt32x4Swizzle(Node* node) {
     }
   }
 
+  SIMD_WARNING(Int32x4Swizzle, node);
   return NoChange();
 }
 
@@ -508,6 +525,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Select(Node* node) {
     return Replace(value);
   }
 
+  SIMD_WARNING(Float32x4Select, node);
   return NoChange();
 }
 
@@ -521,6 +539,7 @@ Reduction JSBuiltinReducer::ReduceInt32x4Select(Node* node) {
     return Replace(value);
   }
 
+  SIMD_WARNING(Int32x4Select, node);
   return NoChange();
 }
 
@@ -586,6 +605,8 @@ Reduction JSBuiltinReducer::ReduceInt32x4Select(Node* node) {
         }                                                                    \
       }                                                                      \
     }                                                                        \
+                                                                             \
+    SIMD_WARNING(opcode, node)                                               \
                                                                              \
     return NoChange();                                                       \
   }
@@ -660,6 +681,8 @@ SIMD_LOAD_OPERATION(DECLARE_REDUCE_SIMD_LOAD)
       }                                                                       \
     }                                                                         \
                                                                               \
+    SIMD_WARNING(opcode, node)                                                \
+                                                                              \
     return NoChange();                                                        \
   }
 
@@ -679,6 +702,7 @@ Reduction JSBuiltinReducer::ReduceInt32x4Bool(Node* node) {
     return Replace(value);
   }
 
+  SIMD_WARNING(Int32x4Bool, node);
   return NoChange();
 }
 
@@ -702,6 +726,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Shuffle(Node* node) {
     }
   }
 
+  SIMD_WARNING(Float32x4Shuffle, node);
   return NoChange();
 }
 
@@ -725,6 +750,7 @@ Reduction JSBuiltinReducer::ReduceInt32x4Shuffle(Node* node) {
     }
   }
 
+  SIMD_WARNING(Int32x4Shuffle, node);
   return NoChange();
 }
 
