@@ -1161,128 +1161,241 @@ function asmModule2(stdlib, imports, buffer) {
   var i4storeX = i4.storeX;
   var i4storeXY = i4.storeXY;
   var i4storeXYZ = i4.storeXYZ;
+  var uint8array = new stdlib.Uint8Array(buffer);
   var i32array = new stdlib.Int32Array(buffer);
 
-  function load(a) {
+  function loadI32(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4load(i32array, a | 0);
     return i4(ret);
   }
 
-  function loadX(a) {
+  function loadI32X(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadX(i32array, a | 0);
     return i4(ret);
   }
 
-  function loadXY(a) {
+  function loadI32XY(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadXY(i32array, a | 0);
     return i4(ret);
   }
 
-  function loadXYZ(a) {
+  function loadI32XYZ(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadXYZ(i32array, a);
     return i4(ret);
   }
 
-  function store(a, v) {
+  function loadU8(a) {
+    a = a | 0;
+    var ret = i4(0, 0, 0, 0);
+    ret = i4load(uint8array, a | 0);
+    return i4(ret);
+  }
+
+  function loadU8X(a) {
+    a = a | 0;
+    var ret = i4(0, 0, 0, 0);
+    ret = i4loadX(uint8array, a | 0);
+    return i4(ret);
+  }
+
+  function loadU8XY(a) {
+    a = a | 0;
+    var ret = i4(0, 0, 0, 0);
+    ret = i4loadXY(uint8array, a | 0);
+    return i4(ret);
+  }
+
+  function loadU8XYZ(a) {
+    a = a | 0;
+    var ret = i4(0, 0, 0, 0);
+    ret = i4loadXYZ(uint8array, a);
+    return i4(ret);
+  }
+
+  function storeI32(a, v) {
     a =  a | 0;
     v = i4(v);
     i4store(i32array, a, v);
-    return i4load(i32array, a);
   }
 
-  function storeX(a, v) {
+  function storeI32X(a, v) {
     a =  a | 0;
     v = i4(v);
     i4storeX(i32array, a, v);
-    return i4loadX(i32array, a);
   }
 
-  function storeXY(a, v) {
+  function storeI32XY(a, v) {
     a =  a | 0;
     v = i4(v);
     i4storeXY(i32array, a, v);
-    return i4loadXY(i32array, a);
   }
 
-  function storeXYZ(a, v) {
+  function storeI32XYZ(a, v) {
     a =  a | 0;
     v = i4(v);
     i4storeXYZ(i32array, a, v);
-    return i4loadXYZ(i32array, a);
   }
 
-  return {load : load, loadX : loadX, loadXY : loadXY, loadXYZ : loadXYZ,
-          store : store, storeX : storeX, storeXY : storeXY, storeXYZ : storeXYZ};
+  function storeU8(a, v) {
+    a =  a | 0;
+    v = i4(v);
+    i4store(uint8array, a, v);
+  }
+
+  function storeU8X(a, v) {
+    a =  a | 0;
+    v = i4(v);
+    i4storeX(uint8array, a, v);
+  }
+
+  function storeU8XY(a, v) {
+    a =  a | 0;
+    v = i4(v);
+    i4storeXY(uint8array, a, v);
+  }
+
+  function storeU8XYZ(a, v) {
+    a =  a | 0;
+    v = i4(v);
+    i4storeXYZ(uint8array, a, v);
+  }
+
+  return {
+          loadI32 : loadI32, loadI32X : loadI32X, loadI32XY : loadI32XY, loadI32XYZ : loadI32XYZ,
+          loadU8 : loadU8, loadU8X : loadU8X, loadU8XY : loadU8XY, loadU8XYZ : loadU8XYZ,
+          storeI32 : storeI32, storeI32X : storeI32X, storeI32XY : storeI32XY, storeI32XYZ : storeI32XYZ,
+          storeU8 : storeU8, storeU8X : storeU8X, storeU8XY : storeU8XY, storeU8XYZ : storeU8XYZ,
+          };
 }
 
 
 var heap = new ArrayBuffer(0x4000);
 var i32array = new Int32Array(heap);
+var uint8array = new Uint8Array(heap);
 for (var i = 0; i < 0x4000; i = i + 4) {
-  i32array[i>>2] = i;
+  i32array[i>>2] = i / 4;
 }
 var m = asmModule2(this, {}, heap);
-var result = m.load(4);
+// Int32Array
+var result = m.loadI32(4);
 var expected = SIMD.int32x4.load(i32array, 4);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
+// Uint8Array
+var result = m.loadU8(4 << 2);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
 
-var result = m.loadX(4);
+// Int32Array
+var result = m.loadI32X(4);
 var expected = SIMD.int32x4.loadX(i32array, 4);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
+// Uint8Array
+var result = m.loadU8X(4 << 2);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
 
-var result = m.loadXY(4);
+// Int32Array
+var result = m.loadI32XY(4);
 var expected = SIMD.int32x4.loadXY(i32array, 4);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
+// Uint8Array
+var result = m.loadU8XY(4 << 2);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
 
-var result = m.loadXYZ(4);
+// Int32Array
+var result = m.loadI32XYZ(4);
 var expected = SIMD.int32x4.loadXYZ(i32array, 4);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
-
-var val = SIMD.int32x4(1, 2, 3, 4);
-var result = m.store(4, val);
-var expected = val;
+// Uint8Array
+var result = m.loadU8XYZ(4 << 2);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
 
-var expected = SIMD.int32x4(1, 0, 0, 0);
-var result = m.storeX(8, val);
-assertEquals(result.x, expected.x);
-assertEquals(result.y, expected.y);
-assertEquals(result.z, expected.z);
-assertEquals(result.w, expected.w);
+// Int32Array
+m.storeI32(4, SIMD.int32x4(1, 2, 3, 4));
+var result = SIMD.int32x4.load(i32array, 4);
+assertEquals(result.x, 1);
+assertEquals(result.y, 2);
+assertEquals(result.z, 3);
+assertEquals(result.w, 4);
+// Uint8Array
+m.storeU8(4<<2, SIMD.int32x4(5, 6, 7, 8));
+var result = SIMD.int32x4.load(uint8array, 4<<2);
+assertEquals(result.x, 5);
+assertEquals(result.y, 6);
+assertEquals(result.z, 7);
+assertEquals(result.w, 8);
 
-var expected = SIMD.int32x4(1, 2, 0, 0);
-var result = m.storeXY(12, val);
-assertEquals(result.x, expected.x);
-assertEquals(result.y, expected.y);
-assertEquals(result.z, expected.z);
-assertEquals(result.w, expected.w);
+// Int32Array
+m.storeI32X(8, SIMD.int32x4(1, 2, 3, 4));
+var result = SIMD.int32x4.load(i32array, 8);
+assertEquals(result.x, 1);
+assertEquals(result.y, 9);
+assertEquals(result.z, 10);
+assertEquals(result.w, 11);
+// Uint8Array
+m.storeU8X(8<<2, SIMD.int32x4(5, 6, 7, 8));
+var result = SIMD.int32x4.load(uint8array, 8<<2);
+assertEquals(result.x, 5);
+assertEquals(result.y, 9);
+assertEquals(result.z, 10);
+assertEquals(result.w, 11);
 
-var expected = SIMD.int32x4(1, 2, 3, 0);
-var result = m.storeXYZ(16, val);
-assertEquals(result.x, expected.x);
-assertEquals(result.y, expected.y);
-assertEquals(result.z, expected.z);
-assertEquals(result.w, expected.w);
+// Int32Array
+m.storeI32XY(12, SIMD.int32x4(1, 2, 3, 4));
+var result = SIMD.int32x4.load(i32array, 12);
+assertEquals(result.x, 1);
+assertEquals(result.y, 2);
+assertEquals(result.z, 14);
+assertEquals(result.w, 15);
+// Uint8Array
+m.storeU8XY(12<<2, SIMD.int32x4(5, 6, 7, 8));
+var result = SIMD.int32x4.load(uint8array, 12<<2);
+assertEquals(result.x, 5);
+assertEquals(result.y, 6);
+assertEquals(result.z, 14);
+assertEquals(result.w, 15);
+
+// Int32Array
+m.storeI32XYZ(16, SIMD.int32x4(1, 2, 3, 4));
+var result = SIMD.int32x4.load(i32array, 16);
+assertEquals(result.x, 1);
+assertEquals(result.y, 2);
+assertEquals(result.z, 3);
+assertEquals(result.w, 19);
+// Uint8Array
+m.storeU8XYZ(16<<2, SIMD.int32x4(5, 6, 7, 8));
+var result = SIMD.int32x4.load(uint8array, 16<<2);
+assertEquals(result.x, 5);
+assertEquals(result.y, 6);
+assertEquals(result.z, 7);
+assertEquals(result.w, 19);

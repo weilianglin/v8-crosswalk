@@ -589,62 +589,112 @@ function asmModule2(stdlib, imports, buffer) {
   var f2store = f2.store;
   var f2storeX = f2.storeX;
   var f64array = new stdlib.Float64Array(buffer);
+  var uint8array = new stdlib.Uint8Array(buffer);
 
-  function load(a) {
+  function loadF64(a) {
     a = a | 0;
     var ret = f2(0, 0);
     ret = f2load(f64array, a | 0);
     return f2(ret);
   }
 
-  function loadX(a) {
+  function loadF64X(a) {
     a = a | 0;
     var ret = f2(0, 0);
     ret = f2loadX(f64array, a | 0);
     return f2(ret);
   }
 
-  function store(a, v) {
+  function loadU8(a) {
+    a = a | 0;
+    var ret = f2(0, 0);
+    ret = f2load(uint8array, a | 0);
+    return f2(ret);
+  }
+
+  function loadU8X(a) {
+    a = a | 0;
+    var ret = f2(0, 0);
+    ret = f2loadX(uint8array, a | 0);
+    return f2(ret);
+  }
+
+  function storeF64(a, v) {
     a =  a | 0;
     v = f2(v);
     f2store(f64array, a, v);
-    return f2load(f64array, a);
   }
 
-  function storeX(a, v) {
+  function storeF64X(a, v) {
     a =  a | 0;
     v = f2(v);
     f2storeX(f64array, a, v);
-    return f2loadX(f64array, a);
   }
 
-  return {load : load, loadX : loadX, store : store, storeX : storeX};
+  function storeU8(a, v) {
+    a =  a | 0;
+    v = f2(v);
+    f2store(uint8array, a, v);
+  }
+
+  function storeU8X(a, v) {
+    a =  a | 0;
+    v = f2(v);
+    f2storeX(uint8array, a, v);
+  }
+
+  return {loadF64 : loadF64, loadF64X : loadF64X, storeF64 : storeF64, storeF64X : storeF64X,
+          loadU8 : loadU8, loadU8X : loadU8X, storeU8 : storeU8, storeU8X : storeU8X};
 }
 
 
 var heap = new ArrayBuffer(0x4000);
 var f64array = new Float64Array(heap);
+var uint8array = new Uint8Array(heap);
 for (var i = 0; i < 0x4000; i = i + 8) {
-  f64array[i>>3] = i;
+  f64array[i>>3] = i / 8;
 }
 var m = asmModule2(this, {}, heap);
-var result = m.load(8);
-var expected = SIMD.float64x2.load(f64array, 8);
+// Float64Array
+var result = m.loadF64(2);
+var expected = SIMD.float64x2.load(f64array, 2);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+// Uint8Array
+var result = m.loadU8(4<<3);
+var expected = SIMD.float64x2.load(uint8array, 4<<3);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 
-var result = m.loadX(8);
-var expected = SIMD.float64x2.loadX(f64array, 8);
+// Float64Array
+var result = m.loadF64X(6);
+var expected = SIMD.float64x2.loadX(f64array, 6);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+// Uint8Array
+var result = m.loadU8X(8<<3);
+var expected = SIMD.float64x2.loadX(uint8array, 8<<3);
 assertEquals(result.x, expected.x);
 assertEquals(result.y, expected.y);
 
-var val = SIMD.float64x2(1, 2);
-var result = m.store(8, val);
-var expected = val;
-assertEquals(result.x, expected.x);
-assertEquals(result.y, expected.y);
+// Float64Array
+m.storeF64(10, SIMD.float64x2(1, 2));
+var result = SIMD.float64x2.load(f64array, 10);
+assertEquals(result.x, 1);
+assertEquals(result.y, 2);
+// Uint8Array
+m.storeU8(10<<3, SIMD.float64x2(5, 6));
+var result = SIMD.float64x2.load(uint8array, 10<<3);
+assertEquals(result.x, 5);
+assertEquals(result.y, 6);
 
-var expected = SIMD.float64x2(1, 0);
-var result = m.storeX(8, val);
-assertEquals(result.x, expected.x);
-assertEquals(result.y, expected.y);
+// Float64Array
+m.storeF64X(12, SIMD.float64x2(1, 2));
+var result = SIMD.float64x2.load(f64array, 12);
+assertEquals(result.x, 1);
+assertEquals(result.y, 13);
+// Uint8Array
+m.storeU8X(12<<3, SIMD.float64x2(5, 6));
+var result = SIMD.float64x2.load(uint8array, 12<<3);
+assertEquals(result.x, 5);
+assertEquals(result.y, 13);

@@ -570,7 +570,7 @@ Reduction JSBuiltinReducer::ReduceInt32x4Select(Node* node) {
           Node* control = NodeProperties::GetControlInput(node);             \
           double const element_length = array->length()->Number();           \
           if (key_type->Min() >= 0 &&                                        \
-              key_type->Max() < (element_length - partial / k)) {            \
+              key_type->Max() < (element_length - partial / (1 << k))) {     \
             Node* load =                                                     \
                 graph()->NewNode(machine()->Load(rep), buffer, offset,       \
                                  loaded_bytes, effect, control);             \
@@ -641,7 +641,7 @@ SIMD_LOAD_OPERATION(DECLARE_REDUCE_SIMD_LOAD)
           Node* control = NodeProperties::GetControlInput(node);              \
           double const element_length = array->length()->Number();            \
           if (key_type->Min() >= 0 &&                                         \
-              key_type->Max() < (element_length - partial / k)) {             \
+              key_type->Max() < (element_length - partial / (1 << k))) {      \
             StoreRepresentation srep =                                        \
                 StoreRepresentation(rep, kNoWriteBarrier);                    \
             Node* store =                                                     \
