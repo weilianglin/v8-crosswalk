@@ -1378,31 +1378,17 @@ void InstructionSelector::VisitFloat64LessThanOrEqual(Node* node) {
   V(Float32x4Add)                      \
   V(Float32x4Sub)                      \
   V(Float32x4Mul)                      \
-  V(Float32x4Div)                      \
-  V(Float32x4Min)                      \
-  V(Float32x4Max)                      \
-  V(Int32x4Add)                        \
-  V(Int32x4And)                        \
-  V(Int32x4Sub)                        \
-  V(Int32x4Or)                         \
-  V(Int32x4Xor)                        \
-  V(Int32x4Equal)                      \
-  V(Int32x4GreaterThan)                \
-  V(Int32x4LessThan)                   \
-  V(Float64x2Add)                      \
-  V(Float64x2Sub)                      \
-  V(Float64x2Mul)                      \
-  V(Float64x2Div)                      \
-  V(Float64x2Min)                      \
-  V(Float64x2Max)
+  V(Float32x4Div)
 
 #define DECLARE_VISIT_BINARY_SIMD_OPERATION1(type)                             \
   void InstructionSelector::Visit##type(Node* node) {                          \
     X64OperandGenerator g(this);                                               \
     InstructionOperand* output = IsSupported(AVX) ? g.DefineAsRegister(node)   \
                                                   : g.DefineSameAsFirst(node); \
-    Emit(k##type, output, g.UseRegister(node->InputAt(0)),                     \
-         g.Use(node->InputAt(1)));                                             \
+    InstructionOperand* src2 = IsSupported(AVX)                                \
+                                   ? g.Use(node->InputAt(1))                   \
+                                   : g.UseRegister(node->InputAt(1));          \
+    Emit(k##type, output, g.UseRegister(node->InputAt(0)), src2);              \
   }
 
 
@@ -1421,9 +1407,7 @@ void InstructionSelector::VisitFloat32x4Constructor(Node* node) {
 // both input parameters. We can optimize it later.
 void InstructionSelector::VisitInt32x4Mul(Node* node) {
   X64OperandGenerator g(this);
-  InstructionOperand* output = IsSupported(AVX) ? g.DefineAsRegister(node)
-                                                : g.DefineSameAsFirst(node);
-  Emit(kInt32x4Mul, output, g.UseRegister(node->InputAt(0)),
+  Emit(kInt32x4Mul, g.DefineSameAsFirst(node), g.UseRegister(node->InputAt(0)),
        g.UseRegister(node->InputAt(1)));
 }
 
@@ -1513,6 +1497,22 @@ UNARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_UARY_SIMD_OPERATION2)
 
 
 #define BINARY_SIMD_OPERATION_LIST2(V) \
+  V(Float32x4Min)                      \
+  V(Float32x4Max)                      \
+  V(Int32x4Add)                        \
+  V(Int32x4And)                        \
+  V(Int32x4Sub)                        \
+  V(Int32x4Or)                         \
+  V(Int32x4Xor)                        \
+  V(Int32x4Equal)                      \
+  V(Int32x4GreaterThan)                \
+  V(Int32x4LessThan)                   \
+  V(Float64x2Add)                      \
+  V(Float64x2Sub)                      \
+  V(Float64x2Mul)                      \
+  V(Float64x2Div)                      \
+  V(Float64x2Min)                      \
+  V(Float64x2Max)                      \
   V(Float32x4Scale)                    \
   V(Float32x4WithX)                    \
   V(Float32x4WithY)                    \
