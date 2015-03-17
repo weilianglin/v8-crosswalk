@@ -43,6 +43,7 @@ enum LazyCachedType {
   kFloat32x4Func4f,
   kFloat32x4Func1_4i,
   kInt32x4Tagged,
+  kInt32x4Func1,
   kInt32x4Func2,
   kInt32x4Func4i,
   kInt32x4Func2f32x4,
@@ -156,6 +157,8 @@ class LazyTypeCache FINAL : public ZoneObject {
         return CreateInt32x4();
       case kInt32x4Tagged:
         return CreateInt32x4Tagged();
+      case kInt32x4Func1:
+        return Type::Function(Get(kInt32x4), Get(kInt32x4), zone());
       case kInt32x4Func2:
         return Type::Function(Get(kInt32x4), Get(kInt32x4), Get(kInt32x4),
                               zone());
@@ -2389,11 +2392,14 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
           return typer_->cache_->Get(kImulFunc);
         case kMathClz32:
           return typer_->cache_->Get(kClz32Func);
+        // Float32x4
         case kFloat32x4Abs:
         case kFloat32x4Neg:
         case kFloat32x4Reciprocal:
         case kFloat32x4ReciprocalSqrt:
         case kFloat32x4Sqrt:
+        case kInt32x4ToFloat32x4:
+        case kInt32x4BitsToFloat32x4:
           return typer_->cache_->Get(kFloat32x4Func1);
         case kFloat32x4Add:
         case kFloat32x4Sub:
@@ -2440,11 +2446,21 @@ Type* Typer::Visitor::TypeConstant(Handle<Object> value) {
         case kInt32x4Equal:
         case kInt32x4GreaterThan:
         case kInt32x4LessThan:
+        case kInt32x4WithX:
+        case kInt32x4WithY:
+        case kInt32x4WithZ:
+        case kInt32x4WithW:
           return typer_->cache_->Get(kInt32x4Func2);
         case kInt32x4Constructor:
           return typer_->cache_->Get(kInt32x4Func4i);
         case kInt32x4Swizzle:
           return typer_->cache_->Get(kFloat32x4Func1_4i);
+        case kInt32x4Neg:
+        case kInt32x4Not:
+        case kInt32x4Splat:
+        case kFloat32x4BitsToInt32x4:
+        case kFloat32x4ToInt32x4:
+          return typer_->cache_->Get(kInt32x4Func1);
         case kInt32x4Bool:
         case kInt32x4Select:
         case kInt32x4Shuffle:
