@@ -2101,8 +2101,11 @@ void CodeGenerator::AssembleSwap(InstructionOperand* source,
     __ xchgq(g.ToRegister(source), g.ToRegister(destination));
   } else if (source->IsRegister() && destination->IsStackSlot()) {
     Register src = g.ToRegister(source);
+    Register tmp = kScratchRegister;
     Operand dst = g.ToOperand(destination);
-    __ xchgq(src, dst);
+    __ movq(tmp, dst);
+    __ movq(dst, src);
+    __ movq(src, tmp);
   } else if ((source->IsStackSlot() && destination->IsStackSlot()) ||
              (source->IsDoubleStackSlot() &&
               destination->IsDoubleStackSlot())) {
@@ -2110,9 +2113,10 @@ void CodeGenerator::AssembleSwap(InstructionOperand* source,
     Register tmp = kScratchRegister;
     Operand src = g.ToOperand(source);
     Operand dst = g.ToOperand(destination);
+    __ movsd(xmm0, src);
     __ movq(tmp, dst);
-    __ xchgq(tmp, src);
-    __ movq(dst, tmp);
+    __ movsd(dst, xmm0);
+    __ movq(src, tmp);
   } else if ((source->IsSIMD128StackSlot() &&
               destination->IsSIMD128StackSlot())) {
     // Swap two XMM stack slots.
