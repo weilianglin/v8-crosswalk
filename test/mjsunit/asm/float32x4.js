@@ -31,6 +31,18 @@ function asmModule(stdlib, imports, buffer) {
   "use asm"
   var f4 = stdlib.SIMD.float32x4;
   var i4 = stdlib.SIMD.int32x4;
+  var fadd = f4.add;
+  var fsub = f4.sub;
+  var fmul = f4.mul;
+  var fdiv = f4.div;
+  var fmin = f4.min;
+  var fmax = f4.max;
+  var fabs = f4.abs;
+  var fneg = f4.neg;
+  var freciprocal = f4.reciprocal;
+  var freciprocalSqrt = f4.reciprocalSqrt;
+  var fsplat = f4.splat;
+  var fsqrt = f4.sqrt;
   var fscale = f4.scale;
   var fwithX = f4.withX;
   var fwithY = f4.withY;
@@ -51,6 +63,84 @@ function asmModule(stdlib, imports, buffer) {
   var ifromFloat32x4 = i4.fromFloat32x4;
   var ifromFloat32x4Bits = i4.fromFloat32x4Bits;
 
+  function add(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fadd(a, b);
+    return f4(ret);
+  }
+  function sub(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fsub(a, b);
+    return f4(ret);
+  }
+  function mul(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fmul(a, b);
+    return f4(ret);
+  }
+  function div(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fdiv(a, b);
+    return f4(ret);
+  }
+  function min(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fmin(a, b);
+    return f4(ret);
+  }
+  function max(a, b) {
+    a = f4(a);
+    b = f4(b);
+    var ret = f4();
+    ret = fmax(a, b);
+    return f4(ret);
+  }
+  function abs(a) {
+    a = f4(a);
+    var ret = f4();
+    ret = fabs(a);
+    return f4(ret);
+  }
+  function neg(a) {
+    a = f4(a);
+    var ret = f4();
+    ret = fneg(a);
+    return f4(ret);
+  }
+  function reciprocal(a) {
+    a = f4(a);
+    var ret = f4();
+    ret = freciprocal(a);
+    return f4(ret);
+  }
+  function reciprocalSqrt(a) {
+    a = f4(a);
+    var ret = f4();
+    ret = freciprocalSqrt(a);
+    return f4(ret);
+  }
+  function splat(a) {
+    a = +a;
+    var ret = f4();
+    ret = fsplat(a);
+    return f4(ret);
+  }
+  function sqrt(a) {
+    a = f4(a);
+    var ret = f4();
+    ret = fsqrt(a);
+    return f4(ret);
+  }
   function scale(a, b) {
     a = f4(a);
     b = +b;
@@ -240,7 +330,10 @@ function asmModule(stdlib, imports, buffer) {
     return i4(ret);
   }
 
-  return {scale : scale, withX : withX, withY : withY, withZ : withZ,
+  return {
+          add : add, sub : sub, mul : mul, div : div, min : min, max : max, abs : abs, neg : neg,
+          reciprocal : reciprocal, reciprocalSqrt : reciprocalSqrt, splat : splat, sqrt : sqrt,
+          scale : scale, withX : withX, withY : withY, withZ : withZ,
           withW : withW, clamp : clamp, swizzle1 : swizzle1, swizzle2 : swizzle2,
           equal : equal, notEqual : notEqual, lessThan : lessThan, lessThanOrEqual : lessThanOrEqual,
           greaterThan : greaterThan, greaterThanOrEqual : greaterThanOrEqual,
@@ -248,11 +341,101 @@ function asmModule(stdlib, imports, buffer) {
           shuffle4 : shuffle4, shuffle5 : shuffle5, shuffle6 : shuffle6,
           fromInt32x4 : fromInt32x4, fromInt32x4Bits : fromInt32x4Bits, fromFloat32x4 : fromFloat32x4,
           fromFloat32x4Bits : fromFloat32x4Bits
-          };
+        };
 }
 
 
 var m = asmModule(this, {});
+var a = SIMD.float32x4(1.1, 2.2, 3.3, 4.4);
+var b = SIMD.float32x4(5.5, 6.6, 7.7, 8.8);
+var result = m.add(a, b);
+var expected = SIMD.float32x4.add(a, b);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.sub(a, b);
+var expected = SIMD.float32x4.sub(a, b);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.mul(a, b);
+var expected = SIMD.float32x4.mul(a, b);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.div(a, b);
+var expected = SIMD.float32x4.div(a, b);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.min(a, b);
+var expected = SIMD.float32x4.min(a, b);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.max(a, b);
+var expected = SIMD.float32x4.max(a, b);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.abs(SIMD.float32x4(-1.1, -2.2, -3.3, -4.4));
+var expected = SIMD.float32x4.abs(SIMD.float32x4(-1.1, -2.2, -3.3, -4.4));
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.neg(a);
+var expected = SIMD.float32x4.neg(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+// Runtime simulation of reciprocal has precision issue. Introduce certain
+// tolerance for equal check like Crankshaft did.
+var result = m.reciprocal(a);
+var expected = SIMD.float32x4.reciprocal(a);
+assertEqualsDelta(result.x, expected.x, 1e-3);
+assertEqualsDelta(result.y, expected.y, 1e-3);
+assertEqualsDelta(result.z, expected.z, 1e-3);
+assertEqualsDelta(result.w, expected.w, 1e-3);
+
+// Runtime simulation of reciprocalSqrt has precision issue. Introduce certain
+// tolerance for equal check like Crankshaft did.
+var result = m.reciprocalSqrt(a);
+var expected = SIMD.float32x4.reciprocalSqrt(a);
+assertEqualsDelta(result.x, expected.x, 1e-3);
+assertEqualsDelta(result.y, expected.y, 1e-3);
+assertEqualsDelta(result.z, expected.z, 1e-3);
+assertEqualsDelta(result.w, expected.w, 1e-3);
+
+var result = m.splat(3.14);
+var expected = SIMD.float32x4.splat(3.14);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
+var result = m.sqrt(a);
+var expected = SIMD.float32x4.sqrt(a);
+assertEquals(result.x, expected.x);
+assertEquals(result.y, expected.y);
+assertEquals(result.z, expected.z);
+assertEquals(result.w, expected.w);
+
 var result = m.scale(SIMD.float32x4(+1.1, +2.2, +3.3, +4.4), 20);
 var expected = SIMD.float32x4.scale(SIMD.float32x4(+1.1, +2.2, +3.3, +4.4), 20);
 assertEquals(result.x, expected.x);
