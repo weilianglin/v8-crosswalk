@@ -1232,7 +1232,7 @@ BINARY_SIMD_OPERATION_LIST2(DECLARE_VISIT_BINARY_SIMD_OPERATION2)
 #define DECLARE_VISIT_BINARY_SIMD_OPERATION3(type)                            \
   void InstructionSelector::Visit##type(Node* node) {                         \
     IA32OperandGenerator g(this);                                             \
-    Emit(k##type, g.DefineSameAsFirst(node), g.UseRegister(node->InputAt(0)), \
+    Emit(k##type, g.DefineAsRegister(node), g.UseRegister(node->InputAt(0)),  \
          g.UseRegister(node->InputAt(1)));                                    \
   }
 
