@@ -26,6 +26,8 @@ class JSContextSpecializer : public Reducer {
   // Visible for unit testing.
   Reduction ReduceJSLoadContext(Node* node);
   Reduction ReduceJSStoreContext(Node* node);
+  static bool ContextVarIsInitialized(Node* node, Node* fcontext,
+                                      CompilationInfo* info);
 
  private:
   CompilationInfo* info_;

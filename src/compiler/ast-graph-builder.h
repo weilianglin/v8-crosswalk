@@ -9,6 +9,7 @@
 
 #include "src/ast.h"
 #include "src/compiler/graph-builder.h"
+#include "src/compiler/js-context-specialization.h"
 #include "src/compiler/js-graph.h"
 
 namespace v8 {
