@@ -38,19 +38,6 @@ JSTypedLowering::JSTypedLowering(JSGraph* jsgraph, Zone* zone)
   Handle<Object> thirtyone = factory()->NewNumber(31.0);
   zero_thirtyone_range_ = Type::Range(zero, thirtyone, graph()->zone());
 
-  Isolate* isolate = jsgraph_->isolate();
-  Handle<Map> float32x4_map = handle(
-      isolate->native_context()->float32x4_function()->initial_map(), isolate);
-  float32x4_ = Type::Class(float32x4_map, jsgraph_->zone());
-
-  Handle<Map> int32x4_map = handle(
-      isolate->native_context()->int32x4_function()->initial_map(), isolate);
-  int32x4_ = Type::Class(int32x4_map, jsgraph_->zone());
-
-  Handle<Map> float64x2_map = handle(
-      isolate->native_context()->float64x2_function()->initial_map(), isolate);
-  float64x2_ = Type::Class(float64x2_map, jsgraph_->zone());
-
   // TODO(jarin): Can we have a correctification of the stupid type system?
   // These stupid work-arounds are just stupid!
   shifted_int32_ranges_[0] = Type::Signed32();
@@ -771,93 +758,140 @@ Reduction JSTypedLowering::ReduceJSLoadProperty(Node* node) {
 }
 
 
-Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
-  Node* obj = NodeProperties::GetValueInput(node, 0);
-  const LoadNamedParameters& p = LoadNamedParametersOf(node->op());
-  Isolate* isolate = jsgraph()->isolate();
-  if (NodeProperties::GetBounds(obj).upper->Is(float32x4_)) {
-    Node* value = NULL;
-    Handle<Name> name = p.name().handle();
-    if (name->Equals(isolate->heap()->x())) {
-      value = graph()->NewNode(machine()->Float32x4GetX(), obj);
-    } else if (name->Equals(isolate->heap()->y())) {
-      value = graph()->NewNode(machine()->Float32x4GetY(), obj);
-    } else if (name->Equals(isolate->heap()->z())) {
-      value = graph()->NewNode(machine()->Float32x4GetZ(), obj);
-    } else if (name->Equals(isolate->heap()->w())) {
-      value = graph()->NewNode(machine()->Float32x4GetW(), obj);
-    } else if (name->Equals(isolate->heap()->signMask())) {
-      value = graph()->NewNode(machine()->Float32x4GetSignMask(), obj);
-    }
-
-    if (value != NULL) {
-      NodeProperties::ReplaceWithValue(node, value);
-      return Replace(value);
-    } else if (FLAG_simd_warning) {
-      fprintf(stderr, "Warning: Float32x4 property access is not inlined!\n");
-    }
-  } else if (NodeProperties::GetBounds(obj).upper->Is(int32x4_)) {
-    Node* value = NULL;
-    Handle<Name> name = p.name().handle();
-    if (name->Equals(isolate->heap()->x())) {
-      value = graph()->NewNode(machine()->Int32x4GetX(), obj);
-    } else if (name->Equals(isolate->heap()->y())) {
-      value = graph()->NewNode(machine()->Int32x4GetY(), obj);
-    } else if (name->Equals(isolate->heap()->z())) {
-      value = graph()->NewNode(machine()->Int32x4GetZ(), obj);
-    } else if (name->Equals(isolate->heap()->w())) {
-      value = graph()->NewNode(machine()->Int32x4GetW(), obj);
-    } else if (name->Equals(isolate->heap()->flagX())) {
-      value = graph()->NewNode(machine()->Int32x4GetFlagX(), obj);
-    } else if (name->Equals(isolate->heap()->flagY())) {
-      value = graph()->NewNode(machine()->Int32x4GetFlagY(), obj);
-    } else if (name->Equals(isolate->heap()->flagZ())) {
-      value = graph()->NewNode(machine()->Int32x4GetFlagZ(), obj);
-    } else if (name->Equals(isolate->heap()->flagW())) {
-      value = graph()->NewNode(machine()->Int32x4GetFlagW(), obj);
-    } else if (name->Equals(isolate->heap()->signMask())) {
-      value = graph()->NewNode(machine()->Int32x4GetSignMask(), obj);
-    }
-
-    if (value != NULL) {
-      NodeProperties::ReplaceWithValue(node, value);
-      return Replace(value);
-    } else if (FLAG_simd_warning) {
-      fprintf(stderr, "Warning: Int32x4 property access is not inlined!\n");
-    }
-  } else if (NodeProperties::GetBounds(obj).upper->Is(float64x2_)) {
-    Node* value = NULL;
-    Handle<Name> name = p.name().handle();
-    if (name->Equals(isolate->heap()->x())) {
-      value = graph()->NewNode(machine()->Float64x2GetX(), obj);
-    } else if (name->Equals(isolate->heap()->y())) {
-      value = graph()->NewNode(machine()->Float64x2GetY(), obj);
-    } else if (name->Equals(isolate->heap()->signMask())) {
-      value = graph()->NewNode(machine()->Float64x2GetSignMask(), obj);
-    }
-
-    if (value != NULL) {
-      NodeProperties::ReplaceWithValue(node, value);
-      return Replace(value);
-    } else if (FLAG_simd_warning) {
-      fprintf(stderr, "Warning: Float64x2 property access is not inlined!\n");
-    }
+Type* JSTypedLowering::GetFloat32x4() {
+  DCHECK(jsgraph()->isolate()->IsSimdEnabled());
+  if (!float32x4_.is_set()) {
+    Isolate* isolate = jsgraph()->isolate();
+    Handle<Map> float32x4_map =
+        handle(isolate->native_context()->float32x4_function()->initial_map(),
+               isolate);
+    Type* float32x4_type = Type::Class(float32x4_map, jsgraph()->zone());
+    float32x4_.set(float32x4_type);
   }
 
-  if (FLAG_simd_warning) {
-    Handle<Name> name = p.name().handle();
-    if (name->Equals(isolate->heap()->x()) ||
-        name->Equals(isolate->heap()->y()) ||
-        name->Equals(isolate->heap()->z()) ||
-        name->Equals(isolate->heap()->signMask())) {
-      fprintf(stderr,
-              "Warning: Float64x2 property access may be not inlined!\n");
+  return float32x4_.get();
+}
+
+
+Type* JSTypedLowering::GetInt32x4() {
+  DCHECK(jsgraph()->isolate()->IsSimdEnabled());
+  if (!int32x4_.is_set()) {
+    Isolate* isolate = jsgraph()->isolate();
+    Handle<Map> int32x4_map = handle(
+        isolate->native_context()->int32x4_function()->initial_map(), isolate);
+    Type* int32x4_type = Type::Class(int32x4_map, jsgraph()->zone());
+    int32x4_.set(int32x4_type);
+  }
+
+  return int32x4_.get();
+}
+
+
+Type* JSTypedLowering::GetFloat64x2() {
+  DCHECK(jsgraph()->isolate()->IsSimdEnabled());
+  if (!float64x2_.is_set()) {
+    Isolate* isolate = jsgraph()->isolate();
+    Handle<Map> float64x2_map =
+        handle(isolate->native_context()->float64x2_function()->initial_map(),
+               isolate);
+    Type* float64x2_type = Type::Class(float64x2_map, jsgraph()->zone());
+    float64x2_.set(float64x2_type);
+  }
+
+  return float64x2_.get();
+}
+
+
+Reduction JSTypedLowering::ReduceJSLoadNamed(Node* node) {
+  Isolate* isolate = jsgraph_->isolate();
+  // During boostrapping, simd mobule might not be ready.
+  if (isolate->IsSimdEnabled()) {
+    Node* obj = NodeProperties::GetValueInput(node, 0);
+    const LoadNamedParameters& p = LoadNamedParametersOf(node->op());
+    if (NodeProperties::GetBounds(obj).upper->Is(GetFloat32x4())) {
+      Node* value = NULL;
+      Handle<Name> name = p.name().handle();
+      if (name->Equals(isolate->heap()->x())) {
+        value = graph()->NewNode(machine()->Float32x4GetX(), obj);
+      } else if (name->Equals(isolate->heap()->y())) {
+        value = graph()->NewNode(machine()->Float32x4GetY(), obj);
+      } else if (name->Equals(isolate->heap()->z())) {
+        value = graph()->NewNode(machine()->Float32x4GetZ(), obj);
+      } else if (name->Equals(isolate->heap()->w())) {
+        value = graph()->NewNode(machine()->Float32x4GetW(), obj);
+      } else if (name->Equals(isolate->heap()->signMask())) {
+        value = graph()->NewNode(machine()->Float32x4GetSignMask(), obj);
+      }
+
+      if (value != NULL) {
+        NodeProperties::ReplaceWithValue(node, value);
+        return Replace(value);
+      } else if (FLAG_simd_warning) {
+        fprintf(stderr, "Warning: Float32x4 property access is not inlined!\n");
+      }
+    } else if (NodeProperties::GetBounds(obj).upper->Is(GetInt32x4())) {
+      Node* value = NULL;
+      Handle<Name> name = p.name().handle();
+      if (name->Equals(isolate->heap()->x())) {
+        value = graph()->NewNode(machine()->Int32x4GetX(), obj);
+      } else if (name->Equals(isolate->heap()->y())) {
+        value = graph()->NewNode(machine()->Int32x4GetY(), obj);
+      } else if (name->Equals(isolate->heap()->z())) {
+        value = graph()->NewNode(machine()->Int32x4GetZ(), obj);
+      } else if (name->Equals(isolate->heap()->w())) {
+        value = graph()->NewNode(machine()->Int32x4GetW(), obj);
+      } else if (name->Equals(isolate->heap()->flagX())) {
+        value = graph()->NewNode(machine()->Int32x4GetFlagX(), obj);
+      } else if (name->Equals(isolate->heap()->flagY())) {
+        value = graph()->NewNode(machine()->Int32x4GetFlagY(), obj);
+      } else if (name->Equals(isolate->heap()->flagZ())) {
+        value = graph()->NewNode(machine()->Int32x4GetFlagZ(), obj);
+      } else if (name->Equals(isolate->heap()->flagW())) {
+        value = graph()->NewNode(machine()->Int32x4GetFlagW(), obj);
+      } else if (name->Equals(isolate->heap()->signMask())) {
+        value = graph()->NewNode(machine()->Int32x4GetSignMask(), obj);
+      }
+
+      if (value != NULL) {
+        NodeProperties::ReplaceWithValue(node, value);
+        return Replace(value);
+      } else if (FLAG_simd_warning) {
+        fprintf(stderr, "Warning: Int32x4 property access is not inlined!\n");
+      }
+    } else if (NodeProperties::GetBounds(obj).upper->Is(GetFloat64x2())) {
+      Node* value = NULL;
+      Handle<Name> name = p.name().handle();
+      if (name->Equals(isolate->heap()->x())) {
+        value = graph()->NewNode(machine()->Float64x2GetX(), obj);
+      } else if (name->Equals(isolate->heap()->y())) {
+        value = graph()->NewNode(machine()->Float64x2GetY(), obj);
+      } else if (name->Equals(isolate->heap()->signMask())) {
+        value = graph()->NewNode(machine()->Float64x2GetSignMask(), obj);
+      }
+
+      if (value != NULL) {
+        NodeProperties::ReplaceWithValue(node, value);
+        return Replace(value);
+      } else if (FLAG_simd_warning) {
+        fprintf(stderr, "Warning: Float64x2 property access is not inlined!\n");
+      }
+    }
+
+    if (FLAG_simd_warning) {
+      Handle<Name> name = p.name().handle();
+      if (name->Equals(isolate->heap()->x()) ||
+          name->Equals(isolate->heap()->y()) ||
+          name->Equals(isolate->heap()->z()) ||
+          name->Equals(isolate->heap()->signMask())) {
+        fprintf(stderr,
+                "Warning: Float64x2 property access may be not inlined!\n");
 #ifdef OBJECT_PRINT
-      OFStream os(stderr);
-      os << "  ";
-      name->NamePrint(os);
-      os << "\n";
+        OFStream os(stderr);
+        os << "  ";
+        name->NamePrint(os);
+        os << "\n";
 #endif
+      }
     }
   }
   return NoChange();

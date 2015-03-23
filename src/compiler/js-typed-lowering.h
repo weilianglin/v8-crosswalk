@@ -70,6 +70,9 @@ class JSTypedLowering FINAL : public Reducer {
   CommonOperatorBuilder* common() const;
   SimplifiedOperatorBuilder* simplified() { return &simplified_; }
   MachineOperatorBuilder* machine() const;
+  Type* GetFloat32x4();
+  Type* GetInt32x4();
+  Type* GetFloat64x2();
 
   JSGraph* jsgraph_;
   SimplifiedOperatorBuilder simplified_;
@@ -77,9 +80,9 @@ class JSTypedLowering FINAL : public Reducer {
   Type* zero_range_;
   Type* one_range_;
   Type* zero_thirtyone_range_;
-  Type* float32x4_;
-  Type* int32x4_;
-  Type* float64x2_;
+  SetOncePointer<Type> float32x4_;
+  SetOncePointer<Type> int32x4_;
+  SetOncePointer<Type> float64x2_;
   Type* shifted_int32_ranges_[4];
 };
 

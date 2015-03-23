@@ -129,12 +129,15 @@ class JSBuiltinReducer FINAL : public Reducer {
   CommonOperatorBuilder* common() const;
   MachineOperatorBuilder* machine() const;
   SimplifiedOperatorBuilder* simplified() { return &simplified_; }
+  Type* GetFloat32x4();
+  Type* GetInt32x4();
+  Type* GetFloat64x2();
 
   JSGraph* jsgraph_;
   SimplifiedOperatorBuilder simplified_;
-  Type* float32x4_;
-  Type* int32x4_;
-  Type* float64x2_;
+  SetOncePointer<Type> float32x4_;
+  SetOncePointer<Type> int32x4_;
+  SetOncePointer<Type> float64x2_;
 };
 
 }  // namespace compiler

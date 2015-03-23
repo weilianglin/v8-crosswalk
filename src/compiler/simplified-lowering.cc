@@ -83,24 +83,6 @@ class RepresentationSelector {
     safe_int_additive_range_ =
         Type::Range(f->NewNumber(-std::pow(2.0, 52.0)),
                     f->NewNumber(std::pow(2.0, 52.0)), zone);
-    float32x4_ = Type::Class(handle(zone->isolate()
-                                        ->native_context()
-                                        ->float32x4_function()
-                                        ->initial_map(),
-                                    zone->isolate()),
-                             zone);
-    int32x4_ = Type::Class(handle(zone->isolate()
-                                        ->native_context()
-                                        ->int32x4_function()
-                                        ->initial_map(),
-                                    zone->isolate()),
-                             zone);
-    float64x2_ = Type::Class(handle(zone->isolate()
-                                        ->native_context()
-                                        ->float64x2_function()
-                                        ->initial_map(),
-                                    zone->isolate()),
-                             zone);
   }
 
   void Run(SimplifiedLowering* lowering) {
@@ -347,12 +329,14 @@ class RepresentationSelector {
     } else if (upper->Is(Type::Number())) {
       // multiple uses => pick kRepFloat64.
       return kRepFloat64;
-    } else if (upper->Is(float32x4_)) {
-      return kRepFloat32x4;
-    } else if (upper->Is(int32x4_)) {
-      return kRepInt32x4;
-    } else if (upper->Is(float64x2_)) {
-      return kRepFloat64x2;
+    } else if (jsgraph_->isolate()->IsSimdEnabled()) {
+      if (upper->Is(GetFloat32x4())) {
+        return kRepFloat32x4;
+      } else if (upper->Is(GetInt32x4())) {
+        return kRepInt32x4;
+      } else if (upper->Is(GetFloat64x2())) {
+        return kRepFloat64x2;
+      }
     }
     return kRepTagged;
   }
@@ -1388,6 +1372,48 @@ class RepresentationSelector {
     }
   }
 
+  Type* GetFloat32x4() {
+    DCHECK(jsgraph_->isolate()->IsSimdEnabled());
+    if (!float32x4_.is_set()) {
+      Isolate* isolate = jsgraph_->isolate();
+      Type* float32x4_type = Type::Class(
+          handle(isolate->native_context()->float32x4_function()->initial_map(),
+                 isolate),
+          jsgraph_->zone());
+      float32x4_.set(float32x4_type);
+    }
+
+    return float32x4_.get();
+  }
+
+  Type* GetInt32x4() {
+    DCHECK(jsgraph_->isolate()->IsSimdEnabled());
+    if (!int32x4_.is_set()) {
+      Isolate* isolate = jsgraph_->isolate();
+      Type* int32x4_type = Type::Class(
+          handle(isolate->native_context()->int32x4_function()->initial_map(),
+                 isolate),
+          jsgraph_->zone());
+      int32x4_.set(int32x4_type);
+    }
+
+    return int32x4_.get();
+  }
+
+  Type* GetFloat64x2() {
+    DCHECK(jsgraph_->isolate()->IsSimdEnabled());
+    if (!float64x2_.is_set()) {
+      Isolate* isolate = jsgraph_->isolate();
+      Type* float64x2_type = Type::Class(
+          handle(isolate->native_context()->float64x2_function()->initial_map(),
+                 isolate),
+          jsgraph_->zone());
+      float64x2_.set(float64x2_type);
+    }
+
+    return float64x2_.get();
+  }
+
  private:
   JSGraph* jsgraph_;
   int count_;                       // number of nodes in the graph
@@ -1399,9 +1425,9 @@ class RepresentationSelector {
   ZoneQueue<Node*> queue_;          // queue for traversing the graph
   Type* safe_bit_range_;
   Type* safe_int_additive_range_;
-  Type* float32x4_;
-  Type* int32x4_;
-  Type* float64x2_;
+  SetOncePointer<Type> float32x4_;
+  SetOncePointer<Type> int32x4_;
+  SetOncePointer<Type> float64x2_;
 
   NodeInfo* GetInfo(Node* node) {
     DCHECK(node->id() >= 0);

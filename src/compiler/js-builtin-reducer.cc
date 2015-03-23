@@ -99,19 +99,6 @@ class JSCallReduction {
 
 JSBuiltinReducer::JSBuiltinReducer(JSGraph* jsgraph)
     : jsgraph_(jsgraph), simplified_(jsgraph->zone()) {
-  Isolate* isolate = jsgraph_->isolate();
-
-  Handle<Map> float32x4_map = handle(
-      isolate->native_context()->float32x4_function()->initial_map(), isolate);
-  float32x4_ = Type::Class(float32x4_map, jsgraph_->zone());
-
-  Handle<Map> int32x4_map = handle(
-      isolate->native_context()->int32x4_function()->initial_map(), isolate);
-  int32x4_ = Type::Class(int32x4_map, jsgraph_->zone());
-
-  Handle<Map> float64x2_map = handle(
-      isolate->native_context()->float64x2_function()->initial_map(), isolate);
-  float64x2_ = Type::Class(float64x2_map, jsgraph_->zone());
 }
 
 
@@ -232,49 +219,49 @@ Reduction JSBuiltinReducer::ReduceMathCeil(Node* node) {
   }
 
 
-#define REDUCED_SIMD_BINARY_OPERATIONS(V)                  \
-  V(float32x4_, float32x4_, Float32x4Add)                  \
-  V(float32x4_, float32x4_, Float32x4Sub)                  \
-  V(float32x4_, float32x4_, Float32x4Mul)                  \
-  V(float32x4_, float32x4_, Float32x4Div)                  \
-  V(float32x4_, float32x4_, Float32x4Max)                  \
-  V(float32x4_, float32x4_, Float32x4Min)                  \
-  V(float32x4_, Type::Number(), Float32x4Scale)            \
-  V(float32x4_, Type::Number(), Float32x4WithX)            \
-  V(float32x4_, Type::Number(), Float32x4WithY)            \
-  V(float32x4_, Type::Number(), Float32x4WithZ)            \
-  V(float32x4_, Type::Number(), Float32x4WithW)            \
-  V(float32x4_, float32x4_, Float32x4Equal)                \
-  V(float32x4_, float32x4_, Float32x4NotEqual)             \
-  V(float32x4_, float32x4_, Float32x4GreaterThan)          \
-  V(float32x4_, float32x4_, Float32x4GreaterThanOrEqual)   \
-  V(float32x4_, float32x4_, Float32x4LessThan)             \
-  V(float32x4_, float32x4_, Float32x4LessThanOrEqual)      \
-  V(int32x4_, int32x4_, Int32x4Add)                        \
-  V(int32x4_, int32x4_, Int32x4And)                        \
-  V(int32x4_, int32x4_, Int32x4Sub)                        \
-  V(int32x4_, int32x4_, Int32x4Mul)                        \
-  V(int32x4_, int32x4_, Int32x4Or)                         \
-  V(int32x4_, int32x4_, Int32x4Xor)                        \
-  V(int32x4_, Type::Number(), Int32x4ShiftLeft)            \
-  V(int32x4_, Type::Number(), Int32x4ShiftRight)           \
-  V(int32x4_, Type::Number(), Int32x4ShiftRightArithmetic) \
-  V(int32x4_, int32x4_, Int32x4Equal)                      \
-  V(int32x4_, int32x4_, Int32x4GreaterThan)                \
-  V(int32x4_, int32x4_, Int32x4LessThan)                   \
-  V(int32x4_, Type::Integral32(), Int32x4WithX)            \
-  V(int32x4_, Type::Integral32(), Int32x4WithY)            \
-  V(int32x4_, Type::Integral32(), Int32x4WithZ)            \
-  V(int32x4_, Type::Integral32(), Int32x4WithW)            \
-  V(float64x2_, float64x2_, Float64x2Add)                  \
-  V(float64x2_, float64x2_, Float64x2Sub)                  \
-  V(float64x2_, float64x2_, Float64x2Mul)                  \
-  V(float64x2_, float64x2_, Float64x2Div)                  \
-  V(float64x2_, float64x2_, Float64x2Min)                  \
-  V(float64x2_, float64x2_, Float64x2Max)                  \
-  V(float64x2_, Type::Number(), Float64x2Scale)            \
-  V(float64x2_, Type::Number(), Float64x2WithX)            \
-  V(float64x2_, Type::Number(), Float64x2WithY)
+#define REDUCED_SIMD_BINARY_OPERATIONS(V)                        \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4Add)                \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4Sub)                \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4Mul)                \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4Div)                \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4Max)                \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4Min)                \
+  V(GetFloat32x4(), Type::Number(), Float32x4Scale)              \
+  V(GetFloat32x4(), Type::Number(), Float32x4WithX)              \
+  V(GetFloat32x4(), Type::Number(), Float32x4WithY)              \
+  V(GetFloat32x4(), Type::Number(), Float32x4WithZ)              \
+  V(GetFloat32x4(), Type::Number(), Float32x4WithW)              \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4Equal)              \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4NotEqual)           \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4GreaterThan)        \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4GreaterThanOrEqual) \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4LessThan)           \
+  V(GetFloat32x4(), GetFloat32x4(), Float32x4LessThanOrEqual)    \
+  V(GetInt32x4(), GetInt32x4(), Int32x4Add)                      \
+  V(GetInt32x4(), GetInt32x4(), Int32x4And)                      \
+  V(GetInt32x4(), GetInt32x4(), Int32x4Sub)                      \
+  V(GetInt32x4(), GetInt32x4(), Int32x4Mul)                      \
+  V(GetInt32x4(), GetInt32x4(), Int32x4Or)                       \
+  V(GetInt32x4(), GetInt32x4(), Int32x4Xor)                      \
+  V(GetInt32x4(), Type::Number(), Int32x4ShiftLeft)              \
+  V(GetInt32x4(), Type::Number(), Int32x4ShiftRight)             \
+  V(GetInt32x4(), Type::Number(), Int32x4ShiftRightArithmetic)   \
+  V(GetInt32x4(), GetInt32x4(), Int32x4Equal)                    \
+  V(GetInt32x4(), GetInt32x4(), Int32x4GreaterThan)              \
+  V(GetInt32x4(), GetInt32x4(), Int32x4LessThan)                 \
+  V(GetInt32x4(), Type::Integral32(), Int32x4WithX)              \
+  V(GetInt32x4(), Type::Integral32(), Int32x4WithY)              \
+  V(GetInt32x4(), Type::Integral32(), Int32x4WithZ)              \
+  V(GetInt32x4(), Type::Integral32(), Int32x4WithW)              \
+  V(GetFloat64x2(), GetFloat64x2(), Float64x2Add)                \
+  V(GetFloat64x2(), GetFloat64x2(), Float64x2Sub)                \
+  V(GetFloat64x2(), GetFloat64x2(), Float64x2Mul)                \
+  V(GetFloat64x2(), GetFloat64x2(), Float64x2Div)                \
+  V(GetFloat64x2(), GetFloat64x2(), Float64x2Min)                \
+  V(GetFloat64x2(), GetFloat64x2(), Float64x2Max)                \
+  V(GetFloat64x2(), Type::Number(), Float64x2Scale)              \
+  V(GetFloat64x2(), Type::Number(), Float64x2WithX)              \
+  V(GetFloat64x2(), Type::Number(), Float64x2WithY)
 
 
 #define DECLARE_REDUCE_BINARY_SIMD_OPERATION(type1, type2, opcode)    \
@@ -313,7 +300,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
     return Replace(value);
   } else if (r.GetJSCallArity() == 1) {
     // SIMD.float32x4(...) -> type annotation
-    if (r.InputsMatchOne(float32x4_)) {
+    if (r.InputsMatchOne(GetFloat32x4())) {
       return Replace(r.GetJSCallInput(0));
     } else {
       Node* const object = r.GetJSCallInput(0);
@@ -349,7 +336,7 @@ Reduction JSBuiltinReducer::ReduceInt32x4Constructor(Node* node) {
     return Replace(value);
   } else if (r.GetJSCallArity() == 1) {
     // SIMD.int32x4(...) -> type annotation
-    if (r.InputsMatchOne(int32x4_)) {
+    if (r.InputsMatchOne(GetInt32x4())) {
       return Replace(r.GetJSCallInput(0));
     } else {
       Node* const object = r.GetJSCallInput(0);
@@ -383,7 +370,7 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Constructor(Node* node) {
     return Replace(value);
   } else if (r.GetJSCallArity() == 1) {
     // SIMD.float64x2(...) -> type annotation
-    if (r.InputsMatchOne(float64x2_)) {
+    if (r.InputsMatchOne(GetFloat64x2())) {
       return Replace(r.GetJSCallInput(0));
     } else {
       Node* const object = r.GetJSCallInput(0);
@@ -401,23 +388,23 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Constructor(Node* node) {
 }
 
 
-#define REDUCED_SIMD_UNARY_OPERATIONS(V) \
-  V(float32x4_, Float32x4Abs)            \
-  V(float32x4_, Float32x4Neg)            \
-  V(float32x4_, Float32x4Reciprocal)     \
-  V(float32x4_, Float32x4ReciprocalSqrt) \
-  V(float32x4_, Float32x4Sqrt)           \
-  V(Type::Number(), Float32x4Splat)      \
-  V(int32x4_, Int32x4Neg)                \
-  V(int32x4_, Int32x4Not)                \
-  V(Type::Number(), Int32x4Splat)        \
-  V(int32x4_, Int32x4BitsToFloat32x4)    \
-  V(int32x4_, Int32x4ToFloat32x4)        \
-  V(float32x4_, Float32x4BitsToInt32x4)  \
-  V(float32x4_, Float32x4ToInt32x4)      \
-  V(float64x2_, Float64x2Abs)            \
-  V(float64x2_, Float64x2Neg)            \
-  V(float64x2_, Float64x2Sqrt)
+#define REDUCED_SIMD_UNARY_OPERATIONS(V)     \
+  V(GetFloat32x4(), Float32x4Abs)            \
+  V(GetFloat32x4(), Float32x4Neg)            \
+  V(GetFloat32x4(), Float32x4Reciprocal)     \
+  V(GetFloat32x4(), Float32x4ReciprocalSqrt) \
+  V(GetFloat32x4(), Float32x4Sqrt)           \
+  V(Type::Number(), Float32x4Splat)          \
+  V(GetInt32x4(), Int32x4Neg)                \
+  V(GetInt32x4(), Int32x4Not)                \
+  V(Type::Number(), Int32x4Splat)            \
+  V(GetInt32x4(), Int32x4BitsToFloat32x4)    \
+  V(GetInt32x4(), Int32x4ToFloat32x4)        \
+  V(GetFloat32x4(), Float32x4BitsToInt32x4)  \
+  V(GetFloat32x4(), Float32x4ToInt32x4)      \
+  V(GetFloat64x2(), Float64x2Abs)            \
+  V(GetFloat64x2(), Float64x2Neg)            \
+  V(GetFloat64x2(), Float64x2Sqrt)
 
 #define DECLARE_REDUCE_UNARY_SIMD_OPERATION(type, opcode)            \
   Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {           \
@@ -439,7 +426,7 @@ REDUCED_SIMD_UNARY_OPERATIONS(DECLARE_REDUCE_UNARY_SIMD_OPERATION)
 
 Reduction JSBuiltinReducer::ReduceFloat32x4Clamp(Node* node) {
   JSCallReduction r(node);
-  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(float32x4_)) {
+  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(GetFloat32x4())) {
     Node* value =
         graph()->NewNode(machine()->Float32x4Clamp(), r.GetJSCallInput(0),
                          r.GetJSCallInput(1), r.GetJSCallInput(2));
@@ -453,7 +440,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Clamp(Node* node) {
 
 Reduction JSBuiltinReducer::ReduceFloat64x2Clamp(Node* node) {
   JSCallReduction r(node);
-  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(float64x2_)) {
+  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(GetFloat64x2())) {
     Node* value =
         graph()->NewNode(machine()->Float64x2Clamp(), r.GetJSCallInput(0),
                          r.GetJSCallInput(1), r.GetJSCallInput(2));
@@ -468,7 +455,8 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Clamp(Node* node) {
 Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
   JSCallReduction r(node);
   if (r.GetJSCallArity() == 5) {
-    if (NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(float32x4_)) {
+    if (NodeProperties::GetBounds(r.GetJSCallInput(0))
+            .upper->Is(GetFloat32x4())) {
       for (int i = 1; i < r.GetJSCallArity(); i++) {
         Type* t = NodeProperties::GetBounds(r.GetJSCallInput(i)).upper;
         if (!(t->IsConstant() && t->Is(Type::Number()))) {
@@ -492,7 +480,8 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Swizzle(Node* node) {
 Reduction JSBuiltinReducer::ReduceInt32x4Swizzle(Node* node) {
   JSCallReduction r(node);
   if (r.GetJSCallArity() == 5) {
-    if (NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(int32x4_)) {
+    if (NodeProperties::GetBounds(r.GetJSCallInput(0))
+            .upper->Is(GetInt32x4())) {
       for (int i = 1; i < r.GetJSCallArity(); i++) {
         Type* t = NodeProperties::GetBounds(r.GetJSCallInput(i)).upper;
         if (!(t->IsConstant() && t->Is(Type::Number()))) {
@@ -516,9 +505,11 @@ Reduction JSBuiltinReducer::ReduceInt32x4Swizzle(Node* node) {
 Reduction JSBuiltinReducer::ReduceFloat32x4Select(Node* node) {
   JSCallReduction r(node);
   if (r.GetJSCallArity() == 3 &&
-      NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(int32x4_) &&
-      NodeProperties::GetBounds(r.GetJSCallInput(1)).upper->Is(float32x4_) &&
-      NodeProperties::GetBounds(r.GetJSCallInput(2)).upper->Is(float32x4_)) {
+      NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(GetInt32x4()) &&
+      NodeProperties::GetBounds(r.GetJSCallInput(1))
+          .upper->Is(GetFloat32x4()) &&
+      NodeProperties::GetBounds(r.GetJSCallInput(2))
+          .upper->Is(GetFloat32x4())) {
     Node* value =
         graph()->NewNode(machine()->Float32x4Select(), r.GetJSCallInput(0),
                          r.GetJSCallInput(1), r.GetJSCallInput(2));
@@ -532,7 +523,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Select(Node* node) {
 
 Reduction JSBuiltinReducer::ReduceInt32x4Select(Node* node) {
   JSCallReduction r(node);
-  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(int32x4_)) {
+  if (r.GetJSCallArity() == 3 && r.InputsMatchAll(GetInt32x4())) {
     Node* value =
         graph()->NewNode(machine()->Int32x4Select(), r.GetJSCallInput(0),
                          r.GetJSCallInput(1), r.GetJSCallInput(2));
@@ -615,17 +606,17 @@ Reduction JSBuiltinReducer::ReduceInt32x4Select(Node* node) {
 SIMD_LOAD_OPERATION(DECLARE_REDUCE_SIMD_LOAD)
 
 
-#define SIMD_STORE_OPERATION(V)                      \
-  V(float32x4_, 4, SetFloat32x4X, kRepFloat32x4)     \
-  V(float32x4_, 8, SetFloat32x4XY, kRepFloat32x4)    \
-  V(float32x4_, 12, SetFloat32x4XYZ, kRepFloat32x4)  \
-  V(float32x4_, 16, SetFloat32x4XYZW, kRepFloat32x4) \
-  V(int32x4_, 4, SetInt32x4X, kRepInt32x4)           \
-  V(int32x4_, 8, SetInt32x4XY, kRepInt32x4)          \
-  V(int32x4_, 12, SetInt32x4XYZ, kRepInt32x4)        \
-  V(int32x4_, 16, SetInt32x4XYZW, kRepInt32x4)       \
-  V(float64x2_, 8, SetFloat64x2X, kRepFloat64x2)     \
-  V(float64x2_, 16, SetFloat64x2XY, kRepFloat64x2)
+#define SIMD_STORE_OPERATION(V)                          \
+  V(GetFloat32x4(), 4, SetFloat32x4X, kRepFloat32x4)     \
+  V(GetFloat32x4(), 8, SetFloat32x4XY, kRepFloat32x4)    \
+  V(GetFloat32x4(), 12, SetFloat32x4XYZ, kRepFloat32x4)  \
+  V(GetFloat32x4(), 16, SetFloat32x4XYZW, kRepFloat32x4) \
+  V(GetInt32x4(), 4, SetInt32x4X, kRepInt32x4)           \
+  V(GetInt32x4(), 8, SetInt32x4XY, kRepInt32x4)          \
+  V(GetInt32x4(), 12, SetInt32x4XYZ, kRepInt32x4)        \
+  V(GetInt32x4(), 16, SetInt32x4XYZW, kRepInt32x4)       \
+  V(GetFloat64x2(), 8, SetFloat64x2X, kRepFloat64x2)     \
+  V(GetFloat64x2(), 16, SetFloat64x2XY, kRepFloat64x2)
 
 #define DECLARE_REDUCE_SIMD_STORE(vtype, partial, opcode, rep)                \
   Reduction JSBuiltinReducer::Reduce##opcode(Node* node) {                    \
@@ -710,8 +701,10 @@ Reduction JSBuiltinReducer::ReduceInt32x4Bool(Node* node) {
 Reduction JSBuiltinReducer::ReduceFloat32x4Shuffle(Node* node) {
   JSCallReduction r(node);
   if (r.GetJSCallArity() == 6) {
-    if (NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(float32x4_) &&
-        NodeProperties::GetBounds(r.GetJSCallInput(1)).upper->Is(float32x4_)) {
+    if (NodeProperties::GetBounds(r.GetJSCallInput(0))
+            .upper->Is(GetFloat32x4()) &&
+        NodeProperties::GetBounds(r.GetJSCallInput(1))
+            .upper->Is(GetFloat32x4())) {
       for (int i = 2; i < r.GetJSCallArity(); i++) {
         Type* t = NodeProperties::GetBounds(r.GetJSCallInput(i)).upper;
         if (!(t->IsConstant() && t->Is(Type::Integral32()))) {
@@ -734,8 +727,10 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Shuffle(Node* node) {
 Reduction JSBuiltinReducer::ReduceInt32x4Shuffle(Node* node) {
   JSCallReduction r(node);
   if (r.GetJSCallArity() == 6) {
-    if (NodeProperties::GetBounds(r.GetJSCallInput(0)).upper->Is(int32x4_) &&
-        NodeProperties::GetBounds(r.GetJSCallInput(1)).upper->Is(int32x4_)) {
+    if (NodeProperties::GetBounds(r.GetJSCallInput(0))
+            .upper->Is(GetInt32x4()) &&
+        NodeProperties::GetBounds(r.GetJSCallInput(1))
+            .upper->Is(GetInt32x4())) {
       for (int i = 2; i < r.GetJSCallArity(); i++) {
         Type* t = NodeProperties::GetBounds(r.GetJSCallInput(i)).upper;
         if (!(t->IsConstant() && t->Is(Type::Integral32()))) {
@@ -752,6 +747,50 @@ Reduction JSBuiltinReducer::ReduceInt32x4Shuffle(Node* node) {
 
   SIMD_WARNING(Int32x4Shuffle, node);
   return NoChange();
+}
+
+
+Type* JSBuiltinReducer::GetFloat32x4() {
+  DCHECK(jsgraph()->isolate()->IsSimdEnabled());
+  if (!float32x4_.is_set()) {
+    Isolate* isolate = jsgraph()->isolate();
+    Handle<Map> float32x4_map =
+        handle(isolate->native_context()->float32x4_function()->initial_map(),
+               isolate);
+    Type* float32x4_type = Type::Class(float32x4_map, jsgraph()->zone());
+    float32x4_.set(float32x4_type);
+  }
+
+  return float32x4_.get();
+}
+
+
+Type* JSBuiltinReducer::GetInt32x4() {
+  DCHECK(jsgraph()->isolate()->IsSimdEnabled());
+  if (!int32x4_.is_set()) {
+    Isolate* isolate = jsgraph()->isolate();
+    Handle<Map> int32x4_map = handle(
+        isolate->native_context()->int32x4_function()->initial_map(), isolate);
+    Type* int32x4_type = Type::Class(int32x4_map, jsgraph()->zone());
+    int32x4_.set(int32x4_type);
+  }
+
+  return int32x4_.get();
+}
+
+
+Type* JSBuiltinReducer::GetFloat64x2() {
+  DCHECK(jsgraph()->isolate()->IsSimdEnabled());
+  if (!float64x2_.is_set()) {
+    Isolate* isolate = jsgraph()->isolate();
+    Handle<Map> float64x2_map =
+        handle(isolate->native_context()->float64x2_function()->initial_map(),
+               isolate);
+    Type* float64x2_type = Type::Class(float64x2_map, jsgraph()->zone());
+    float64x2_.set(float64x2_type);
+  }
+
+  return float64x2_.get();
 }
 
 

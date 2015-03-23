@@ -353,21 +353,6 @@ Typer::Typer(Graph* graph, MaybeHandle<Context> context)
     limit *= 2;
   }
 
-  Handle<Map> float32x4_map =
-      handle(isolate()->native_context()->float32x4_function()->initial_map(),
-             isolate());
-  float32x4_ = Type::Class(float32x4_map, zone);
-
-  Handle<Map> int32x4_map =
-      handle(isolate()->native_context()->int32x4_function()->initial_map(),
-             isolate());
-  int32x4_ = Type::Class(int32x4_map, zone);
-
-  Handle<Map> float64x2_map =
-      handle(isolate()->native_context()->float64x2_function()->initial_map(),
-             isolate());
-  float64x2_ = Type::Class(float64x2_map, zone);
-
   decorator_ = new (zone) Decorator(this);
   graph_->AddDecorator(decorator_);
 }
@@ -537,6 +522,48 @@ class Typer::Visitor : public Reducer {
     }
   }
 };
+
+
+Type* Typer::GetFloat32x4() {
+  DCHECK(isolate()->IsSimdEnabled());
+  if (!float32x4_.is_set()) {
+    Handle<Map> float32x4_map =
+        handle(isolate()->native_context()->float32x4_function()->initial_map(),
+               isolate());
+    Type* float32x4_type = Type::Class(float32x4_map, zone());
+    float32x4_.set(float32x4_type);
+  }
+
+  return float32x4_.get();
+}
+
+
+Type* Typer::GetInt32x4() {
+  DCHECK(isolate()->IsSimdEnabled());
+  if (!int32x4_.is_set()) {
+    Handle<Map> int32x4_map =
+        handle(isolate()->native_context()->int32x4_function()->initial_map(),
+               isolate());
+    Type* int32x4_type = Type::Class(int32x4_map, zone());
+    int32x4_.set(int32x4_type);
+  }
+
+  return int32x4_.get();
+}
+
+
+Type* Typer::GetFloat64x2() {
+  DCHECK(isolate()->IsSimdEnabled());
+  if (!float64x2_.is_set()) {
+    Handle<Map> float64x2_map =
+        handle(isolate()->native_context()->float64x2_function()->initial_map(),
+               isolate());
+    Type* float64x2_type = Type::Class(float64x2_map, zone());
+    float64x2_.set(float64x2_type);
+  }
+
+  return float64x2_.get();
+}
 
 
 void Typer::Run() {
@@ -1366,17 +1393,19 @@ Bounds Typer::Visitor::TypeJSToObject(Node* node) {
 
 
 Bounds Typer::Visitor::TypeJSToFloat32x4Obj(Node* node) {
-  return Bounds(Type::Intersect(typer_->float32x4_, Type::Tagged(), zone()));
+  return Bounds(
+      Type::Intersect(typer_->GetFloat32x4(), Type::Tagged(), zone()));
 }
 
 
 Bounds Typer::Visitor::TypeJSToInt32x4Obj(Node* node) {
-  return Bounds(Type::Intersect(typer_->int32x4_, Type::Tagged(), zone()));
+  return Bounds(Type::Intersect(typer_->GetInt32x4(), Type::Tagged(), zone()));
 }
 
 
 Bounds Typer::Visitor::TypeJSToFloat64x2Obj(Node* node) {
-  return Bounds(Type::Intersect(typer_->float64x2_, Type::Tagged(), zone()));
+  return Bounds(
+      Type::Intersect(typer_->GetFloat64x2(), Type::Tagged(), zone()));
 }
 
 
@@ -1771,8 +1800,9 @@ Bounds Typer::Visitor::TypeChangeFloat32x4ToTagged(Node* node) {
 
 Bounds Typer::Visitor::TypeChangeTaggedToFloat32x4(Node* node) {
   Bounds arg = Operand(node, 0);
-  return Bounds(ChangeRepresentation(arg.lower, typer_->float32x4_, zone()),
-                ChangeRepresentation(arg.upper, typer_->float32x4_, zone()));
+  return Bounds(
+      ChangeRepresentation(arg.lower, typer_->GetFloat32x4(), zone()),
+      ChangeRepresentation(arg.upper, typer_->GetFloat32x4(), zone()));
 }
 
 
@@ -1785,8 +1815,8 @@ Bounds Typer::Visitor::TypeChangeInt32x4ToTagged(Node* node) {
 
 Bounds Typer::Visitor::TypeChangeTaggedToInt32x4(Node* node) {
   Bounds arg = Operand(node, 0);
-  return Bounds(ChangeRepresentation(arg.lower, typer_->int32x4_, zone()),
-                ChangeRepresentation(arg.upper, typer_->int32x4_, zone()));
+  return Bounds(ChangeRepresentation(arg.lower, typer_->GetInt32x4(), zone()),
+                ChangeRepresentation(arg.upper, typer_->GetInt32x4(), zone()));
 }
 
 
@@ -1799,8 +1829,9 @@ Bounds Typer::Visitor::TypeChangeFloat64x2ToTagged(Node* node) {
 
 Bounds Typer::Visitor::TypeChangeTaggedToFloat64x2(Node* node) {
   Bounds arg = Operand(node, 0);
-  return Bounds(ChangeRepresentation(arg.lower, typer_->float64x2_, zone()),
-                ChangeRepresentation(arg.upper, typer_->float64x2_, zone()));
+  return Bounds(
+      ChangeRepresentation(arg.lower, typer_->GetFloat64x2(), zone()),
+      ChangeRepresentation(arg.upper, typer_->GetFloat64x2(), zone()));
 }
 
 
@@ -1880,12 +1911,13 @@ Bounds Typer::Visitor::TypeObjectIsNonNegativeSmi(Node* node) {
 Bounds Typer::Visitor::TypeLoad(Node* node) {
   if (OpParameter<MachineType>(node) == kRepFloat32x4) {
     return Bounds(
-        Type::Intersect(typer_->float32x4_, Type::Untagged(), zone()));
+        Type::Intersect(typer_->GetFloat32x4(), Type::Untagged(), zone()));
   } else if (OpParameter<MachineType>(node) == kRepInt32x4) {
-    return Bounds(Type::Intersect(typer_->int32x4_, Type::Untagged(), zone()));
+    return Bounds(
+        Type::Intersect(typer_->GetInt32x4(), Type::Untagged(), zone()));
   } else if (OpParameter<MachineType>(node) == kRepFloat64x2) {
     return Bounds(
-        Type::Intersect(typer_->float64x2_, Type::Untagged(), zone()));
+        Type::Intersect(typer_->GetFloat64x2(), Type::Untagged(), zone()));
   } else {
     return Bounds::Unbounded(zone());
   }
@@ -2238,12 +2270,13 @@ Bounds Typer::Visitor::TypeLoadStackPointer(Node* node) {
 Bounds Typer::Visitor::TypeCheckedLoad(Node* node) {
   if (OpParameter<MachineType>(node) == kRepFloat32x4) {
     return Bounds(
-        Type::Intersect(typer_->float32x4_, Type::Untagged(), zone()));
+        Type::Intersect(typer_->GetFloat32x4(), Type::Untagged(), zone()));
   } else if (OpParameter<MachineType>(node) == kRepInt32x4) {
-    return Bounds(Type::Intersect(typer_->int32x4_, Type::Untagged(), zone()));
+    return Bounds(
+        Type::Intersect(typer_->GetInt32x4(), Type::Untagged(), zone()));
   } else if (OpParameter<MachineType>(node) == kRepFloat64x2) {
     return Bounds(
-        Type::Intersect(typer_->float64x2_, Type::Untagged(), zone()));
+        Type::Intersect(typer_->GetFloat64x2(), Type::Untagged(), zone()));
   } else {
     return Bounds::Unbounded(zone());
   }
@@ -2255,94 +2288,94 @@ Bounds Typer::Visitor::TypeCheckedStore(Node* node) {
   return Bounds();
 }
 
-#define SIMD_OPERATIONS(V)                                            \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Add)               \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Sub)               \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Mul)               \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Div)               \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Constructor)       \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Min)               \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Max)               \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Abs)               \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Neg)               \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Reciprocal)        \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4ReciprocalSqrt)    \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Splat)             \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Sqrt)              \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Scale)             \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4WithX)             \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4WithY)             \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4WithZ)             \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4WithW)             \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Clamp)             \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Swizzle)           \
-  V(typer_->int32x4_, Type::Untagged(), Float32x4Equal)               \
-  V(typer_->int32x4_, Type::Untagged(), Float32x4NotEqual)            \
-  V(typer_->int32x4_, Type::Untagged(), Float32x4GreaterThan)         \
-  V(typer_->int32x4_, Type::Untagged(), Float32x4GreaterThanOrEqual)  \
-  V(typer_->int32x4_, Type::Untagged(), Float32x4LessThan)            \
-  V(typer_->int32x4_, Type::Untagged(), Float32x4LessThanOrEqual)     \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Select)            \
-  V(typer_->float32x4_, Type::Untagged(), Float32x4Shuffle)           \
-  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetX)           \
-  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetY)           \
-  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetZ)           \
-  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetW)           \
-  V(Type::Signed32(), Type::UntaggedSigned32(), Float32x4GetSignMask) \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Add)                   \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Sub)                   \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Mul)                   \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4And)                   \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Or)                    \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Xor)                   \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Constructor)           \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Bool)                  \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Select)                \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Shuffle)               \
-  V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetX)          \
-  V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetY)          \
-  V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetZ)          \
-  V(typer_->int32x4_, Type::UntaggedSigned32(), Int32x4GetW)          \
-  V(Type::Signed32(), Type::UntaggedSigned32(), Int32x4GetSignMask)   \
-  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagX)                 \
-  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagY)                 \
-  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagZ)                 \
-  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagW)                 \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Neg)                   \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Not)                   \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Splat)                 \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Swizzle)               \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4ShiftLeft)             \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4ShiftRight)            \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4ShiftRightArithmetic)  \
-  V(typer_->float32x4_, Type::Untagged(), Int32x4BitsToFloat32x4)     \
-  V(typer_->float32x4_, Type::Untagged(), Int32x4ToFloat32x4)         \
-  V(typer_->int32x4_, Type::Untagged(), Float32x4BitsToInt32x4)       \
-  V(typer_->int32x4_, Type::Untagged(), Float32x4ToInt32x4)           \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4Equal)                 \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4GreaterThan)           \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4LessThan)              \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4WithX)                 \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4WithY)                 \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4WithZ)                 \
-  V(typer_->int32x4_, Type::Untagged(), Int32x4WithW)                 \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Add)               \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Sub)               \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Mul)               \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Div)               \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Constructor)       \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Min)               \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Max)               \
-  V(Type::Number(), Type::UntaggedFloat64(), Float64x2GetX)           \
-  V(Type::Number(), Type::UntaggedFloat64(), Float64x2GetY)           \
-  V(Type::Signed32(), Type::UntaggedSigned32(), Float64x2GetSignMask) \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Abs)               \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Neg)               \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Sqrt)              \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Scale)             \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2WithX)             \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2WithY)             \
-  V(typer_->float64x2_, Type::Untagged(), Float64x2Clamp)
+#define SIMD_OPERATIONS(V)                                               \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Add)              \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Sub)              \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Mul)              \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Div)              \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Constructor)      \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Min)              \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Max)              \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Abs)              \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Neg)              \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Reciprocal)       \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4ReciprocalSqrt)   \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Splat)            \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Sqrt)             \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Scale)            \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4WithX)            \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4WithY)            \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4WithZ)            \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4WithW)            \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Clamp)            \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Swizzle)          \
+  V(typer_->GetInt32x4(), Type::Untagged(), Float32x4Equal)              \
+  V(typer_->GetInt32x4(), Type::Untagged(), Float32x4NotEqual)           \
+  V(typer_->GetInt32x4(), Type::Untagged(), Float32x4GreaterThan)        \
+  V(typer_->GetInt32x4(), Type::Untagged(), Float32x4GreaterThanOrEqual) \
+  V(typer_->GetInt32x4(), Type::Untagged(), Float32x4LessThan)           \
+  V(typer_->GetInt32x4(), Type::Untagged(), Float32x4LessThanOrEqual)    \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Select)           \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Float32x4Shuffle)          \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetX)              \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetY)              \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetZ)              \
+  V(Type::Number(), Type::UntaggedFloat32(), Float32x4GetW)              \
+  V(Type::Signed32(), Type::UntaggedSigned32(), Float32x4GetSignMask)    \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Add)                  \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Sub)                  \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Mul)                  \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4And)                  \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Or)                   \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Xor)                  \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Constructor)          \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Bool)                 \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Select)               \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Shuffle)              \
+  V(typer_->GetInt32x4(), Type::UntaggedSigned32(), Int32x4GetX)         \
+  V(typer_->GetInt32x4(), Type::UntaggedSigned32(), Int32x4GetY)         \
+  V(typer_->GetInt32x4(), Type::UntaggedSigned32(), Int32x4GetZ)         \
+  V(typer_->GetInt32x4(), Type::UntaggedSigned32(), Int32x4GetW)         \
+  V(Type::Signed32(), Type::UntaggedSigned32(), Int32x4GetSignMask)      \
+  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagX)                    \
+  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagY)                    \
+  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagZ)                    \
+  V(Type::Boolean(), Type::Tagged(), Int32x4GetFlagW)                    \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Neg)                  \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Not)                  \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Splat)                \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Swizzle)              \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4ShiftLeft)            \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4ShiftRight)           \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4ShiftRightArithmetic) \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Int32x4BitsToFloat32x4)    \
+  V(typer_->GetFloat32x4(), Type::Untagged(), Int32x4ToFloat32x4)        \
+  V(typer_->GetInt32x4(), Type::Untagged(), Float32x4BitsToInt32x4)      \
+  V(typer_->GetInt32x4(), Type::Untagged(), Float32x4ToInt32x4)          \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4Equal)                \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4GreaterThan)          \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4LessThan)             \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4WithX)                \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4WithY)                \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4WithZ)                \
+  V(typer_->GetInt32x4(), Type::Untagged(), Int32x4WithW)                \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Add)              \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Sub)              \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Mul)              \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Div)              \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Constructor)      \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Min)              \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Max)              \
+  V(Type::Number(), Type::UntaggedFloat64(), Float64x2GetX)              \
+  V(Type::Number(), Type::UntaggedFloat64(), Float64x2GetY)              \
+  V(Type::Signed32(), Type::UntaggedSigned32(), Float64x2GetSignMask)    \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Abs)              \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Neg)              \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Sqrt)             \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Scale)            \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2WithX)            \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2WithY)            \
+  V(typer_->GetFloat64x2(), Type::Untagged(), Float64x2Clamp)
 
 
 #define DECLARE_TYPE_SIMD_OPERATION(type1, type2, opcode) \
