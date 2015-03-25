@@ -6191,7 +6191,7 @@ void LCodeGen::DoNullarySIMDOperation(LNullarySIMDOperation* instr) {
 void LCodeGen::DoUnarySIMDOperation(LUnarySIMDOperation* instr) {
   uint8_t select = 0;
   switch (instr->op()) {
-    case kFloat32x4Coercion: {
+    case kFloat32x4Check: {
       XMMRegister input_reg = ToFloat32x4Register(instr->value());
       XMMRegister result_reg = ToFloat32x4Register(instr->result());
       if (!result_reg.is(input_reg)) {
@@ -6199,7 +6199,7 @@ void LCodeGen::DoUnarySIMDOperation(LUnarySIMDOperation* instr) {
       }
       return;
     }
-    case kFloat64x2Coercion: {
+    case kFloat64x2Check: {
       XMMRegister input_reg = ToFloat64x2Register(instr->value());
       XMMRegister result_reg = ToFloat64x2Register(instr->result());
       if (!result_reg.is(input_reg)) {
@@ -6207,7 +6207,7 @@ void LCodeGen::DoUnarySIMDOperation(LUnarySIMDOperation* instr) {
       }
       return;
     }
-    case kInt32x4Coercion: {
+    case kInt32x4Check: {
       XMMRegister input_reg = ToInt32x4Register(instr->value());
       XMMRegister result_reg = ToInt32x4Register(instr->result());
       if (!result_reg.is(input_reg)) {

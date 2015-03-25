@@ -100,40 +100,40 @@ endmacro
 SIMD128_DATA_TYPE_FUNCTIONS(DECLARE_DATA_TYPE_FUNCTION)
 
 function Float32x4Constructor(x, y, z, w) {
-  if (arguments.length == 1) {
-    CheckFloat32x4(x);
-    return %CreateFloat32x4(x.x, x.y, x.z, x.w);
-  } else {
-    x = TO_NUMBER_INLINE(x);
-    y = TO_NUMBER_INLINE(y);
-    z = TO_NUMBER_INLINE(z);
-    w = TO_NUMBER_INLINE(w);
-    return %CreateFloat32x4(x, y, z, w);
-  }
+  x = TO_NUMBER_INLINE(x);
+  y = TO_NUMBER_INLINE(y);
+  z = TO_NUMBER_INLINE(z);
+  w = TO_NUMBER_INLINE(w);
+  return %CreateFloat32x4(x, y, z, w);
+}
+
+function Float32x4CheckJS(v) {
+  CheckFloat32x4(v);
+  return %CreateFloat32x4(v.x, v.y, v.z, v.w);
 }
 
 function Float64x2Constructor(x, y) {
-  if (arguments.length == 1) {
-    CheckFloat64x2(x);
-    return %CreateFloat64x2(x.x, x.y);
-  } else {
-    x = TO_NUMBER_INLINE(x);
-    y = TO_NUMBER_INLINE(y);
-    return %CreateFloat64x2(x, y);
-  }
+  x = TO_NUMBER_INLINE(x);
+  y = TO_NUMBER_INLINE(y);
+  return %CreateFloat64x2(x, y);
+}
+
+function Float64x2CheckJS(v) {
+  CheckFloat64x2(v);
+  return %CreateFloat64x2(v.x, v.y);
 }
 
 function Int32x4Constructor(x, y, z, w) {
-  if (arguments.length == 1) {
-    CheckInt32x4(x);
-    return %CreateInt32x4(x.x, x.y, x.z, x.w);
-  } else {
-    x = TO_INT32(x);
-    y = TO_INT32(y);
-    z = TO_INT32(z);
-    w = TO_INT32(w);
-    return %CreateInt32x4(x, y, z, w);
-  }
+  x = TO_INT32(x);
+  y = TO_INT32(y);
+  z = TO_INT32(z);
+  w = TO_INT32(w);
+  return %CreateInt32x4(x, y, z, w);
+}
+
+function Int32x4CheckJS(v) {
+  CheckInt32x4(v);
+  return %CreateInt32x4(v.x, v.y, v.z, v.w);
 }
 
 function SetUpFloat32x4() {
@@ -526,6 +526,7 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD float32x4 object.
   InstallFunctions($SIMD.float32x4, DONT_ENUM, $Array(
     // Float32x4 operations
+    "check", Float32x4CheckJS,
     "load", Float32x4LoadXYZWJS,
     "loadX", Float32x4LoadXJS,
     "loadXY", Float32x4LoadXYJS,
@@ -578,6 +579,7 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD float64x2 object.
   InstallFunctions($SIMD.float64x2, DONT_ENUM, $Array(
     // Float64x2 operations
+    "check", Float64x2CheckJS,
     "load", Float64x2LoadXYJS,
     "loadX", Float64x2LoadXJS,
     "store", Float64x2StoreXYJS,
@@ -605,6 +607,7 @@ function SetUpSIMD() {
   // Set up non-enumerable properties of the SIMD int32x4 object.
   InstallFunctions($SIMD.int32x4, DONT_ENUM, $Array(
     // Int32x4 operations
+    "check", Int32x4CheckJS,
     "load", Int32x4LoadXYZWJS,
     "loadX", Int32x4LoadXJS,
     "loadXY", Int32x4LoadXYJS,

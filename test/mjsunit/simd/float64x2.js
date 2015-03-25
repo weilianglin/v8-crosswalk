@@ -42,22 +42,22 @@ testConstructor();
 %OptimizeFunctionOnNextCall(testConstructor);
 testConstructor();
 
-function test1ArgumentConstructor() {
+function testCheck() {
   var f2 = SIMD.float64x2(1.0, 2.0);
-  var f2_new = SIMD.float64x2(f2);
+  var f2_new = SIMD.float64x2.check(f2);
   assertEquals(f2_new.x, f2.x);
   assertEquals(f2_new.y, f2.y);
 
   f2 = SIMD.float64x2(1.1, 2.2);
-  f2_new = SIMD.float64x2(f2);
+  f2_new = SIMD.float64x2.check(f2);
   assertEquals(f2_new.x, f2.x);
   assertEquals(f2_new.y, f2.y);
 }
 
-test1ArgumentConstructor();
-test1ArgumentConstructor();
-%OptimizeFunctionOnNextCall(test1ArgumentConstructor);
-test1ArgumentConstructor();
+testCheck();
+testCheck();
+%OptimizeFunctionOnNextCall(testCheck);
+testCheck();
 
 function testZeroConstructor() {
   var z4 = SIMD.float64x2.zero();
