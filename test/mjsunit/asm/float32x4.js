@@ -31,6 +31,8 @@ function asmModule(stdlib, imports, buffer) {
   "use asm"
   var f4 = stdlib.SIMD.float32x4;
   var i4 = stdlib.SIMD.int32x4;
+  var f4check = f4.check;
+  var i4check = i4.check;
   var fadd = f4.add;
   var fsub = f4.sub;
   var fmul = f4.mul;
@@ -64,270 +66,270 @@ function asmModule(stdlib, imports, buffer) {
   var ifromFloat32x4Bits = i4.fromFloat32x4Bits;
 
   function add(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fadd(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function sub(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fsub(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function mul(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fmul(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function div(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fdiv(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function min(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fmin(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function max(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fmax(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function abs(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = f4();
     ret = fabs(a);
-    return f4(ret);
+    return f4check(ret);
   }
   function neg(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = f4();
     ret = fneg(a);
-    return f4(ret);
+    return f4check(ret);
   }
   function reciprocal(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = f4();
     ret = freciprocal(a);
-    return f4(ret);
+    return f4check(ret);
   }
   function reciprocalSqrt(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = f4();
     ret = freciprocalSqrt(a);
-    return f4(ret);
+    return f4check(ret);
   }
   function splat(a) {
     a = +a;
     var ret = f4();
     ret = fsplat(a);
-    return f4(ret);
+    return f4check(ret);
   }
   function sqrt(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = f4();
     ret = fsqrt(a);
-    return f4(ret);
+    return f4check(ret);
   }
   function scale(a, b) {
-    a = f4(a);
+    a = f4check(a);
     b = +b;
     var ret = f4();
     ret = fscale(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function withX(a, b) {
-    a = f4(a);
+    a = f4check(a);
     b = +b;
     var ret = f4();
     ret = fwithX(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function withY(a, b) {
-    a = f4(a);
+    a = f4check(a);
     b = +b;
     var ret = f4();
     ret = fwithY(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function withZ(a, b) {
-    a = f4(a);
+    a = f4check(a);
     b = +b;
     var ret = f4();
     ret = fwithZ(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function withW(a, b) {
-    a = f4(a);
+    a = f4check(a);
     b = +b;
     var ret = f4();
     ret = fwithW(a, b);
-    return f4(ret);
+    return f4check(ret);
   }
   function clamp(a, b, c) {
-    a = f4(a);
-    b = f4(b);
-    c = f4(c);
+    a = f4check(a);
+    b = f4check(b);
+    c = f4check(c);
     var ret = f4();
     ret = fclamp(a, b, c);
-    return f4(ret);
+    return f4check(ret);
   }
   function swizzle1(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = f4();
     ret = fswizzle(a, 0, 0, 0, 0);
-    return f4(ret);
+    return f4check(ret);
   }
   function swizzle2(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = f4();
     ret = fswizzle(a, 3, 2, 1, 0);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function equal(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = i4();
     ret = fequal(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function notEqual(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = i4();
     ret = fnotEqual(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function lessThan(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = i4();
     ret = flessThan(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function lessThanOrEqual(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = i4();
     ret = flessThanOrEqual(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function greaterThan(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = i4();
     ret = fgreaterThan(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function greaterThanOrEqual(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = i4();
     ret = fgreaterThanOrEqual(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function select(m, t, f) {
-    m = i4(m);
-    t = f4(t);
-    f = f4(f);
+    m = i4check(m);
+    t = f4check(t);
+    f = f4check(f);
     var ret = f4();
     ret = fselect(m, t, f);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function shuffle1(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fshuffle(a, b, 0, 0, 4, 4);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function shuffle2(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fshuffle(a, b, 1, 1, 5, 5);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function shuffle3(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fshuffle(a, b, 2, 2, 6, 6);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function shuffle4(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fshuffle(a, b, 3, 3, 7, 7);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function shuffle5(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fshuffle(a, b, 3, 2, 5, 4);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function shuffle6(a, b) {
-    a = f4(a);
-    b = f4(b);
+    a = f4check(a);
+    b = f4check(b);
     var ret = f4();
     ret = fshuffle(a, b, 6, 7, 2, 3);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function fromInt32x4(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = f4();
     ret = ffromInt32x4(a);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function fromInt32x4Bits(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = f4();
     ret = ffromInt32x4Bits(a);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function fromFloat32x4(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = i4();
     ret = ifromFloat32x4(a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function fromFloat32x4Bits(a) {
-    a = f4(a);
+    a = f4check(a);
     var ret = i4();
     ret = ifromFloat32x4Bits(a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   return {
@@ -621,6 +623,7 @@ assertEquals(8, result.w);
 function asmModule2(stdlib, imports, buffer) {
   "use asm"
   var f4 = stdlib.SIMD.float32x4;
+  var f4check = f4.check;
   var f4load = f4.load;
   var f4loadX = f4.loadX;
   var f4loadXY = f4.loadXY;
@@ -636,103 +639,103 @@ function asmModule2(stdlib, imports, buffer) {
     a = a | 0;
     var ret = f4(0, 0, 0, 0);
     ret = f4load(f32array, a | 0);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function loadF32X(a) {
     a = a | 0;
     var ret = f4(0, 0, 0, 0);
     ret = f4loadX(f32array, a | 0);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function loadF32XY(a) {
     a = a | 0;
     var ret = f4(0, 0, 0, 0);
     ret = f4loadXY(f32array, a | 0);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function loadF32XYZ(a) {
     a = a | 0;
     var ret = f4(0, 0, 0, 0);
     ret = f4loadXYZ(f32array, a);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function loadU8(a) {
     a = a | 0;
     var ret = f4(0, 0, 0, 0);
     ret = f4load(uint8array, a | 0);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function loadU8X(a) {
     a = a | 0;
     var ret = f4(0, 0, 0, 0);
     ret = f4loadX(uint8array, a | 0);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function loadU8XY(a) {
     a = a | 0;
     var ret = f4(0, 0, 0, 0);
     ret = f4loadXY(uint8array, a | 0);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function loadU8XYZ(a) {
     a = a | 0;
     var ret = f4(0, 0, 0, 0);
     ret = f4loadXYZ(uint8array, a);
-    return f4(ret);
+    return f4check(ret);
   }
 
   function storeF32(a, v) {
     a =  a | 0;
-    v = f4(v);
+    v = f4check(v);
     f4store(f32array, a, v);
   }
 
   function storeF32X(a, v) {
     a =  a | 0;
-    v = f4(v);
+    v = f4check(v);
     f4storeX(f32array, a, v);
   }
 
   function storeF32XY(a, v) {
     a =  a | 0;
-    v = f4(v);
+    v = f4check(v);
     f4storeXY(f32array, a, v);
   }
 
   function storeF32XYZ(a, v) {
     a =  a | 0;
-    v = f4(v);
+    v = f4check(v);
     f4storeXYZ(f32array, a, v);
   }
 
   function storeU8(a, v) {
     a =  a | 0;
-    v = f4(v);
+    v = f4check(v);
     f4store(uint8array, a, v);
   }
 
   function storeU8X(a, v) {
     a =  a | 0;
-    v = f4(v);
+    v = f4check(v);
     f4storeX(uint8array, a, v);
   }
 
   function storeU8XY(a, v) {
     a =  a | 0;
-    v = f4(v);
+    v = f4check(v);
     f4storeXY(uint8array, a, v);
   }
 
   function storeU8XYZ(a, v) {
     a =  a | 0;
-    v = f4(v);
+    v = f4check(v);
     f4storeXYZ(uint8array, a, v);
   }
   return {

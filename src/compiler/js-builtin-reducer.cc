@@ -298,8 +298,18 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
                                    r.GetJSCallInput(0), r.GetJSCallInput(1),
                                    r.GetJSCallInput(2), r.GetJSCallInput(3));
     return Replace(value);
-  } else if (r.GetJSCallArity() == 1) {
-    // SIMD.float32x4(...) -> type annotation
+  }
+
+  SIMD_WARNING(Float32x4Constructor, node);
+  return NoChange();
+}
+
+
+Reduction JSBuiltinReducer::ReduceFloat32x4Check(Node* node) {
+  JSCallReduction r(node);
+
+  if (r.GetJSCallArity() == 1) {
+    // SIMD.float32x4.check(v) -> type annotation
     if (r.InputsMatchOne(GetFloat32x4())) {
       return Replace(r.GetJSCallInput(0));
     } else {
@@ -313,7 +323,7 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Constructor(Node* node) {
     }
   }
 
-  SIMD_WARNING(Float32x4Constructor, node);
+  SIMD_WARNING(Float32x4Check, node);
   return NoChange();
 }
 
@@ -334,8 +344,17 @@ Reduction JSBuiltinReducer::ReduceInt32x4Constructor(Node* node) {
                                    r.GetJSCallInput(0), r.GetJSCallInput(1),
                                    r.GetJSCallInput(2), r.GetJSCallInput(3));
     return Replace(value);
-  } else if (r.GetJSCallArity() == 1) {
-    // SIMD.int32x4(...) -> type annotation
+  }
+
+  SIMD_WARNING(Int32x4Constructor, node);
+  return NoChange();
+}
+
+
+Reduction JSBuiltinReducer::ReduceInt32x4Check(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 1) {
+    // SIMD.int32x4.check(v) -> type annotation
     if (r.InputsMatchOne(GetInt32x4())) {
       return Replace(r.GetJSCallInput(0));
     } else {
@@ -349,7 +368,7 @@ Reduction JSBuiltinReducer::ReduceInt32x4Constructor(Node* node) {
     }
   }
 
-  SIMD_WARNING(Int32x4Constructor, node);
+  SIMD_WARNING(Int32x4Check, node);
   return NoChange();
 }
 
@@ -368,8 +387,17 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Constructor(Node* node) {
     Node* value = graph()->NewNode(machine()->Float64x2Constructor(),
                                    r.GetJSCallInput(0), r.GetJSCallInput(1));
     return Replace(value);
-  } else if (r.GetJSCallArity() == 1) {
-    // SIMD.float64x2(...) -> type annotation
+  }
+
+  SIMD_WARNING(Float64x2Constructor, node);
+  return NoChange();
+}
+
+
+Reduction JSBuiltinReducer::ReduceFloat64x2Check(Node* node) {
+  JSCallReduction r(node);
+  if (r.GetJSCallArity() == 1) {
+    // SIMD.float64x2.check(...) -> type annotation
     if (r.InputsMatchOne(GetFloat64x2())) {
       return Replace(r.GetJSCallInput(0));
     } else {
@@ -382,8 +410,7 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Constructor(Node* node) {
       return Replace(value);
     }
   }
-
-  SIMD_WARNING(Float64x2Constructor, node);
+  SIMD_WARNING(Float64x2Check, node);
   return NoChange();
 }
 
@@ -824,6 +851,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat32x4Div(node));
     case kFloat32x4Constructor:
       return ReplaceWithPureReduction(node, ReduceFloat32x4Constructor(node));
+    case kFloat32x4Check:
+      return ReplaceWithPureReduction(node, ReduceFloat32x4Check(node));
     case kFloat32x4Min:
       return ReplaceWithPureReduction(node, ReduceFloat32x4Min(node));
     case kFloat32x4Max:
@@ -901,6 +930,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceInt32x4Xor(node));
     case kInt32x4Constructor:
       return ReplaceWithPureReduction(node, ReduceInt32x4Constructor(node));
+    case kInt32x4Check:
+      return ReplaceWithPureReduction(node, ReduceInt32x4Check(node));
     case kInt32x4Bool:
       return ReplaceWithPureReduction(node, ReduceInt32x4Bool(node));
     case kInt32x4Select:
@@ -970,6 +1001,8 @@ Reduction JSBuiltinReducer::Reduce(Node* node) {
       return ReplaceWithPureReduction(node, ReduceFloat64x2Div(node));
     case kFloat64x2Constructor:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Constructor(node));
+    case kFloat64x2Check:
+      return ReplaceWithPureReduction(node, ReduceFloat64x2Check(node));
     case kFloat64x2Min:
       return ReplaceWithPureReduction(node, ReduceFloat64x2Min(node));
     case kFloat64x2Max:
