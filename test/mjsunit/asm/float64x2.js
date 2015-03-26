@@ -30,6 +30,7 @@
 function asmModule(stdlib, imports, buffer) {
   "use asm"
   var f2 = stdlib.SIMD.float64x2;
+  var f2check = f2.check;
   var f2add = f2.add;
   var f2sub = f2.sub;
   var f2mul = f2.mul;
@@ -43,15 +44,15 @@ function asmModule(stdlib, imports, buffer) {
   var f2withX = f2.withX;
   var f2withY = f2.withY;
   var f2clamp = f2.clamp;
-  var a = f2(imports.a);
-  var b = f2(imports.b);
+  var a = f2check(imports.a);
+  var b = f2check(imports.b);
 
   function add(a, b) {
-    a = f2(a);
-    b = f2(b);
+    a = f2check(a);
+    b = f2check(b);
     var ret = f2();
     ret = f2add(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function addLocal() {
@@ -59,21 +60,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = f2(+3.3, +4.4);
     var ret = f2();
     ret = f2add(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function addImports() {
     var ret = f2();
     ret = f2add(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function sub(a, b) {
-    a = f2(a);
-    b = f2(b);
+    a = f2check(a);
+    b = f2check(b);
     var ret = f2();
     ret = f2sub(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function subLocal() {
@@ -81,21 +82,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = f2(+3.3, +4.4);
     var ret = f2();
     ret = f2sub(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function subImports() {
     var ret = f2();
     ret = f2sub(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function mul(a, b) {
-    a = f2(a);
-    b = f2(b);
+    a = f2check(a);
+    b = f2check(b);
     var ret = f2();
     ret = f2mul(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function mulLocal() {
@@ -103,21 +104,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = f2(+3.3, +4.4);
     var ret = f2();
     ret = f2mul(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function mulImports() {
     var ret = f2();
     ret = f2mul(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function div(a, b) {
-    a = f2(a);
-    b = f2(b);
+    a = f2check(a);
+    b = f2check(b);
     var ret = f2();
     ret = f2div(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function divLocal() {
@@ -125,21 +126,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = f2(+3.3, +4.4);
     var ret = f2();
     ret = f2div(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function divImports() {
     var ret = f2();
     ret = f2div(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function min(a, b) {
-    a = f2(a);
-    b = f2(b);
+    a = f2check(a);
+    b = f2check(b);
     var ret = f2();
     ret = f2min(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function minLocal() {
@@ -147,21 +148,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = f2(+3.3, +4.4);
     var ret = f2();
     ret = f2min(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function minImports() {
     var ret = f2();
     ret = f2min(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function max(a, b) {
-    a = f2(a);
-    b = f2(b);
+    a = f2check(a);
+    b = f2check(b);
     var ret = f2();
     ret = f2max(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function maxLocal() {
@@ -169,52 +170,52 @@ function asmModule(stdlib, imports, buffer) {
     var b = f2(+3.3, +4.4);
     var ret = f2();
     ret = f2max(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function maxImports() {
     var ret = f2();
     ret = f2max(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function getx(a) {
-    a = f2(a);
+    a = f2check(a);
     var x = a.x;
     return +x;
   }
 
   function gety(a) {
-    a = f2(a);
+    a = f2check(a);
     var y = a.y;
     return +y;
   }
 
   function getSignMask(a) {
-    a = f2(a);
+    a = f2check(a);
     var s = a.signMask;
     return s | 0;
   }
 
   function abs(a) {
-    a = f2(a);
+    a = f2check(a);
     var ret = f2();
     ret = f2abs(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function neg(a) {
-    a = f2(a);
+    a = f2check(a);
     var ret = f2();
     ret = f2neg(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function sqrt(a) {
-    a = f2(a);
+    a = f2check(a);
     var ret = f2();
     ret = f2sqrt(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function getxLocal() {
@@ -239,21 +240,21 @@ function asmModule(stdlib, imports, buffer) {
     var a = f2(+1.1, +2.2);
     var ret  =f2();
     ret = f2abs(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function negLocal() {
     var a = f2(+1.1, +2.2);
     var ret  =f2();
     ret = f2neg(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function sqrtLocal() {
     var a = f2(+1.1, +2.2);
     var ret  =f2();
     ret = f2sqrt(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function getxImports() {
@@ -274,41 +275,41 @@ function asmModule(stdlib, imports, buffer) {
   function absImports() {
     var ret  =f2();
     ret = f2abs(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function negImports() {
     var ret  =f2();
     ret = f2neg(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function sqrtImports() {
     var ret  =f2();
     ret = f2sqrt(a);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function scale(a, b) {
-    a = f2(a);
+    a = f2check(a);
     b = +b;
     var ret = f2();
     ret = f2scale(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
   function withX(a, b) {
-    a = f2(a);
+    a = f2check(a);
     b = +b;
     var ret = f2();
     ret = f2withX(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
   function withY(a, b) {
-    a = f2(a);
+    a = f2check(a);
     b = +b;
     var ret = f2();
     ret = f2withY(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function scaleLocal(b) {
@@ -316,51 +317,51 @@ function asmModule(stdlib, imports, buffer) {
     b = +b;
     var ret = f2();
     ret = f2scale(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
   function withXLocal(b) {
     var a = f2(+1.1, +2.2);
     b = +b;
     var ret = f2();
     ret = f2withX(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
   function withYLocal(b) {
     var a = f2(+1.1, +2.2);
     b = +b;
     var ret = f2();
     ret = f2withY(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function scaleImports(b) {
     b = +b;
     var ret = f2();
     ret = f2scale(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function withXImports(b) {
     b = +b;
     var ret = f2();
     ret = f2withX(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function withYImports(b) {
     b = +b;
     var ret = f2();
     ret = f2withY(a, b);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function clamp(a, b, c) {
-    a = f2(a);
-    b = f2(b);
-    c = f2(c);
+    a = f2check(a);
+    b = f2check(b);
+    c = f2check(c);
     var ret = f2();
     ret = f2clamp(a, b, c);
-    return f2(ret);
+    return f2check(ret);
   }
 
   return {add : add, addLocal : addLocal, addImports : addImports,
@@ -584,6 +585,7 @@ assertEquals(result.y, expected.y);
 function asmModule2(stdlib, imports, buffer) {
   "use asm"
   var f2 = stdlib.SIMD.float64x2;
+  var f2check = f2.check;
   var f2load = f2.load;
   var f2loadX = f2.loadX;
   var f2store = f2.store;
@@ -595,51 +597,51 @@ function asmModule2(stdlib, imports, buffer) {
     a = a | 0;
     var ret = f2(0, 0);
     ret = f2load(f64array, a | 0);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function loadF64X(a) {
     a = a | 0;
     var ret = f2(0, 0);
     ret = f2loadX(f64array, a | 0);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function loadU8(a) {
     a = a | 0;
     var ret = f2(0, 0);
     ret = f2load(uint8array, a | 0);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function loadU8X(a) {
     a = a | 0;
     var ret = f2(0, 0);
     ret = f2loadX(uint8array, a | 0);
-    return f2(ret);
+    return f2check(ret);
   }
 
   function storeF64(a, v) {
     a =  a | 0;
-    v = f2(v);
+    v = f2check(v);
     f2store(f64array, a, v);
   }
 
   function storeF64X(a, v) {
     a =  a | 0;
-    v = f2(v);
+    v = f2check(v);
     f2storeX(f64array, a, v);
   }
 
   function storeU8(a, v) {
     a =  a | 0;
-    v = f2(v);
+    v = f2check(v);
     f2store(uint8array, a, v);
   }
 
   function storeU8X(a, v) {
     a =  a | 0;
-    v = f2(v);
+    v = f2check(v);
     f2storeX(uint8array, a, v);
   }
 

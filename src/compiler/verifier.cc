@@ -741,6 +741,7 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat32x4Mul:
     case IrOpcode::kFloat32x4Div:
     case IrOpcode::kFloat32x4Constructor:
+    case IrOpcode::kFloat32x4Check:
     case IrOpcode::kChangeFloat32x4ToTagged:
     case IrOpcode::kChangeTaggedToFloat32x4:
     case IrOpcode::kFloat32x4Min:
@@ -779,6 +780,7 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kInt32x4Or:
     case IrOpcode::kInt32x4Xor:
     case IrOpcode::kInt32x4Constructor:
+    case IrOpcode::kInt32x4Check:
     case IrOpcode::kChangeInt32x4ToTagged:
     case IrOpcode::kChangeTaggedToInt32x4:
     case IrOpcode::kInt32x4GetX:
@@ -815,6 +817,7 @@ void Verifier::Visitor::Pre(Node* node) {
     case IrOpcode::kFloat64x2Min:
     case IrOpcode::kFloat64x2Max:
     case IrOpcode::kFloat64x2Constructor:
+    case IrOpcode::kFloat64x2Check:
     case IrOpcode::kChangeFloat64x2ToTagged:
     case IrOpcode::kChangeTaggedToFloat64x2:
     case IrOpcode::kFloat64x2GetX:

@@ -252,6 +252,7 @@
   V(Float32x4Sub)                \
   V(Float32x4Div)                \
   V(Float32x4Constructor)        \
+  V(Float32x4Check)              \
   V(Float32x4Min)                \
   V(Float32x4Max)                \
   V(Float32x4GetX)               \
@@ -287,6 +288,7 @@
   V(Int32x4Or)                   \
   V(Int32x4Xor)                  \
   V(Int32x4Constructor)          \
+  V(Int32x4Check)                \
   V(Int32x4GetX)                 \
   V(Int32x4GetY)                 \
   V(Int32x4GetZ)                 \
@@ -322,6 +324,7 @@
   V(Float64x2Sub)                \
   V(Float64x2Div)                \
   V(Float64x2Constructor)        \
+  V(Float64x2Check)              \
   V(Float64x2Min)                \
   V(Float64x2Max)                \
   V(Float64x2GetX)               \

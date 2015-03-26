@@ -10104,32 +10104,6 @@ SIMD_QUARTERNARY_OPERATIONS(SIMD_QUARTERNARY_OPERATION_CASE_ITEM)
             HQuarternarySIMDOperation::New(zone(), context, x, y, z, w, id);
         ast_context()->ReturnInstruction(op, expr->id());
         return true;
-      } else if (CpuFeatures::SupportsSIMD128InCrankshaft() &&
-                 argument_count == 2) {
-        if (id == kFloat32x4Constructor) {
-          HValue* argument = Pop();
-          Drop(2);  // Receiver and function.
-          HInstruction* op =
-              NewUncasted<HUnarySIMDOperation>(argument, kFloat32x4Coercion);
-          ast_context()->ReturnInstruction(op, expr->id());
-          return true;
-        } else if (id == kInt32x4Constructor) {
-          HValue* argument = Pop();
-          Drop(2);  // Receiver and function.
-          HInstruction* op =
-              NewUncasted<HUnarySIMDOperation>(argument, kInt32x4Coercion);
-          ast_context()->ReturnInstruction(op, expr->id());
-          return true;
-        } else if (id == kFloat64x2Constructor) {
-          HValue* argument = Pop();
-          Drop(2);  // Receiver and function.
-          HInstruction* op =
-              NewUncasted<HUnarySIMDOperation>(argument, kFloat64x2Coercion);
-          ast_context()->ReturnInstruction(op, expr->id());
-          return true;
-        } else {
-          return false;
-        }
       }
       break;
 #define SIMD_QUINARY_OPERATION_CASE_ITEM(p1, p2, name, p4, p5, p6, p7, p8, p9) \

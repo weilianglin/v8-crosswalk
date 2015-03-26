@@ -38,6 +38,7 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceFloat32x4Mul(Node* node);
   Reduction ReduceFloat32x4Div(Node* node);
   Reduction ReduceFloat32x4Constructor(Node* node);
+  Reduction ReduceFloat32x4Check(Node* node);
   Reduction ReduceFloat32x4Min(Node* node);
   Reduction ReduceFloat32x4Max(Node* node);
   Reduction ReduceFloat32x4Abs(Node* node);
@@ -76,6 +77,7 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceInt32x4Or(Node* node);
   Reduction ReduceInt32x4Xor(Node* node);
   Reduction ReduceInt32x4Constructor(Node* node);
+  Reduction ReduceInt32x4Check(Node* node);
   Reduction ReduceInt32x4Bool(Node* node);
   Reduction ReduceInt32x4Select(Node* node);
   Reduction ReduceInt32x4Shuffle(Node* node);
@@ -110,6 +112,7 @@ class JSBuiltinReducer FINAL : public Reducer {
   Reduction ReduceFloat64x2Mul(Node* node);
   Reduction ReduceFloat64x2Div(Node* node);
   Reduction ReduceFloat64x2Constructor(Node* node);
+  Reduction ReduceFloat64x2Check(Node* node);
   Reduction ReduceFloat64x2Min(Node* node);
   Reduction ReduceFloat64x2Max(Node* node);
   Reduction ReduceFloat64x2Abs(Node* node);

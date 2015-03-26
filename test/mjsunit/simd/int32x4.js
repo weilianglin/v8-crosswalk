@@ -37,19 +37,19 @@ function testConstructor() {
 
 testConstructor();
 
-function test1ArgumentConstructor() {
+function testCheck() {
   var u4 = SIMD.int32x4(1, 2, 3, 4);
-  var u4_new = SIMD.int32x4(u4);
+  var u4_new = SIMD.int32x4.check(u4);
   assertEquals(u4_new.x, u4.x);
   assertEquals(u4_new.y, u4.y);
   assertEquals(u4_new.z, u4.z);
   assertEquals(u4_new.w, u4.w);
 }
 
-test1ArgumentConstructor();
-test1ArgumentConstructor();
-%OptimizeFunctionOnNextCall(test1ArgumentConstructor);
-test1ArgumentConstructor();
+testCheck();
+testCheck();
+%OptimizeFunctionOnNextCall(testCheck);
+testCheck();
 
 function testZeroConstructor() {
   var u4 = SIMD.int32x4.zero();

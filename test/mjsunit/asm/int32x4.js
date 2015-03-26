@@ -30,6 +30,7 @@
 function asmModule(stdlib, imports, buffer) {
   "use asm"
   var i4 = stdlib.SIMD.int32x4;
+  var i4check = i4.check;
   var i4add = i4.add;
   var i4and = i4.and;
   var i4sub = i4.sub;
@@ -54,15 +55,15 @@ function asmModule(stdlib, imports, buffer) {
   var i4withZ = i4.withZ;
   var i4withW = i4.withW;
 
-  var a = i4(imports.a);
-  var b = i4(imports.b);
+  var a = i4check(imports.a);
+  var b = i4check(imports.b);
 
   function add(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4add(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function addLocal() {
@@ -70,21 +71,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = i4(+5, +6, +7, +8);
     var ret = i4();
     ret = i4add(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function addImports() {
     var ret = i4();
     ret = i4add(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function sub(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4sub(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function subLocal() {
@@ -92,21 +93,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = i4(+5, +6, +7, +8);
     var ret = i4();
     ret = i4sub(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function subImports() {
     var ret = i4();
     ret = i4sub(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function mul(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4mul(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function mulLocal() {
@@ -114,21 +115,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = i4(+5, +6, +7, +8);
     var ret = i4();
     ret = i4mul(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function mulImports() {
     var ret = i4();
     ret = i4mul(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function and(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4and(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function andLocal() {
@@ -136,21 +137,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = i4(+5, +6, +7, +8);
     var ret = i4();
     ret = i4and(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function andImports() {
     var ret = i4();
     ret = i4and(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function or(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4or(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function orLocal() {
@@ -158,21 +159,21 @@ function asmModule(stdlib, imports, buffer) {
     var b = i4(+5, +6, +7, +8);
     var ret = i4();
     ret = i4or(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function orImports() {
     var ret = i4();
     ret = i4or(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function xor(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4xor(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function xorLocal() {
@@ -180,120 +181,120 @@ function asmModule(stdlib, imports, buffer) {
     var b = i4(+5, +6, +7, +8);
     var ret = i4();
     ret = i4xor(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function xorImports() {
     var ret = i4();
     ret = i4xor(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function getx(a) {
-    a = i4(a);
+    a = i4check(a);
     var x = a.x;
     return x | 0;
   }
 
   function gety(a) {
-    a = i4(a);
+    a = i4check(a);
     var y = a.y;
     return y | 0;
   }
 
   function getz(a) {
-    a = i4(a);
+    a = i4check(a);
     var z = a.z;
     return z | 0;
   }
 
   function getw(a) {
-    a = i4(a);
+    a = i4check(a);
     var w = a.w;
     return w | 0;
   }
 
   function getSignMask(a) {
-    a = i4(a);
+    a = i4check(a);
     var s = a.signMask;
     return s | 0;
   }
 
   function getflagX(a) {
-    a = i4(a);
+    a = i4check(a);
     var fx = a.flagX;
     return fx;
   }
 
   function getflagY(a) {
-    a = i4(a);
+    a = i4check(a);
     var fy = a.flagY;
     return fy;
   }
 
   function getflagZ(a) {
-    a = i4(a);
+    a = i4check(a);
     var fz = a.flagZ;
     return fz;
   }
 
   function getflagW(a) {
-    a = i4(a);
+    a = i4check(a);
     var fw = a.flagW;
     return fw;
   }
 
   function neg(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = i4();
     ret = i4neg(a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function not(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = i4();
     ret = i4not(a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function splat(v) {
     v = v | 0;
     var ret = i4();
     ret = i4splat(v);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withX(a, b) {
-    a = i4(a);
+    a = i4check(a);
     b = b | 0;
     var ret = i4();
     ret = i4withX(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withY(a, b) {
-    a = i4(a);
+    a = i4check(a);
     b = b | 0;
     var ret = i4();
     ret = i4withY(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withZ(a, b) {
-    a = i4(a);
+    a = i4check(a);
     b = b | 0;
     var ret = i4();
     ret = i4withZ(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withW(a, b) {
-    a = i4(a);
+    a = i4check(a);
     b = b | 0;
     var ret = i4();
     ret = i4withW(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function getxLocal() {
@@ -354,14 +355,14 @@ function asmModule(stdlib, imports, buffer) {
     var a = i4(+1, +2, +3, +4);
     var ret  = i4();
     ret = i4neg(a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function notLocal() {
     var a = i4(+1, +2, +3, +4);
     var ret  = i4();
     ret = i4not(a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withXLocal(b) {
@@ -369,7 +370,7 @@ function asmModule(stdlib, imports, buffer) {
     b = b | 0;
     var ret = i4();
     ret = i4withX(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withYLocal(b) {
@@ -377,7 +378,7 @@ function asmModule(stdlib, imports, buffer) {
     b = b | 0;
     var ret = i4();
     ret = i4withY(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withZLocal(b) {
@@ -385,7 +386,7 @@ function asmModule(stdlib, imports, buffer) {
     b = b | 0;
     var ret = i4();
     ret = i4withZ(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withWLocal(b) {
@@ -393,7 +394,7 @@ function asmModule(stdlib, imports, buffer) {
     b = b | 0;
     var ret = i4();
     ret = i4withW(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function getxImports() {
@@ -423,60 +424,60 @@ function asmModule(stdlib, imports, buffer) {
   }
 
   function select(s, t, f) {
-    s = i4(s);
-    t = i4(t);
-    f = i4(f);
+    s = i4check(s);
+    t = i4check(t);
+    f = i4check(f);
     var ret = i4();
     ret = i4select(s, t, f);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shuffle1(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4shuffle(a, b, 0, 0, 4, 4);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shuffle2(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4shuffle(a, b, 1, 1, 5, 5);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shuffle3(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4shuffle(a, b, 2, 2, 6, 6);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shuffle4(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4shuffle(a, b, 3, 3, 7, 7);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shuffle5(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4shuffle(a, b, 3, 2, 5, 4);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shuffle6(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4shuffle(a, b, 6, 7, 2, 3);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function getSignMaskImports() {
@@ -507,124 +508,124 @@ function asmModule(stdlib, imports, buffer) {
   function negImports() {
     var ret  = i4();
     ret = i4neg(a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function notImports() {
     var ret  = i4();
     ret = i4not(a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function swizzle1(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = i4();
     ret = i4swizzle(a, 0, 0, 0, 0);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function swizzle2(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = i4();
     ret = i4swizzle(a, 3, 2, 1, 0);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shiftLeftByScalar(a, n) {
-    a = i4(a);
+    a = i4check(a);
     n = n | 0;
     var ret = i4();
     ret = i4shiftLeftByScalar(a, n);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shiftLeftByScalarConst(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = i4();
     ret = i4shiftLeftByScalar(a, 2);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shiftRightLogicalByScalar (a, n) {
-    a = i4(a);
+    a = i4check(a);
     n = n | 0;
     var ret = i4();
     ret = i4shiftRightLogicalByScalar(a, n);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shiftRightLogicalByScalarConst(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = i4();
     ret = i4shiftRightLogicalByScalar(a, 2);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shiftRightArithmeticByScalar(a, n) {
-    a = i4(a);
+    a = i4check(a);
     n = n | 0;
     var ret = i4();
     ret = i4shiftRightArithmeticByScalar(a, n);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function shiftRightArithmeticByScalarConst(a) {
-    a = i4(a);
+    a = i4check(a);
     var ret = i4();
     ret = i4shiftRightArithmeticByScalar(a, 2);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function equal(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4equal(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function greaterThan(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4greaterThan(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function lessThan(a, b) {
-    a = i4(a);
-    b = i4(b);
+    a = i4check(a);
+    b = i4check(b);
     var ret = i4();
     ret = i4lessThan(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withXImports(b) {
     b = b | 0;
     var ret = i4();
     ret = i4withX(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withYImports(b) {
     b = b | 0;
     var ret = i4();
     ret = i4withY(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withZImports(b) {
     b = b | 0;
     var ret = i4();
     ret = i4withZ(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function withWImports(b) {
     b = b | 0;
     var ret = i4();
     ret = i4withW(a, b);
-    return i4(ret);
+    return i4check(ret);
   }
 
   return {add : add, addLocal : addLocal, addImports : addImports,
@@ -1153,6 +1154,7 @@ assertEquals(result.w, expected.w);
 function asmModule2(stdlib, imports, buffer) {
   "use asm"
   var i4 = stdlib.SIMD.int32x4;
+  var i4check = i4.check;
   var i4load = i4.load;
   var i4loadX = i4.loadX;
   var i4loadXY = i4.loadXY;
@@ -1168,103 +1170,103 @@ function asmModule2(stdlib, imports, buffer) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4load(i32array, a | 0);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function loadI32X(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadX(i32array, a | 0);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function loadI32XY(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadXY(i32array, a | 0);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function loadI32XYZ(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadXYZ(i32array, a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function loadU8(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4load(uint8array, a | 0);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function loadU8X(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadX(uint8array, a | 0);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function loadU8XY(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadXY(uint8array, a | 0);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function loadU8XYZ(a) {
     a = a | 0;
     var ret = i4(0, 0, 0, 0);
     ret = i4loadXYZ(uint8array, a);
-    return i4(ret);
+    return i4check(ret);
   }
 
   function storeI32(a, v) {
     a =  a | 0;
-    v = i4(v);
+    v = i4check(v);
     i4store(i32array, a, v);
   }
 
   function storeI32X(a, v) {
     a =  a | 0;
-    v = i4(v);
+    v = i4check(v);
     i4storeX(i32array, a, v);
   }
 
   function storeI32XY(a, v) {
     a =  a | 0;
-    v = i4(v);
+    v = i4check(v);
     i4storeXY(i32array, a, v);
   }
 
   function storeI32XYZ(a, v) {
     a =  a | 0;
-    v = i4(v);
+    v = i4check(v);
     i4storeXYZ(i32array, a, v);
   }
 
   function storeU8(a, v) {
     a =  a | 0;
-    v = i4(v);
+    v = i4check(v);
     i4store(uint8array, a, v);
   }
 
   function storeU8X(a, v) {
     a =  a | 0;
-    v = i4(v);
+    v = i4check(v);
     i4storeX(uint8array, a, v);
   }
 
   function storeU8XY(a, v) {
     a =  a | 0;
-    v = i4(v);
+    v = i4check(v);
     i4storeXY(uint8array, a, v);
   }
 
   function storeU8XYZ(a, v) {
     a =  a | 0;
-    v = i4(v);
+    v = i4check(v);
     i4storeXYZ(uint8array, a, v);
   }
 
