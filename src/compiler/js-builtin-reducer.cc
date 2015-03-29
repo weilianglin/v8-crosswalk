@@ -316,9 +316,9 @@ Reduction JSBuiltinReducer::ReduceFloat32x4Check(Node* node) {
       Node* const object = r.GetJSCallInput(0);
       Node* const effect = NodeProperties::GetEffectInput(node);
       Node* const control = NodeProperties::GetControlInput(node);
-      Node* value =
-          graph()->NewNode(jsgraph()->javascript()->ToFloat32x4Obj(), object,
-                           jsgraph()->NoContextConstant(), effect, control);
+      Node* const context = NodeProperties::GetContextInput(node);
+      Node* value = graph()->NewNode(jsgraph()->javascript()->ToFloat32x4Obj(),
+                                     object, context, effect, control);
       return Replace(value);
     }
   }
@@ -361,9 +361,9 @@ Reduction JSBuiltinReducer::ReduceInt32x4Check(Node* node) {
       Node* const object = r.GetJSCallInput(0);
       Node* const effect = NodeProperties::GetEffectInput(node);
       Node* const control = NodeProperties::GetControlInput(node);
-      Node* value =
-          graph()->NewNode(jsgraph()->javascript()->ToInt32x4Obj(), object,
-                           jsgraph()->NoContextConstant(), effect, control);
+      Node* const context = NodeProperties::GetContextInput(node);
+      Node* value = graph()->NewNode(jsgraph()->javascript()->ToInt32x4Obj(),
+                                     object, context, effect, control);
       return Replace(value);
     }
   }
@@ -404,9 +404,9 @@ Reduction JSBuiltinReducer::ReduceFloat64x2Check(Node* node) {
       Node* const object = r.GetJSCallInput(0);
       Node* const effect = NodeProperties::GetEffectInput(node);
       Node* const control = NodeProperties::GetControlInput(node);
-      Node* value =
-          graph()->NewNode(jsgraph()->javascript()->ToFloat64x2Obj(), object,
-                           jsgraph()->NoContextConstant(), effect, control);
+      Node* const context = NodeProperties::GetContextInput(node);
+      Node* value = graph()->NewNode(jsgraph()->javascript()->ToFloat64x2Obj(),
+                                     object, context, effect, control);
       return Replace(value);
     }
   }

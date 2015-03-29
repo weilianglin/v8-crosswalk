@@ -70,9 +70,6 @@ bool OperatorProperties::HasFrameStateInput(const Operator* op) {
 
     // Conversions
     case IrOpcode::kJSToObject:
-    case IrOpcode::kJSToFloat32x4Obj:
-    case IrOpcode::kJSToInt32x4Obj:
-    case IrOpcode::kJSToFloat64x2Obj:
 
     // Other
     case IrOpcode::kJSDeleteProperty:

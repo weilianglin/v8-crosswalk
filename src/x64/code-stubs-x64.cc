@@ -3176,7 +3176,7 @@ void ToFloat32x4Stub::Generate(MacroAssembler* masm) {
   __ Ret();
 
   __ bind(&non_float32x4);
-  __ TailCallRuntime(Runtime::kAllocateFloat32x4, 0, 1);
+  __ TailCallRuntime(Runtime::kThrowNotFloat32x4Error, 0, 1);
   __ Ret();
 }
 
@@ -3190,7 +3190,7 @@ void ToInt32x4Stub::Generate(MacroAssembler* masm) {
   __ Ret();
 
   __ bind(&non_int32x4);
-  __ TailCallRuntime(Runtime::kAllocateInt32x4, 0, 1);
+  __ TailCallRuntime(Runtime::kThrowNotInt32x4Error, 0, 1);
   __ Ret();
 }
 
@@ -3204,7 +3204,7 @@ void ToFloat64x2Stub::Generate(MacroAssembler* masm) {
   __ Ret();
 
   __ bind(&non_float64x2);
-  __ TailCallRuntime(Runtime::kAllocateFloat64x2, 0, 1);
+  __ TailCallRuntime(Runtime::kThrowNotFloat64x2Error, 0, 1);
   __ Ret();
 }
 

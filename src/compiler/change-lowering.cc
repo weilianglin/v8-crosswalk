@@ -367,101 +367,50 @@ Reduction ChangeLowering::ChangeTaggedToFloat64(Node* value, Node* control) {
 
 
 Reduction ChangeLowering::ChangeTaggedToFloat32x4(Node* value, Node* control) {
-  if (CanCover(value, IrOpcode::kJSToFloat32x4Obj)) {
-    Node* const object = NodeProperties::GetValueInput(value, 0);
-    Node* const effect = NodeProperties::GetEffectInput(value);
-    Node* const control = NodeProperties::GetControlInput(value);
+  // TODO(weiliang): inline Float32x4 map check.
+  Node* val_obj = graph()->NewNode(machine()->Load(kRepTagged), value,
+                                   Float32x4ValueIndexConstant(),
+                                   graph()->start(), control);
 
-    Node* val_obj =
-        graph()->NewNode(machine()->Load(kRepTagged), object,
-                         Float32x4ValueIndexConstant(), effect, control);
+  Node* loaded_bytes = jsgraph()->Int32Constant(16);
+  Node* load = graph()->NewNode(
+      machine()->Load(kRepFloat32x4), val_obj,
+      jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
+      loaded_bytes, graph()->start(), control);
 
-    Node* loaded_bytes = jsgraph()->Int32Constant(16);
-    Node* load = graph()->NewNode(
-        machine()->Load(kRepFloat32x4), val_obj,
-        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
-        loaded_bytes, effect, control);
-
-    return Replace(load);
-  } else {
-    Node* val_obj = graph()->NewNode(machine()->Load(kRepTagged), value,
-                                     Float32x4ValueIndexConstant(),
-                                     graph()->start(), control);
-
-    Node* loaded_bytes = jsgraph()->Int32Constant(16);
-    Node* load = graph()->NewNode(
-        machine()->Load(kRepFloat32x4), val_obj,
-        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
-        loaded_bytes, graph()->start(), control);
-
-    return Replace(load);
-  }
+  return Replace(load);
 }
 
 
 Reduction ChangeLowering::ChangeTaggedToInt32x4(Node* value, Node* control) {
-  if (CanCover(value, IrOpcode::kJSToInt32x4Obj)) {
-    Node* const object = NodeProperties::GetValueInput(value, 0);
-    Node* const effect = NodeProperties::GetEffectInput(value);
-    Node* const control = NodeProperties::GetControlInput(value);
+  // TODO(weiliang): inline Int32x4 map check.
+  Node* val_obj =
+      graph()->NewNode(machine()->Load(kRepTagged), value,
+                       Int32x4ValueIndexConstant(), graph()->start(), control);
 
-    Node* val_obj =
-        graph()->NewNode(machine()->Load(kRepTagged), object,
-                         Int32x4ValueIndexConstant(), effect, control);
+  Node* loaded_bytes = jsgraph()->Int32Constant(16);
+  Node* load = graph()->NewNode(
+      machine()->Load(kRepInt32x4), val_obj,
+      jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
+      loaded_bytes, graph()->start(), control);
 
-    Node* loaded_bytes = jsgraph()->Int32Constant(16);
-    Node* load = graph()->NewNode(
-        machine()->Load(kRepInt32x4), val_obj,
-        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
-        loaded_bytes, effect, control);
-
-    return Replace(load);
-  } else {
-    Node* val_obj = graph()->NewNode(machine()->Load(kRepTagged), value,
-                                     Int32x4ValueIndexConstant(),
-                                     graph()->start(), control);
-
-    Node* loaded_bytes = jsgraph()->Int32Constant(16);
-    Node* load = graph()->NewNode(
-        machine()->Load(kRepInt32x4), val_obj,
-        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
-        loaded_bytes, graph()->start(), control);
-
-    return Replace(load);
-  }
+  return Replace(load);
 }
 
 
 Reduction ChangeLowering::ChangeTaggedToFloat64x2(Node* value, Node* control) {
-  if (CanCover(value, IrOpcode::kJSToFloat64x2Obj)) {
-    Node* const object = NodeProperties::GetValueInput(value, 0);
-    Node* const effect = NodeProperties::GetEffectInput(value);
-    Node* const control = NodeProperties::GetControlInput(value);
+  // TODO(weiliang): inline Float6f4x2 map check.
+  Node* val_obj = graph()->NewNode(machine()->Load(kRepTagged), value,
+                                   Float64x2ValueIndexConstant(),
+                                   graph()->start(), control);
 
-    Node* val_obj =
-        graph()->NewNode(machine()->Load(kRepTagged), object,
-                         Float64x2ValueIndexConstant(), effect, control);
+  Node* loaded_bytes = jsgraph()->Int32Constant(16);
+  Node* load = graph()->NewNode(
+      machine()->Load(kRepFloat64x2), val_obj,
+      jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
+      loaded_bytes, graph()->start(), control);
 
-    Node* loaded_bytes = jsgraph()->Int32Constant(16);
-    Node* load = graph()->NewNode(
-        machine()->Load(kRepFloat64x2), val_obj,
-        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
-        loaded_bytes, effect, control);
-
-    return Replace(load);
-  } else {
-    Node* val_obj = graph()->NewNode(machine()->Load(kRepTagged), value,
-                                     Float64x2ValueIndexConstant(),
-                                     graph()->start(), control);
-
-    Node* loaded_bytes = jsgraph()->Int32Constant(16);
-    Node* load = graph()->NewNode(
-        machine()->Load(kRepFloat64x2), val_obj,
-        jsgraph()->IntPtrConstant(FixedTypedArrayBase::kDataOffset - 1),
-        loaded_bytes, graph()->start(), control);
-
-    return Replace(load);
-  }
+  return Replace(load);
 }
 
 
