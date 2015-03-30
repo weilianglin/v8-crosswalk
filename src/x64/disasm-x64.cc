@@ -1282,12 +1282,12 @@ int DisassemblerX64::TwoByteOpcodeInstruction(byte* data) {
         current += PrintRightXMMOperand(current);
       } else if (opcode == 0x72) {
         current += 1;
-        AppendToBuffer("%s,%s,%d", (regop == 6) ? "pslld" : "psrld",
+        AppendToBuffer("%s %s,%d", (regop == 6) ? "pslld" : "psrld",
                        NameOfXMMRegister(rm), *current & 0x7f);
         current += 1;
       } else if (opcode == 0x73) {
         current += 1;
-        AppendToBuffer("%s,%s,%d", (regop == 6) ? "psllq" : "psrlq",
+        AppendToBuffer("%s %s,%d", (regop == 6) ? "psllq" : "psrlq",
                        NameOfXMMRegister(rm), *current & 0x7f);
         current += 1;
       } else if (opcode == 0x62) {

@@ -565,7 +565,15 @@ static void Emit32x4Shuffle(MacroAssembler* masm, XMMRegister lhs,
     masm->movaps(lhs, rhs);
     masm->shufps(lhs, lhs, select);
     return;
-  } else if (num_lanes_from_lhs == 3) {
+  } else if (num_lanes_from_lhs == 3 || num_lanes_from_lhs == 1) {
+    XMMRegister result = lhs;
+    if (num_lanes_from_lhs == 1) {
+      std::swap(lhs, rhs);
+      x = (x >= 4) ? x - 4 : x + 4;
+      y = (y >= 4) ? y - 4 : y + 4;
+      z = (z >= 4) ? z - 4 : z + 4;
+      w = (w >= 4) ? w - 4 : w + 4;
+    }
     uint8_t first_select = 0xFF;
     uint8_t second_select = 0xFF;
     if (x < 4 && y < 4) {
@@ -581,7 +589,8 @@ static void Emit32x4Shuffle(MacroAssembler* masm, XMMRegister lhs,
       }
       masm->movaps(temp, rhs);
       masm->shufps(temp, lhs, first_select);
-      masm->shufps(lhs, temp, second_select);
+      if (!result.is(lhs)) masm->movaps(result, lhs);
+      masm->shufps(result, temp, second_select);
       return;
     }
 
@@ -599,7 +608,7 @@ static void Emit32x4Shuffle(MacroAssembler* masm, XMMRegister lhs,
     masm->movaps(temp, rhs);
     masm->shufps(temp, lhs, first_select);
     masm->shufps(temp, lhs, second_select);
-    masm->movaps(lhs, temp);
+    masm->movaps(result, temp);
     return;
   } else if (num_lanes_from_lhs == 2) {
     if (x < 4 && y < 4) {
