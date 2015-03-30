@@ -1310,22 +1310,40 @@ void InstructionSelector::VisitInt32x4Swizzle(Node* node) {
 
 void InstructionSelector::VisitInt32x4ShiftLeft(Node* node) {
   IA32OperandGenerator g(this);
-  Emit(kInt32x4ShiftLeft, g.DefineSameAsFirst(node),
-       g.UseRegister(node->InputAt(0)), g.Use(node->InputAt(1)));
+  Node* shift = node->InputAt(1);
+  if (g.CanBeImmediate(shift)) {
+    Emit(kInt32x4ShiftLeft, g.DefineSameAsFirst(node),
+         g.UseRegister(node->InputAt(0)), g.UseImmediate(shift));
+  } else {
+    Emit(kInt32x4ShiftLeft, g.DefineSameAsFirst(node),
+         g.UseRegister(node->InputAt(0)), g.Use(shift));
+  }
 }
 
 
 void InstructionSelector::VisitInt32x4ShiftRight(Node* node) {
   IA32OperandGenerator g(this);
-  Emit(kInt32x4ShiftRight, g.DefineSameAsFirst(node),
-       g.UseRegister(node->InputAt(0)), g.Use(node->InputAt(1)));
+  Node* shift = node->InputAt(1);
+  if (g.CanBeImmediate(shift)) {
+    Emit(kInt32x4ShiftRight, g.DefineSameAsFirst(node),
+         g.UseRegister(node->InputAt(0)), g.UseImmediate(shift));
+  } else {
+    Emit(kInt32x4ShiftRight, g.DefineSameAsFirst(node),
+         g.UseRegister(node->InputAt(0)), g.Use(shift));
+  }
 }
 
 
 void InstructionSelector::VisitInt32x4ShiftRightArithmetic(Node* node) {
   IA32OperandGenerator g(this);
-  Emit(kInt32x4ShiftRightArithmetic, g.DefineSameAsFirst(node),
-       g.UseRegister(node->InputAt(0)), g.Use(node->InputAt(1)));
+  Node* shift = node->InputAt(1);
+  if (g.CanBeImmediate(shift)) {
+    Emit(kInt32x4ShiftRightArithmetic, g.DefineSameAsFirst(node),
+         g.UseRegister(node->InputAt(0)), g.UseImmediate(shift));
+  } else {
+    Emit(kInt32x4ShiftRightArithmetic, g.DefineSameAsFirst(node),
+         g.UseRegister(node->InputAt(0)), g.Use(shift));
+  }
 }
 
 

@@ -1258,33 +1258,42 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     }
     case kInt32x4ShiftLeft: {
       if (HasImmediateInput(instr, 1)) {
-        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) && 0xFF);
+        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) & 0xFF);
         __ pslld(i.InputInt32x4Register(0), shift);
       } else {
-        DCHECK(instr->InputAt(1)->IsRegister());
-        __ movd(xmm0, i.InputRegister(1));
+        if (instr->InputAt(1)->IsRegister()) {
+          __ movd(xmm0, i.InputRegister(1));
+        } else {
+          __ movd(xmm0, i.InputOperand(1));
+        }
         __ pslld(i.InputInt32x4Register(0), xmm0);
       }
       break;
     }
     case kInt32x4ShiftRight: {
       if (HasImmediateInput(instr, 1)) {
-        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) && 0xFF);
+        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) & 0xFF);
         __ psrld(i.InputInt32x4Register(0), shift);
       } else {
-        DCHECK(instr->InputAt(1)->IsRegister());
-        __ movd(xmm0, i.InputRegister(1));
+        if (instr->InputAt(1)->IsRegister()) {
+          __ movd(xmm0, i.InputRegister(1));
+        } else {
+          __ movd(xmm0, i.InputOperand(1));
+        }
         __ psrld(i.InputInt32x4Register(0), xmm0);
       }
       break;
     }
     case kInt32x4ShiftRightArithmetic: {
       if (HasImmediateInput(instr, 1)) {
-        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) && 0xFF);
+        uint8_t shift = static_cast<uint8_t>(i.InputInt32(1) & 0xFF);
         __ psrad(i.InputInt32x4Register(0), shift);
       } else {
-        DCHECK(instr->InputAt(1)->IsRegister());
-        __ movd(xmm0, i.InputRegister(1));
+        if (instr->InputAt(1)->IsRegister()) {
+          __ movd(xmm0, i.InputRegister(1));
+        } else {
+          __ movd(xmm0, i.InputOperand(1));
+        }
         __ psrad(i.InputInt32x4Register(0), xmm0);
       }
       break;
