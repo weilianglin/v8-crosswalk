@@ -1245,20 +1245,20 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     }
     // Int32x4 Operation end.
     case kLoadSIMD128: {
+      int index = 0;
       auto result = i.OutputSIMD128Register();
-      auto base = i.InputRegister(0);
-      auto disp = i.InputInt32(1);
-      auto loaded_bytes = i.InputInt32(2);
+      auto operand = i.MemoryOperand(&index);
+      auto loaded_bytes = i.InputInt32(index);
       if (loaded_bytes == 16) {
-        __ movups(result, Operand(base, disp));
+        __ movups(result, operand);
       } else if (loaded_bytes == 12) {
-        __ movq(result, Operand(base, disp));
-        __ movss(xmm0, Operand(base, disp + 0x8));
+        __ movq(result, operand);
+        __ movss(xmm0, Operand(operand, 0x8));
         __ movlhps(result, xmm0);
       } else if (loaded_bytes == 8) {
-        __ movq(result, Operand(base, disp));
+        __ movq(result, operand);
       } else if (loaded_bytes == 4) {
-        __ movss(result, Operand(base, disp));
+        __ movss(result, operand);
       }
       break;
     }
@@ -1274,7 +1274,7 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
         __ cmp(offset, i.InputImmediate(1));
       }
       OutOfLineCode* ool = new (zone()) OutOfLineLoadFloat(this, result);
-      __ j(above_equal, ool->entry());
+      __ j(above, ool->entry());
       if (loaded_bytes == 16) {
         __ movups(result, Operand(base, disp));
       } else if (loaded_bytes == 12) {
@@ -1291,20 +1291,20 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
     }
     case kStoreSIMD128: {
       DCHECK(!instr->HasOutput());
-      auto base = i.InputRegister(0);
-      auto disp = i.InputInt32(1);
-      auto val = i.InputSIMD128Register(2);
-      auto stored_bytes = i.InputInt32(3);
+      int index = 0;
+      auto operand = i.MemoryOperand(&index);
+      auto val = i.InputSIMD128Register(index++);
+      auto stored_bytes = i.InputInt32(index);
       if (stored_bytes == 16) {
-        __ movups(Operand(base, disp), val);
+        __ movups(operand, val);
       } else if (stored_bytes == 12) {
         __ movhlps(xmm0, val);
-        __ movq(Operand(base, disp), val);
-        __ movss(Operand(base, disp + 0x8), xmm0);
+        __ movq(operand, val);
+        __ movss(Operand(operand, 0x8), xmm0);
       } else if (stored_bytes == 8) {
-        __ movq(Operand(base, disp), val);
+        __ movq(operand, val);
       } else if (stored_bytes == 4) {
-        __ movss(Operand(base, disp), val);
+        __ movss(operand, val);
       }
       break;
     }
@@ -1321,7 +1321,7 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       } else {
         __ cmp(offset, i.InputImmediate(1));
       }
-      __ j(above_equal, &done, Label::kNear);
+      __ j(above, &done, Label::kNear);
       if (stored_bytes == 16) {
         __ movups(Operand(base, disp), val);
       } else if (stored_bytes == 12) {

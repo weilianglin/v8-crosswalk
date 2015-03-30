@@ -1386,7 +1386,7 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
         DCHECK_LE(index2, length);
         __ cmpl(index1, Immediate(length - index2));
       }
-      __ j(above_equal, ool->entry());
+      __ j(above, ool->entry());
       if (loaded_bytes == 16) {
         __ movups(result, Operand(buffer, index1, times_1, index2));
       } else if (loaded_bytes == 12) {
@@ -1437,7 +1437,7 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
         DCHECK_LE(index2, length);
         __ cmpl(index1, Immediate(length - index2));
       }
-      __ j(above_equal, &done, Label::kNear);
+      __ j(above, &done, Label::kNear);
       Operand operand = Operand(buffer, index1, times_1, index2);
       if (stored_bytes == 16) {
         __ movups(operand, val);
