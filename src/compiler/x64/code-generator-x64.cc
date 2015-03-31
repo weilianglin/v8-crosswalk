@@ -1734,7 +1734,7 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       ASSEMBLE_CHECKED_STORE_FLOAT(movsd);
       break;
   }
-}
+}  // NOLINT(readability/fn_size)
 
 
 // Assembles branches after this instruction.

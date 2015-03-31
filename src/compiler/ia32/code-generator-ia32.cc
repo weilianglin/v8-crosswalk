@@ -1407,7 +1407,7 @@ void CodeGenerator::AssembleArchInstruction(Instruction* instr) {
       break;
     }
   }
-}
+}  // NOLINT(readability/fn_size)
 
 
 // Assembles a branch after an instruction.

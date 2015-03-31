@@ -838,7 +838,7 @@ void Verifier::Visitor::Pre(Node* node) {
       // TODO(rossberg): Check.
       break;
   }
-}
+}  // NOLINT(readability/fn_size)
 
 
 void Verifier::Run(Graph* graph, Typing typing) {
