@@ -41,7 +41,7 @@ function asmModule(stdlib, imports, buffer) {
   var fmax = f4.max;
   var fabs = f4.abs;
   var fneg = f4.neg;
-  var freciprocal = f4.reciprocal;
+  var freciprocalApproximation = f4.reciprocalApproximation;
   var freciprocalSqrtApproximation = f4.reciprocalSqrtApproximation;
   var fsplat = f4.splat;
   var fsqrt = f4.sqrt;
@@ -119,10 +119,10 @@ function asmModule(stdlib, imports, buffer) {
     ret = fneg(a);
     return f4check(ret);
   }
-  function reciprocal(a) {
+  function reciprocalApproximation(a) {
     a = f4check(a);
     var ret = f4();
-    ret = freciprocal(a);
+    ret = freciprocalApproximation(a);
     return f4check(ret);
   }
   function reciprocalSqrtApproximation(a) {
@@ -334,7 +334,7 @@ function asmModule(stdlib, imports, buffer) {
 
   return {
           add : add, sub : sub, mul : mul, div : div, min : min, max : max, abs : abs, neg : neg,
-          reciprocal : reciprocal, reciprocalSqrtApproximation : reciprocalSqrtApproximation, splat : splat, sqrt : sqrt,
+          reciprocalApproximation : reciprocalApproximation, reciprocalSqrtApproximation : reciprocalSqrtApproximation, splat : splat, sqrt : sqrt,
           scale : scale, withX : withX, withY : withY, withZ : withZ,
           withW : withW, clamp : clamp, swizzle1 : swizzle1, swizzle2 : swizzle2,
           equal : equal, notEqual : notEqual, lessThan : lessThan, lessThanOrEqual : lessThanOrEqual,
@@ -406,10 +406,10 @@ assertEquals(result.y, expected.y);
 assertEquals(result.z, expected.z);
 assertEquals(result.w, expected.w);
 
-// Runtime simulation of reciprocal has precision issue. Introduce certain
+// Runtime simulation of reciprocalApproximation has precision issue. Introduce certain
 // tolerance for equal check like Crankshaft did.
-var result = m.reciprocal(a);
-var expected = SIMD.float32x4.reciprocal(a);
+var result = m.reciprocalApproximation(a);
+var expected = SIMD.float32x4.reciprocalApproximation(a);
 assertEqualsDelta(result.x, expected.x, 1e-3);
 assertEqualsDelta(result.y, expected.y, 1e-3);
 assertEqualsDelta(result.z, expected.z, 1e-3);

@@ -261,7 +261,7 @@ testSIMDMax();
 
 function testSIMDReciprocal() {
   var m = SIMD.float32x4(1.0, 4.0, 9.0, 16.0);
-  m = SIMD.float32x4.reciprocal(m);
+  m = SIMD.float32x4.reciprocalApproximation(m);
   assertTrue(Math.abs(1.0 - m.x) <= 0.001);
   assertTrue(Math.abs(0.25 - m.y) <= 0.001);
   assertTrue(Math.abs(0.1111111 - m.z) <= 0.001);

@@ -6839,7 +6839,7 @@ class Script: public Struct {
   V(SIMD.float32x4, fromInt32x4Bits, Int32x4BitsToFloat32x4, Float32x4,        \
     Int32x4)                                                                   \
   V(SIMD.float32x4, neg, Float32x4Neg, Float32x4, Float32x4)                   \
-  V(SIMD.float32x4, reciprocal, Float32x4Reciprocal, Float32x4, Float32x4)     \
+  V(SIMD.float32x4, reciprocalApproximation, Float32x4Reciprocal, Float32x4, Float32x4)     \
   V(SIMD.float32x4, reciprocalSqrtApproximation, Float32x4ReciprocalSqrt,                   \
     Float32x4, Float32x4)                                                      \
   V(SIMD.float32x4, splat, Float32x4Splat, Float32x4, Double)                  \
