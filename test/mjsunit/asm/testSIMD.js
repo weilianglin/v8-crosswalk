@@ -540,7 +540,7 @@ var CheckRecp = CheckUnaryF4('reciprocal', function(x) { return 1 / x; }, assert
 CheckRecp([1, 42.42, 0.63, 13.37]);
 CheckRecp([NaN, -Infinity, Infinity, 0]);
 
-var CheckRecp = CheckUnaryF4('reciprocalSqrt', function(x) { return 1 / Math.sqrt(x); }, assertNear);
+var CheckRecp = CheckUnaryF4('reciprocalSqrtApproximation', function(x) { return 1 / Math.sqrt(x); }, assertNear);
 CheckRecp([1, 42.42, 0.63, 13.37]);
 CheckRecp([NaN, -Infinity, Infinity, 0]);
 

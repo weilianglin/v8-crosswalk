@@ -543,7 +543,7 @@ function SetUpSIMD() {
     "fromInt32x4Bits", Int32x4BitsToFloat32x4JS,
     "neg", Float32x4NegJS,
     "reciprocal", Float32x4ReciprocalJS,
-    "reciprocalSqrt", Float32x4ReciprocalSqrtJS,
+    "reciprocalSqrtApproximation", Float32x4ReciprocalSqrtJS,
     "sqrt", Float32x4SqrtJS,
     // Binary
     "add", Float32x4AddJS,

@@ -275,7 +275,7 @@ testSIMDReciprocal();
 
 function testSIMDReciprocalSqrt() {
   var m = SIMD.float32x4(1.0, 0.25, 0.111111, 0.0625);
-  m = SIMD.float32x4.reciprocalSqrt(m);
+  m = SIMD.float32x4.reciprocalSqrtApproximation(m);
   assertTrue(Math.abs(1.0 - m.x) <= 0.001);
   assertTrue(Math.abs(2.0 - m.y) <= 0.001);
   assertTrue(Math.abs(3.0 - m.z) <= 0.001);
